@@ -3,6 +3,11 @@
 @theme {
   --font-clash: var(--font-clash), sans-serif;
   --font-urbanist: var(--font-urbanist), sans-serif;
+  --color-sayni-lime: #BCC90F;
+  --color-sayni-black: #121212;
+  --color-sayni-darkGreen: #1B2A1E;
+  --color-sayni-olive: #A1AC0C;
+  --color-sayni-light: #F5F5F5;
 }
 
 :root {

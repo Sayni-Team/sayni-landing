@@ -2,6 +2,7 @@ import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 import InfiniteMarquee from "@/features/InfiniteMarquee";
 import Link from "next/link";
+import AboutUs from "@/features/AboutUs";
 
 export default function Home() {
   return (
@@ -68,6 +69,7 @@ export default function Home() {
 
           {/* Banda de Notas de Cata Infinita */}
           <InfiniteMarquee />
+          <AboutUs/>
 
           {/* Aquí irán las siguientes secciones (#cafes, #nosotros, etc.) */}
         </main>
