@@ -29,7 +29,7 @@ export default function Footer() {
                 }
 
                 .animate-letter-tic {
-                    animation: letterTic 4s ease-in-out infinite;
+                    animation: letterTic 3s ease-in-out infinite;
                     transform-origin: center;
                 }
             `}</style>
