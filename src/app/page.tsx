@@ -1,5 +1,6 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import InfiniteMarquee from "@/features/InfiniteMarquee";
 import Link from "next/link";
 
 export default function Home() {
@@ -11,12 +12,14 @@ export default function Home() {
         {/* Main Content */}
         <main className="flex-grow">
           {/* Hero Section */}
-          <section id="inicio" className="relative min-h-screen flex items-center justify-center px-6 lg:px-16 pt-24 pb-12 overflow-hidden">
+          <section
+              id="inicio"
+              className="relative min-h-screen flex items-center justify-center px-6 lg:px-16 pt-24 pb-12 overflow-hidden"
+          >
             {/* Fondo oscuro con textura o elementos visuales */}
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-sayni-black/80 to-sayni-black z-10" />
 
             <div className="max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-20">
-
               {/* Contenido de Texto Izquierda / Centro según versión */}
               <div className="space-y-6 text-center lg:text-left">
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white leading-tight font-heading">
@@ -49,18 +52,24 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Espacio visual para el empaque / mock (Placeholder o componente Hero feature) */}
+              {/* Espacio visual para el empaque / mock */}
               <div className="flex justify-center relative">
                 <div className="w-72 h-96 sm:w-80 sm:h-[450px] bg-sayni-darkGreen/55 border border-sayni-lime/30 rounded-2xl flex items-center justify-center relative shadow-2xl backdrop-blur-md">
                   <div className="text-center p-6 space-y-2">
-                    <span className="text-sayni-lime font-heading tracking-widest text-sm uppercase">Sayni Clásico</span>
+                  <span className="text-sayni-lime font-heading tracking-widest text-sm uppercase">
+                    Sayni Clásico
+                  </span>
                     <p className="text-xs text-gray-400">[ Espacio para el render del empaque ]</p>
                   </div>
                 </div>
               </div>
-
             </div>
           </section>
+
+          {/* Banda de Notas de Cata Infinita */}
+          <InfiniteMarquee />
+
+          {/* Aquí irán las siguientes secciones (#cafes, #nosotros, etc.) */}
         </main>
 
         {/* Footer */}
