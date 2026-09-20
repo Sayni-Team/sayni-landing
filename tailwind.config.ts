@@ -21,9 +21,20 @@ const config: Config = {
             fontFamily: {
                 sans: ["var(--font-urbanist)", "sans-serif"],
                 heading: ["var(--font-clash)", "sans-serif"],
-            }
+            },
+            keyframes: {
+                marquee: {
+                    "0%": { transform: "translateX(0%)" },
+                    "100%": { transform: "translateX(-33.333%)" },
+                },
+            },
+            animation: {
+                // Animación infinita fluida de 20s (ajusta la velocidad cambiando los segundos)
+                marquee: "marquee 20s linear infinite",
+            },
         },
     },
     plugins: [],
 };
+
 export default config;

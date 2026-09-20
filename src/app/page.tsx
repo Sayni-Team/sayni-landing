@@ -5,6 +5,7 @@ import Link from "next/link";
 import AboutUs from "@/features/AboutUs";
 import OurCoffees from "@/features/OurCoffees";
 import TestimonialsSection from "@/features/Testimonials";
+import CtaSection from "@/features/CTA";
 
 export default function Home() {
   return (
@@ -74,6 +75,7 @@ export default function Home() {
           <AboutUs/>
           <OurCoffees/>
           <TestimonialsSection/>
+          <CtaSection/>
 
           {/* Aquí irán las siguientes secciones (#cafes, #nosotros, etc.) */}
         </main>

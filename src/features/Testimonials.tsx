@@ -23,7 +23,7 @@ export default function TestimonialsSection() {
             <div className="w-full max-w-5xl mx-auto text-center space-y-12 relative z-10 font-clash">
 
                 {/* BADGES FLOTANTES SUPERIORES */}
-                <div className="flex flex-wrap items-center justify-evenly gap-4 sm:gap-12">
+                <div className="flex flex-wrap items-center justify-evenly gap-4 ">
                     {/* Badge 1: 87 puntos SCA */}
                     <div className="px-8 py-2.5 rounded-full bg-white/2 backdrop-blur-md border border-white/5 text-sm sm:text-lg font-medium shadow-xl">
                         <span className="text-[#BCC90F] font-bold">87</span> puntos SCA
@@ -39,12 +39,12 @@ export default function TestimonialsSection() {
                 <div className="space-y-6 max-w-md sm:max-w-lg mx-auto">
 
                     {/* ENCABEZADO CON LÍNEAS CONECTORAS */}
-                    <div className="flex items-center justify-center gap-3">
-                        <span className="h-[1px] w-8 sm:w-12 bg-white/20" />
+                    <div className="flex items-center justify-center gap-3 mb-0">
+                        <span className="h-[1px] w-8 sm:w-16 bg-white/20" />
                         <span className="font-urbanist text-xs sm:text-sm font-medium tracking-wide whitespace-nowrap">
                             <span className="text-[#BCC90F]">¿Qué opinan</span> de nosotros?
                         </span>
-                        <span className="h-[1px] w-8 sm:w-12 bg-white/20" />
+                        <span className="h-[1px] w-8 sm:w-16 bg-white/20" />
                     </div>
 
                     {/* FRASE ENTRE COMILLAS EN VERDE LIMA (4 LÍNEAS EXACTAS CON CLASH GROTESK) */}

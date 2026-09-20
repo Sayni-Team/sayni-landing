@@ -40,7 +40,3 @@ html {
   width: max-content;
   animation: marquee 25s linear infinite;
 }
-
-.animate-marquee:hover {
-  animation-play-state: paused; /* Pausa el movimiento al pasar el cursor */
-}
