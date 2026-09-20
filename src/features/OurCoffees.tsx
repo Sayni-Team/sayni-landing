@@ -23,31 +23,46 @@ export default function OurCoffees() {
                             </span>
                             <span className="h-[1px] w-12 sm:w-16 bg-white/20" />
                         </div>
-                        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-white tracking-tight">
+                        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-white tracking-wide">
                             Dos cafés <br />
                             Una misma esencia
                         </h2>
                     </div>
 
-                    {/* TOGGLE SWITCH PILS */}
-                    <div className="inline-flex items-center p-1.5 bg-white/5 border border-white/10 rounded-full backdrop-blur-md">
+                    {/* TOGGLE SWITCH PILS 3D CORREGIDO */}
+                    <div className="relative inline-grid grid-cols-2 p-1.5 bg-[#151f15] border border-white/15 rounded-full shadow-[inset_0_3px_8px_rgba(0,0,0,0.7)] backdrop-blur-md select-none w-full max-w-[360px] font-urbanist">
+
+                        {/* Pill verde flotante 3D que se desliza (50% exacto del contenedor) */}
+                        <div
+                            className={`
+            absolute top-1.5 bottom-1.5 left-1.5 w-[calc(50%-6px)] bg-[#BCC90F] rounded-full
+            border-t border-white/40
+            shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_4px_10px_rgba(0,0,0,0.4)]
+            transition-transform duration-300 ease-out pointer-events-none z-0
+            ${activeTab === "b2c" ? "translate-x-0" : "translate-x-full"}
+        `}
+                        />
+
+                        {/* Botón 1: Para ti */}
                         <button
+                            type="button"
                             onClick={() => setActiveTab("b2c")}
-                            className={`px-6 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
-                                activeTab === "b2c"
-                                    ? "bg-sayni-lime text-sayni-black shadow-lg"
-                                    : "text-gray-400 hover:text-white"
-                            }`}
+                            className={`
+            relative z-10 flex items-center justify-center py-2 px-4 rounded-full text-sm sm:text-lg font-bold transition-colors duration-300 cursor-pointer text-center
+            ${activeTab === "b2c" ? "text-[#132219]" : "text-white/80 hover:text-white"}
+        `}
                         >
                             Para ti
                         </button>
+
+                        {/* Botón 2: Para tu negocio */}
                         <button
+                            type="button"
                             onClick={() => setActiveTab("b2b")}
-                            className={`px-6 py-2.5 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
-                                activeTab === "b2b"
-                                    ? "bg-sayni-lime text-sayni-black shadow-lg"
-                                    : "text-gray-400 hover:text-white"
-                            }`}
+                            className={`
+            relative z-10 flex items-center justify-center py-2 px-4 rounded-full text-sm sm:text-lg font-bold transition-colors duration-300 cursor-pointer text-center
+            ${activeTab === "b2b" ? "text-[#132219]" : "text-white/80 hover:text-white"}
+        `}
                         >
                             Para tu negocio
                         </button>
@@ -150,19 +165,40 @@ export default function OurCoffees() {
 
                         </div>
 
-                        {/* Botón CTA B2C */}
+                        {/* Botón CTA B2C CON EFECTO 3D Y ÍCONO DE TELÉFONO */}
                         <div className="text-center pt-8">
                             <Link
                                 href="https://wa.me/"
                                 target="_blank"
-                                className="inline-flex items-center gap-3 bg-sayni-lime text-sayni-black font-semibold px-8 py-3.5 rounded-full hover:bg-sayni-olive transition-all shadow-lg group"
+                                className="
+            inline-flex items-center gap-6 bg-[#BCC90F] text-[#132219] font-bold
+            pl-8 pr-3 py-1 rounded-[100px] hover:scale-[1.01] active:scale-[0.98]
+            transition-all duration-300 group text-base sm:text-lg relative
+            /* ILUMINACIÓN SUPERIOR (Borde superior) */
+            border-t border-white/40
+            /* SOMBRAS 3D: Inset superior blanca, inset inferior oscura, y sombras de caída */
+            shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
+        "
                             >
-                                Solicita información
-                                <span className="bg-sayni-black text-sayni-lime rounded-full p-1 group-hover:translate-x-1 transition-transform">
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                                    </svg>
-                                </span>
+                                {/* TEXTO CON FUENTE CLASH GROTESK Y TÍTULO */}
+                                <span className="font-urbanist tracking-wide select-none drop-shadow-[0_1px_1px_rgba(255,255,255,0.15)] pr-1">
+            Solicita información
+        </span>
+
+                                {/* CÍRCULO OSCURO CON ÍCONO DE TELÉFONO LIMA */}
+                                <span className="
+            bg-[#132219] text-[#BCC90F] rounded-full w-12 h-12 flex items-center justify-center
+            transition-transform group-hover:scale-105 shrink-0
+            /* Sutil relieve 3D para el círculo */
+            shadow-[inset_0_-2px_4px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.15)]
+        ">
+            <svg
+                className="w-5 h-5 fill-current"
+                viewBox="0 0 24 24"
+            >
+                <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+            </svg>
+        </span>
                             </Link>
                         </div>
 
