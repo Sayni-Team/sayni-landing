@@ -9,7 +9,7 @@ export default function Header() {
 
     return (
         <header className="absolute top-0 left-0 w-full z-50 px-6 sm:px-12 pt-8 pb-6 bg-transparent transition-all duration-300 ease-in-out">
-            {/* Contenedor principal limitado a max-w-6xl con transición de tamaño */}
+            {/* Contenedor principal limitado a max-w-6xl */}
             <div className="max-w-6xl mx-auto flex items-center justify-between transition-all duration-300 ease-in-out">
 
                 {/* 1. LOGO MÓVIL (Solo visible en pantallas pequeñas < md) */}
@@ -53,27 +53,39 @@ export default function Header() {
                             </div>
                         </Link>
 
-                        {/* Links Desktop / Tablet con micro-interacción hover */}
-                        <Link href="#inicio" className="relative py-1 hover:text-sayni-lime transition-colors duration-300 group">
+                        {/* Links Desktop / Tablet con hover scale + underline animado */}
+                        <Link
+                            href="#inicio"
+                            className="relative py-1 inline-block hover:text-sayni-lime transition-all duration-300 hover:scale-110 active:scale-95 origin-center group"
+                        >
                             Inicio
                             <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-sayni-lime transition-all duration-300 group-hover:w-full" />
                         </Link>
-                        <Link href="#nosotros" className="relative py-1 hover:text-sayni-lime transition-colors duration-300 group">
+                        <Link
+                            href="#nosotros"
+                            className="relative py-1 inline-block hover:text-sayni-lime transition-all duration-300 hover:scale-110 active:scale-95 origin-center group"
+                        >
                             Nosotros
                             <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-sayni-lime transition-all duration-300 group-hover:w-full" />
                         </Link>
-                        <Link href="#cafes" className="relative py-1 hover:text-sayni-lime transition-colors duration-300 group">
+                        <Link
+                            href="#cafes"
+                            className="relative py-1 inline-block hover:text-sayni-lime transition-all duration-300 hover:scale-110 active:scale-95 origin-center group"
+                        >
                             Cafés
                             <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-sayni-lime transition-all duration-300 group-hover:w-full" />
                         </Link>
-                        <Link href="#opiniones" className="relative py-1 hover:text-sayni-lime transition-colors duration-300 group">
+                        <Link
+                            href="#opiniones"
+                            className="relative py-1 inline-block hover:text-sayni-lime transition-all duration-300 hover:scale-110 active:scale-95 origin-center group"
+                        >
                             Opiniones
                             <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-sayni-lime transition-all duration-300 group-hover:w-full" />
                         </Link>
 
                     </nav>
 
-                    {/* Botón Menú Móvil (Alineado a la derecha en < md) con transición en el ícono */}
+                    {/* Botón Menú Móvil (Alineado a la derecha en < md) */}
                     <button
                         onClick={() => setIsOpen(!isOpen)}
                         className="text-sayni-light focus:outline-none p-2 md:hidden transition-transform duration-300 active:scale-90"
@@ -91,7 +103,7 @@ export default function Header() {
 
             </div>
 
-            {/* Menú desplegable Mobile con animación fluida de entrada */}
+            {/* Menú desplegable Mobile con hover scale en opciones */}
             <div
                 className={`absolute top-full left-0 w-full bg-sayni-black/95 backdrop-blur-xl border-b border-white/10 py-8 px-8 flex flex-col gap-6 md:hidden shadow-2xl transition-all duration-300 ease-out origin-top ${
                     isOpen
@@ -102,28 +114,28 @@ export default function Header() {
                 <Link
                     href="#inicio"
                     onClick={() => setIsOpen(false)}
-                    className="text-lg font-medium hover:text-sayni-lime transition-colors duration-200"
+                    className="text-lg font-medium w-max hover:text-sayni-lime transition-all duration-300 hover:scale-105 active:scale-95 origin-left"
                 >
                     Inicio
                 </Link>
                 <Link
                     href="#nosotros"
                     onClick={() => setIsOpen(false)}
-                    className="text-lg font-medium hover:text-sayni-lime transition-colors duration-200"
+                    className="text-lg font-medium w-max hover:text-sayni-lime transition-all duration-300 hover:scale-105 active:scale-95 origin-left"
                 >
                     Nosotros
                 </Link>
                 <Link
                     href="#cafes"
                     onClick={() => setIsOpen(false)}
-                    className="text-lg font-medium hover:text-sayni-lime transition-colors duration-200"
+                    className="text-lg font-medium w-max hover:text-sayni-lime transition-all duration-300 hover:scale-105 active:scale-95 origin-left"
                 >
                     Cafés
                 </Link>
                 <Link
                     href="#opiniones"
                     onClick={() => setIsOpen(false)}
-                    className="text-lg font-medium hover:text-sayni-lime transition-colors duration-200"
+                    className="text-lg font-medium w-max hover:text-sayni-lime transition-all duration-300 hover:scale-105 active:scale-95 origin-left"
                 >
                     Opiniones
                 </Link>
