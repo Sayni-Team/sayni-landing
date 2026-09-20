@@ -4,6 +4,7 @@ import InfiniteMarquee from "@/features/InfiniteMarquee";
 import Link from "next/link";
 import AboutUs from "@/features/AboutUs";
 import OurCoffees from "@/features/OurCoffees";
+import TestimonialsSection from "@/features/Testimonials";
 
 export default function Home() {
   return (
@@ -72,6 +73,7 @@ export default function Home() {
           <InfiniteMarquee />
           <AboutUs/>
           <OurCoffees/>
+          <TestimonialsSection/>
 
           {/* Aquí irán las siguientes secciones (#cafes, #nosotros, etc.) */}
         </main>
