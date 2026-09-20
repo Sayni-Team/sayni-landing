@@ -11,7 +11,7 @@ export default function OurCoffees() {
 
     return (
         <section id="cafes" className="py-16 sm:py-20 lg:py-28 px-6 lg:px-16 bg-sayni-black text-sayni-light transition-all duration-500">
-            <div className="max-w-6xl mx-auto space-y-12">
+            <div className="max-w-3xl mx-auto space-y-12">
 
                 {/* ENCABEZADO CON SWITCH */}
                 <div className="text-center space-y-6">
@@ -19,8 +19,8 @@ export default function OurCoffees() {
                         <div className="flex items-center justify-center gap-3">
                             <span className="h-[1px] w-12 sm:w-16 bg-white/20" />
                             <span className="text-sayni-lime font-heading tracking-widest text-xs sm:text-sm uppercase font-medium">
-                Nuestros cafés
-              </span>
+                                Nuestros cafés
+                            </span>
                             <span className="h-[1px] w-12 sm:w-16 bg-white/20" />
                         </div>
                         <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-white tracking-tight">
@@ -58,7 +58,7 @@ export default function OurCoffees() {
                 {activeTab === "b2c" && (
                     <div className="space-y-20 pt-6 animate-fadeIn">
 
-                        {/* Producto 1: Sayni Geisha (Bolsa Izquierda | Texto y foto Derecha) */}
+                        {/* Producto 1: Sayni Geisha */}
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
                             <div className="lg:col-span-6 flex justify-center">
                                 <div className="relative w-64 h-80 sm:w-80 sm:h-[420px]">
@@ -75,15 +75,15 @@ export default function OurCoffees() {
                             <div className="lg:col-span-6 space-y-6 text-center lg:text-left">
                                 <div className="space-y-2">
                                     <h3 className="text-3xl sm:text-4xl font-bold font-heading text-white">
-                                        Sayni Geisha
+                                        Sayni <br/> Geisha
                                     </h3>
                                     <p className="text-gray-300 text-sm sm:text-base leading-relaxed max-w-md mx-auto lg:mx-0 font-light">
                                         Café de todos los días. Un café peruano con alma andina para tu pausa diaria. Blend de origen Cusco (Inkawasi, La Convención), de tueste oscuro y sabor intenso. Haz una pausa, recarga el alma y sigue adelante.
                                     </p>
                                 </div>
 
-                                {/* Imagen secundaria / detalle */}
-                                <div className="relative w-full max-w-xs h-36 mx-auto lg:mx-0 rounded-2xl overflow-hidden border border-white/10 shadow-lg">
+                                {/* Imagen secundaria / detalle en relación 3:2 */}
+                                <div className="relative aspect-[3/2] w-full max-w-xs mx-auto lg:mx-0 rounded-2xl overflow-hidden border border-white/10 shadow-lg">
                                     <Image
                                         src="/assets/features/geisha-grain.webp"
                                         alt="Sayni Geisha Detalle"
@@ -94,22 +94,21 @@ export default function OurCoffees() {
                             </div>
                         </div>
 
-                        {/* Producto 2: Sayni Clásico (Texto y foto Izquierda | Bolsa Derecha) */}
+                        {/* Producto 2: Sayni Clásico */}
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
 
-                            {/* Texto y foto secundaria en orden inverso en Desktop */}
                             <div className="lg:col-span-6 space-y-6 text-center lg:text-left order-2 lg:order-1">
                                 <div className="space-y-2">
                                     <h3 className="text-3xl sm:text-4xl font-bold font-heading text-white">
-                                        Sayni Clásico
+                                        Sayni <br/> Clásico
                                     </h3>
                                     <p className="text-gray-300 text-sm sm:text-base leading-relaxed max-w-md mx-auto lg:mx-0 font-light">
                                         100% café peruano, blend de Cusco y tueste oscuro, creado para acompañarte cada día con un sabor intenso y auténtico. Una pausa para recargar el alma y seguir adelante.
                                     </p>
                                 </div>
 
-                                {/* Imagen secundaria / detalle */}
-                                <div className="relative w-full max-w-xs h-36 mx-auto lg:mx-0 rounded-2xl overflow-hidden border border-white/10 shadow-lg">
+                                {/* Imagen secundaria / detalle en relación 3:2 */}
+                                <div className="relative aspect-[3/2] w-full max-w-xs mx-auto lg:mx-0 rounded-2xl overflow-hidden border border-white/10 shadow-lg">
                                     <Image
                                         src="/assets/features/clasico-grain.webp"
                                         alt="Sayni Clásico Detalle"
@@ -141,17 +140,17 @@ export default function OurCoffees() {
                             >
                                 Solicita información
                                 <span className="bg-sayni-black text-sayni-lime rounded-full p-1 group-hover:translate-x-1 transition-transform">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </span>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </span>
                             </Link>
                         </div>
 
                     </div>
                 )}
 
-                {/* VISTA 2: PARA TU NEGOCIO (B2B) - COFRE/PACK COMPLETO */}
+                {/* VISTA 2: PARA TU NEGOCIO (B2B) */}
                 {activeTab === "b2b" && (
                     <div className="space-y-10 pt-6 animate-fadeIn max-w-4xl mx-auto text-center">
 
@@ -187,10 +186,10 @@ export default function OurCoffees() {
                             >
                                 Pide tu Sayni
                                 <span className="bg-sayni-black text-sayni-lime rounded-full p-1 group-hover:translate-x-1 transition-transform">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
-                  </svg>
-                </span>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                                    </svg>
+                                </span>
                             </Link>
                         </div>
 
