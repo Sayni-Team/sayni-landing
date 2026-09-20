@@ -8,33 +8,78 @@ export default function Header() {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <header className="absolute top-0 left-0 w-full z-50 px-6 lg:px-16 py-6">
-            <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <header className="absolute top-0 left-0 w-full z-50 px-6 sm:px-12 pt-8 pb-6 bg-transparent transition-all duration-300 ease-in-out">
+            {/* Contenedor principal limitado a max-w-6xl con transición de tamaño */}
+            <div className="max-w-6xl mx-auto flex items-center justify-between transition-all duration-300 ease-in-out">
 
-                {/* Logotipo Isotipo */}
-                <Link href="/" className="flex items-center gap-2 group">
-                    <div className="relative w-10 h-10">
-                        {/* Reemplaza con tu ruta de logo real en public/ */}
-                        <span className="text-sayni-lime font-bold text-2xl tracking-wider">Sayni</span>
+                {/* 1. LOGO MÓVIL (Solo visible en pantallas pequeñas < md) */}
+                <Link
+                    href="/"
+                    className="flex items-center shrink-0 md:hidden transition-transform duration-300 hover:scale-105 active:scale-95"
+                >
+                    <div className="relative w-10 h-10 sm:w-11 sm:h-11">
+                        <Image
+                            src="/assets/brand/logo.webp"
+                            alt="Sayni Logo"
+                            fill
+                            className="object-contain"
+                            priority
+                        />
                     </div>
                 </Link>
 
-                {/* Navegación Desktop */}
-                <nav className="hidden md:flex items-center gap-8 text-sm font-medium tracking-wide text-sayni-light/90">
-                    <Link href="#inicio" className="hover:text-sayni-lime transition-colors">Inicio</Link>
-                    <Link href="#nosotros" className="hover:text-sayni-lime transition-colors">Nosotros</Link>
-                    <Link href="#cafes" className="hover:text-sayni-lime transition-colors">Cafés</Link>
-                    <Link href="#opiniones" className="hover:text-sayni-lime transition-colors">Opiniones</Link>
-                </nav>
+                {/* 2. ESPACIADOR (Solo para Tablets y Desktop para empujar el menú a la derecha) */}
+                <div className="hidden md:block md:flex-1 transition-all duration-300" />
 
-                {/* Botón CTA o Menú Móvil */}
-                <div className="flex items-center gap-4">
+                {/* 3. BLOQUE DERECHO (Navegación Desktop/Tablet + Botón Hamburguesa Mobile) */}
+                <div className="flex items-center justify-end gap-10 md:gap-16 transition-all duration-300 ease-in-out">
+
+                    {/* Navegación Desktop / Tablet (Logo + Links alineados juntos) */}
+                    <nav className="hidden md:flex items-center gap-15 lg:gap-25 text-sm font-medium tracking-wide text-sayni-light/90 transition-all duration-300 ease-in-out">
+
+                        {/* Logo Desktop / Tablet */}
+                        <Link
+                            href="/"
+                            className="flex items-center shrink-0 transition-transform duration-300 hover:scale-105 active:scale-95"
+                        >
+                            <div className="relative w-10 h-10 sm:w-11 sm:h-11">
+                                <Image
+                                    src="/assets/brand/logo.webp"
+                                    alt="Sayni Logo"
+                                    fill
+                                    className="object-contain"
+                                    priority
+                                />
+                            </div>
+                        </Link>
+
+                        {/* Links Desktop / Tablet con micro-interacción hover */}
+                        <Link href="#inicio" className="relative py-1 hover:text-sayni-lime transition-colors duration-300 group">
+                            Inicio
+                            <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-sayni-lime transition-all duration-300 group-hover:w-full" />
+                        </Link>
+                        <Link href="#nosotros" className="relative py-1 hover:text-sayni-lime transition-colors duration-300 group">
+                            Nosotros
+                            <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-sayni-lime transition-all duration-300 group-hover:w-full" />
+                        </Link>
+                        <Link href="#cafes" className="relative py-1 hover:text-sayni-lime transition-colors duration-300 group">
+                            Cafés
+                            <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-sayni-lime transition-all duration-300 group-hover:w-full" />
+                        </Link>
+                        <Link href="#opiniones" className="relative py-1 hover:text-sayni-lime transition-colors duration-300 group">
+                            Opiniones
+                            <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-sayni-lime transition-all duration-300 group-hover:w-full" />
+                        </Link>
+
+                    </nav>
+
+                    {/* Botón Menú Móvil (Alineado a la derecha en < md) con transición en el ícono */}
                     <button
                         onClick={() => setIsOpen(!isOpen)}
-                        className="md:hidden text-sayni-light focus:outline-none p-2"
+                        className="text-sayni-light focus:outline-none p-2 md:hidden transition-transform duration-300 active:scale-90"
                         aria-label="Abrir menú"
                     >
-                        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-8 h-8 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             {isOpen ? (
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                             ) : (
@@ -43,17 +88,46 @@ export default function Header() {
                         </svg>
                     </button>
                 </div>
+
             </div>
 
-            {/* Menú desplegable móvil */}
-            {isOpen && (
-                <div className="absolute top-full left-0 w-full bg-sayni-black/95 backdrop-blur-md border-b border-white/10 py-6 px-6 flex flex-col gap-4 md:hidden">
-                    <Link href="#inicio" onClick={() => setIsOpen(false)} className="text-lg hover:text-sayni-lime">Inicio</Link>
-                    <Link href="#nosotros" onClick={() => setIsOpen(false)} className="text-lg hover:text-sayni-lime">Nosotros</Link>
-                    <Link href="#cafes" onClick={() => setIsOpen(false)} className="text-lg hover:text-sayni-lime">Cafés</Link>
-                    <Link href="#opiniones" onClick={() => setIsOpen(false)} className="text-lg hover:text-sayni-lime">Opiniones</Link>
-                </div>
-            )}
+            {/* Menú desplegable Mobile con animación fluida de entrada */}
+            <div
+                className={`absolute top-full left-0 w-full bg-sayni-black/95 backdrop-blur-xl border-b border-white/10 py-8 px-8 flex flex-col gap-6 md:hidden shadow-2xl transition-all duration-300 ease-out origin-top ${
+                    isOpen
+                        ? 'opacity-100 scale-y-100 translate-y-0 pointer-events-auto'
+                        : 'opacity-0 scale-y-95 -translate-y-2 pointer-events-none'
+                }`}
+            >
+                <Link
+                    href="#inicio"
+                    onClick={() => setIsOpen(false)}
+                    className="text-lg font-medium hover:text-sayni-lime transition-colors duration-200"
+                >
+                    Inicio
+                </Link>
+                <Link
+                    href="#nosotros"
+                    onClick={() => setIsOpen(false)}
+                    className="text-lg font-medium hover:text-sayni-lime transition-colors duration-200"
+                >
+                    Nosotros
+                </Link>
+                <Link
+                    href="#cafes"
+                    onClick={() => setIsOpen(false)}
+                    className="text-lg font-medium hover:text-sayni-lime transition-colors duration-200"
+                >
+                    Cafés
+                </Link>
+                <Link
+                    href="#opiniones"
+                    onClick={() => setIsOpen(false)}
+                    className="text-lg font-medium hover:text-sayni-lime transition-colors duration-200"
+                >
+                    Opiniones
+                </Link>
+            </div>
         </header>
     );
 }
