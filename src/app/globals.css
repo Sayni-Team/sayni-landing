@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+@theme {
+  --font-clash: var(--font-clash), sans-serif;
+  --font-urbanist: var(--font-urbanist), sans-serif;
+}
+
 :root {
   --background: #121212;
   --foreground: #F5F5F0;

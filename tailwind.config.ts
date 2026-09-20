@@ -21,7 +21,7 @@ const config: Config = {
             fontFamily: {
                 sans: ["var(--font-urbanist)", "sans-serif"],
                 heading: ["var(--font-clash)", "sans-serif"],
-            },
+            }
         },
     },
     plugins: [],
