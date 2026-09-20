@@ -11,7 +11,7 @@ export default function OurCoffees() {
 
     return (
         <section id="cafes" className="py-16 sm:py-20 lg:py-28 px-6 lg:px-16 bg-sayni-black text-sayni-light transition-all duration-500">
-            <div className="max-w-3xl mx-auto space-y-12">
+            <div className="max-w-5xl mx-auto space-y-12">
 
                 {/* ENCABEZADO CON SWITCH */}
                 <div className="text-center space-y-6">
@@ -54,77 +54,96 @@ export default function OurCoffees() {
                     </div>
                 </div>
 
-                {/* VISTA 1: PARA TI (B2C) - DOS PRODUCTOS (GEISHA & CLÁSICO) */}
+                {/* VISTA 1: PARA TI (B2C) */}
                 {activeTab === "b2c" && (
-                    <div className="space-y-20 pt-6 animate-fadeIn">
+                    <div className="space-y-28 pt-6 animate-fadeIn">
 
                         {/* Producto 1: Sayni Geisha */}
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-                            <div className="lg:col-span-6 flex justify-center">
-                                <div className="relative w-64 h-80 sm:w-80 sm:h-[420px]">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-0 items-center justify-center relative">
+
+                            {/* Bolsa Geisha (7 columnas) */}
+                            <div className="lg:col-span-7 flex justify-center items-center h-full min-h-[420px] lg:min-h-[480px] relative">
+                                <div className="relative h-full w-auto flex items-center justify-center scale-100 sm:scale-101 transition-transform duration-500">
                                     <Image
-                                        src="/assets/features/geisha.webp"
+                                        src="/assets/features/geisha_package.webp"
                                         alt="Sayni Geisha"
-                                        fill
-                                        className="object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.7)] hover:scale-105 transition-transform duration-500"
+                                        width={360}
+                                        height={520}
+                                        className="h-full w-auto object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.7)] hover:scale-105 transition-transform duration-500"
                                         priority
                                     />
                                 </div>
                             </div>
 
-                            <div className="lg:col-span-6 space-y-6 text-center lg:text-left">
-                                <div className="space-y-2">
-                                    <h3 className="text-3xl sm:text-4xl font-bold font-heading text-white">
+                            {/* Columna Derecha con Texto e Imagen secundaria (5 columnas) */}
+                            <div className="lg:col-span-5 flex flex-col justify-between space-y-10 text-center lg:text-left relative">
+                                {/* Título e información */}
+                                <div className="space-y-6">
+                                    <h3 className="text-3xl sm:text-5xl font-bold font-heading text-white leading-snug sm:leading-[1.15]">
                                         Sayni <br/> Geisha
                                     </h3>
-                                    <p className="text-gray-300 text-sm sm:text-base leading-relaxed max-w-md mx-auto lg:mx-0 font-light">
-                                        Café de todos los días. Un café peruano con alma andina para tu pausa diaria. Blend de origen Cusco (Inkawasi, La Convención), de tueste oscuro y sabor intenso. Haz una pausa, recarga el alma y sigue adelante.
+                                    <p className="text-gray-300 text-sm sm:text-lg leading-relaxed max-w-[280px] sm:max-w-xs mx-auto lg:mx-0 font-light">
+                                        Variedad Geisha de origen Cusco (Inkawasi, La Convención). Presenta notas florales y frutales a jazmín, cítricos, frutos rojos, caramelo, miel y chocolate. Un perfil elegante y complejo, ideal para momentos especiales.
                                     </p>
                                 </div>
 
-                                {/* Imagen secundaria / detalle en relación 3:2 */}
-                                <div className="relative aspect-[3/2] w-full max-w-xs mx-auto lg:mx-0 rounded-2xl overflow-hidden border border-white/10 shadow-lg">
-                                    <Image
-                                        src="/assets/features/geisha-grain.webp"
-                                        alt="Sayni Geisha Detalle"
-                                        fill
-                                        className="object-cover"
-                                    />
+                                {/* Contenedor de foto secundaria con LÍNEA COLOR #BCC90F */}
+                                <div className="relative w-full max-w-[300px] mx-auto lg:mx-0">
+                                    <span className="hidden lg:block absolute right-full top-1/2 -translate-y-1/2 w-28 lg:w-36 h-[1px] bg-[#BCC90F] pointer-events-none" />
+
+                                    <div className="relative aspect-[3/2] w-full rounded-2xl overflow-hidden border border-white/10 shadow-lg">
+                                        <Image
+                                            src="/assets/features/geisha-grain.webp"
+                                            alt="Sayni Geisha Detalle"
+                                            fill
+                                            className="object-cover"
+                                        />
+                                    </div>
                                 </div>
                             </div>
+
                         </div>
 
                         {/* Producto 2: Sayni Clásico */}
-                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-0 items-center justify-center relative">
 
-                            <div className="lg:col-span-6 space-y-6 text-center lg:text-left order-2 lg:order-1">
-                                <div className="space-y-2">
-                                    <h3 className="text-3xl sm:text-4xl font-bold font-heading text-white">
+                            {/* Columna Izquierda con Texto con padding interno a la izquierda lg:pl-16 para empujar todo hacia la derecha */}
+                            <div className="lg:col-span-5 flex flex-col justify-between space-y-10 text-center lg:text-left order-2 lg:order-1 relative lg:pl-32">
+                                {/* Título e información */}
+                                <div className="space-y-6">
+                                    <h3 className="text-3xl sm:text-5xl font-bold font-heading text-white leading-snug sm:leading-[1.15]">
                                         Sayni <br/> Clásico
                                     </h3>
-                                    <p className="text-gray-300 text-sm sm:text-base leading-relaxed max-w-md mx-auto lg:mx-0 font-light">
+                                    <p className="text-gray-300 text-sm sm:text-lg leading-relaxed max-w-[280px] sm:max-w-xs mx-auto lg:mx-0 font-light">
                                         100% café peruano, blend de Cusco y tueste oscuro, creado para acompañarte cada día con un sabor intenso y auténtico. Una pausa para recargar el alma y seguir adelante.
                                     </p>
                                 </div>
 
-                                {/* Imagen secundaria / detalle en relación 3:2 */}
-                                <div className="relative aspect-[3/2] w-full max-w-xs mx-auto lg:mx-0 rounded-2xl overflow-hidden border border-white/10 shadow-lg">
-                                    <Image
-                                        src="/assets/features/clasico-grain.webp"
-                                        alt="Sayni Clásico Detalle"
-                                        fill
-                                        className="object-cover"
-                                    />
+                                {/* Contenedor de foto secundaria con LÍNEA EXTENDIDA */}
+                                <div className="relative w-full max-w-[300px] mx-auto lg:mx-0">
+                                    {/* Línea extendida proporcionalmente */}
+                                    <span className="hidden lg:block absolute left-full top-1/2 -translate-y-1/2 w-36 lg:w-48 h-[1px] bg-[#BCC90F] pointer-events-none" />
+
+                                    <div className="relative aspect-[3/2] w-full rounded-2xl overflow-hidden border border-white/10 shadow-lg">
+                                        <Image
+                                            src="/assets/features/classic-grain.webp"
+                                            alt="Sayni Clásico Detalle"
+                                            fill
+                                            className="object-cover"
+                                        />
+                                    </div>
                                 </div>
                             </div>
 
-                            <div className="lg:col-span-6 flex justify-center order-1 lg:order-2">
-                                <div className="relative w-64 h-80 sm:w-80 sm:h-[420px]">
+                            {/* Bolsa Clásico (7 columnas) */}
+                            <div className="lg:col-span-7 flex justify-center items-center h-full min-h-[420px] lg:min-h-[480px] order-1 lg:order-2 relative">
+                                <div className="relative h-full w-auto flex items-center justify-center scale-100 sm:scale-101 transition-transform duration-500">
                                     <Image
-                                        src="/assets/features/clasico.webp"
+                                        src="/assets/features/classic_package_.webp"
                                         alt="Sayni Clásico"
-                                        fill
-                                        className="object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.7)] hover:scale-105 transition-transform duration-500"
+                                        width={360}
+                                        height={520}
+                                        className="h-full w-auto object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.7)] hover:scale-105 transition-transform duration-500"
                                     />
                                 </div>
                             </div>
