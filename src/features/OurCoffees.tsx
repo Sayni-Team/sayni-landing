@@ -233,10 +233,23 @@ export default function OurCoffees() {
 
                 {/* VISTA 2: PARA TU NEGOCIO (B2B) */}
                 {activeTab === "b2b" && (
-                    <div className="space-y-10 pt-6 animate-fadeIn max-w-4xl mx-auto text-center">
+                    <div className="space-y-10 pt-6 animate-fadeIn max-w-4xl mx-auto text-center relative">
+
+                        {/* DEGRADADO AMBIENTAL OVALADO / ELÍPTICO - CENTRADO (#172E20) */}
+                        <div
+                            className="
+                absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+                w-[180%] h-[160%] sm:w-[160%] sm:h-[150%] lg:w-[220%] lg:h-[140%]
+                pointer-events-none opacity-80 blur-[140px] sm:blur-[170px] lg:blur-[200px]
+                -z-10 rotate-0 transform-gpu
+            "
+                            style={{
+                                background: "radial-gradient(ellipse at center, rgba(23,46,32,0.95) 0%, rgba(23,46,32,0.4) 45%, rgba(0,0,0,0) 75%)",
+                            }}
+                        />
 
                         {/* Imagen Principal de Pack Cofre B2B */}
-                        <div className="relative w-full max-w-2xl h-72 sm:h-96 md:h-[420px] mx-auto">
+                        <div className="relative w-full max-w-2xl h-72 sm:h-96 md:h-[420px] mx-auto z-10">
                             <Image
                                 src="/assets/features/sayni-package.webp"
                                 alt="Pack Cofre Sayni B2B"
@@ -246,7 +259,7 @@ export default function OurCoffees() {
                         </div>
 
                         {/* Badges de Contenido del Pack */}
-                        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-2">
+                        <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 pt-2 relative z-10">
                             <div className="px-5 py-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-md text-xs sm:text-sm text-gray-200">
                                 4 Bolsas Sayni
                             </div>
@@ -259,39 +272,39 @@ export default function OurCoffees() {
                         </div>
 
                         {/* Botón CTA B2B CON EFECTO 3D Y ÍCONO DE TELÉFONO */}
-                        <div className="pt-6 font-urbanist">
+                        <div className="pt-6 font-urbanist relative z-10">
                             <Link
                                 href="https://wa.me/"
                                 target="_blank"
                                 className="
-            inline-flex items-center gap-6 bg-[#BCC90F] text-[#132219] font-bold
-            pl-8 pr-3 py-1 rounded-[100px] hover:scale-[1.01] active:scale-[0.98]
-            transition-all duration-300 group text-base sm:text-lg relative cursor-pointer
-            /* ILUMINACIÓN SUPERIOR (Borde superior) */
-            border-t border-white/40
-            /* SOMBRAS 3D: Inset superior blanca, inset inferior oscura, y sombras de caída */
-            shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
-        "
+                    inline-flex items-center gap-6 bg-[#BCC90F] text-[#132219] font-bold
+                    pl-8 pr-3 py-1 rounded-[100px] hover:scale-[1.01] active:scale-[0.98]
+                    transition-all duration-300 group text-base sm:text-lg relative cursor-pointer
+                    /* ILUMINACIÓN SUPERIOR (Borde superior) */
+                    border-t border-white/40
+                    /* SOMBRAS 3D: Inset superior blanca, inset inferior oscura, y sombras de caída */
+                    shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
+                "
                             >
                                 {/* TEXTO CON FUENTE URBANIST Y TRACED SPACING */}
                                 <span className="tracking-wide select-none drop-shadow-[0_1px_1px_rgba(255,255,255,0.15)] pr-1">
-            Pide tu Sayni
-        </span>
+                    Pide tu Sayni
+                </span>
 
                                 {/* CÍRCULO OSCURO CON ÍCONO DE TELÉFONO LIMA */}
                                 <span className="
-            bg-[#132219] text-[#BCC90F] rounded-full w-12 h-12 flex items-center justify-center
-            transition-transform group-hover:scale-105 shrink-0
-            /* Sutil relieve 3D para el círculo */
-            shadow-[inset_0_-2px_4px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.15)]
-        ">
-            <svg
-                className="w-5 h-5 fill-current"
-                viewBox="0 0 24 24"
-            >
-                <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
-            </svg>
-        </span>
+                    bg-[#132219] text-[#BCC90F] rounded-full w-12 h-12 flex items-center justify-center
+                    transition-transform group-hover:scale-105 shrink-0
+                    /* Sutil relieve 3D para el círculo */
+                    shadow-[inset_0_-2px_4px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.15)]
+                ">
+                    <svg
+                        className="w-5 h-5 fill-current"
+                        viewBox="0 0 24 24"
+                    >
+                        <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+                    </svg>
+                </span>
                             </Link>
                         </div>
 
