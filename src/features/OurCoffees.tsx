@@ -76,37 +76,41 @@ export default function OurCoffees() {
                         {/* Producto 1: Sayni Geisha */}
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-0 items-center justify-center relative">
 
+                            {/* DEGRADADO AMBIENTAL OVALADO / ELÍPTICO (Figma Oval Glow) */}
+                            <div
+                                className="
+                                            absolute -top-[35%] -left-[95%]
+                                            w-[180%] h-[160%] sm:w-[160%] sm:h-[150%] lg:w-[250%] lg:h-[140%]
+                                            pointer-events-none opacity-45 blur-[140px] sm:blur-[170px] lg:blur-[200px]
+                                            -z-10 -rotate-12 transform-gpu
+                                        "
+                                style={{
+                                    background: "radial-gradient(ellipse at center, rgba(188,201,15,0.8) 0%, rgba(188,201,15,0.25) 40%, rgba(0,0,0,0) 15%)",
+                                }}
+                            />
+
                             {/* Bolsa Geisha (7 columnas) */}
                             <div className="lg:col-span-7 flex justify-center items-center h-full min-h-[420px] lg:min-h-[480px] relative">
-
-                                {/* DEGRADADO RADIAL Y DESENFOQUE DETRÁS DEL PRODUCTO (#BCC90F) */}
-                                <div
-                                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[500px] lg:w-[650px] h-[350px] sm:h-[500px] lg:h-[650px] rounded-full pointer-events-none opacity-35 blur-[90px] lg:blur-[120px] -z-10"
-                                    style={{
-                                        background: "radial-gradient(circle, rgba(188,201,15,0.8) 0%, rgba(188,201,15,0.2) 45%, rgba(0,0,0,0) 70%)",
-                                    }}
-                                />
-
                                 <div className="relative h-full w-auto flex items-center justify-center scale-100 sm:scale-101 transition-transform duration-500 z-10">
                                     <Image
                                         src="/assets/features/geisha_package.webp"
                                         alt="Sayni Geisha"
                                         width={360}
                                         height={520}
-                                        className="h-full w-auto object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.7)] hover:scale-105 transition-transform duration-500"
+                                        className="h-full w-auto object-contain hover:scale-101 transition-transform duration-500"
                                         priority
                                     />
                                 </div>
                             </div>
 
                             {/* Columna Derecha con Texto e Imagen secundaria (5 columnas) */}
-                            <div className="lg:col-span-5 flex flex-col justify-between space-y-10 text-center lg:text-left relative">
+                            <div className="lg:col-span-5 flex flex-col justify-between space-y-10 text-center lg:text-left relative z-10">
                                 {/* Título e información */}
                                 <div className="space-y-6">
                                     <h3 className="text-3xl sm:text-5xl font-bold font-heading text-white leading-snug sm:leading-[1.15]">
                                         Sayni <br/> Geisha
                                     </h3>
-                                    <p className="text-gray-300 text-sm sm:text-lg leading-relaxed max-w-[280px] sm:max-w-xs mx-auto lg:mx-0 font-light">
+                                    <p className="text-gray-300 text-sm sm:text-lg leading-relaxed max-w-[280px] sm:max-w-xs mx-auto lg:mx-0 font-light font-urbanist">
                                         Variedad Geisha de origen Cusco (Inkawasi, La Convención). Presenta notas florales y frutales a jazmín, cítricos, frutos rojos, caramelo, miel y chocolate. Un perfil elegante y complejo, ideal para momentos especiales.
                                     </p>
                                 </div>
@@ -131,14 +135,27 @@ export default function OurCoffees() {
                         {/* Producto 2: Sayni Clásico */}
                         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-0 items-center justify-center relative">
 
+                            {/* DEGRADADO AMBIENTAL OVALADO / ELÍPTICO - ESPEJO (Figma Oval Glow #172E20) */}
+                            <div
+                                className="
+            absolute -bottom-[35%] -right-[125%]
+            w-[180%] h-[160%] sm:w-[160%] sm:h-[150%] lg:w-[250%] lg:h-[140%]
+            pointer-events-none opacity-80 blur-[140px] sm:blur-[170px] lg:blur-[200px]
+            -z-10 rotate-12 transform-gpu
+        "
+                                style={{
+                                    background: "radial-gradient(ellipse at center, rgba(23,46,32,0.95) 0%, rgba(23,46,32,0.4) 40%, rgba(0,0,0,0) 75%)",
+                                }}
+                            />
+
                             {/* Columna Izquierda con Texto con padding interno a la izquierda lg:pl-16 para empujar todo hacia la derecha */}
-                            <div className="lg:col-span-5 flex flex-col justify-between space-y-10 text-center lg:text-left order-2 lg:order-1 relative lg:pl-32">
+                            <div className="lg:col-span-5 flex flex-col justify-between space-y-10 text-center lg:text-left order-2 lg:order-1 relative lg:pl-32 z-10">
                                 {/* Título e información */}
                                 <div className="space-y-6">
                                     <h3 className="text-3xl sm:text-5xl font-bold font-heading text-white leading-snug sm:leading-[1.15]">
                                         Sayni <br/> Clásico
                                     </h3>
-                                    <p className="text-gray-300 text-sm sm:text-lg leading-relaxed max-w-[280px] sm:max-w-xs mx-auto lg:mx-0 font-light">
+                                    <p className="text-gray-300 text-sm sm:text-lg leading-relaxed max-w-[280px] sm:max-w-xs mx-auto lg:mx-0 font-light font-urbanist">
                                         100% café peruano, blend de Cusco y tueste oscuro, creado para acompañarte cada día con un sabor intenso y auténtico. Una pausa para recargar el alma y seguir adelante.
                                     </p>
                                 </div>
@@ -160,7 +177,7 @@ export default function OurCoffees() {
                             </div>
 
                             {/* Bolsa Clásico (7 columnas) */}
-                            <div className="lg:col-span-7 flex justify-center items-center h-full min-h-[420px] lg:min-h-[480px] order-1 lg:order-2 relative">
+                            <div className="lg:col-span-7 flex justify-center items-center h-full min-h-[420px] lg:min-h-[480px] order-1 lg:order-2 relative z-10">
                                 <div className="relative h-full w-auto flex items-center justify-center scale-100 sm:scale-101 transition-transform duration-500">
                                     <Image
                                         src="/assets/features/classic_package_.webp"
