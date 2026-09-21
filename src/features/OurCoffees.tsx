@@ -10,8 +10,8 @@ export default function OurCoffees() {
     const [activeTab, setActiveTab] = useState<TabType>("b2c");
 
     return (
-        <section id="cafes" className="py-16 sm:py-20 lg:py-28 px-6 lg:px-16 bg-sayni-black text-sayni-light transition-all duration-500">
-            <div className="max-w-5xl mx-auto space-y-12">
+        <section id="cafes" className="py-16 sm:py-20 lg:py-28 px-6 lg:px-16 bg-sayni-black text-sayni-light transition-all duration-500 relative overflow-hidden">
+            <div className="max-w-5xl mx-auto space-y-12 relative z-10">
 
                 {/* ENCABEZADO CON SWITCH */}
                 <div className="text-center space-y-6">
@@ -78,7 +78,16 @@ export default function OurCoffees() {
 
                             {/* Bolsa Geisha (7 columnas) */}
                             <div className="lg:col-span-7 flex justify-center items-center h-full min-h-[420px] lg:min-h-[480px] relative">
-                                <div className="relative h-full w-auto flex items-center justify-center scale-100 sm:scale-101 transition-transform duration-500">
+
+                                {/* DEGRADADO RADIAL Y DESENFOQUE DETRÁS DEL PRODUCTO (#BCC90F) */}
+                                <div
+                                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[350px] sm:w-[500px] lg:w-[650px] h-[350px] sm:h-[500px] lg:h-[650px] rounded-full pointer-events-none opacity-35 blur-[90px] lg:blur-[120px] -z-10"
+                                    style={{
+                                        background: "radial-gradient(circle, rgba(188,201,15,0.8) 0%, rgba(188,201,15,0.2) 45%, rgba(0,0,0,0) 70%)",
+                                    }}
+                                />
+
+                                <div className="relative h-full w-auto flex items-center justify-center scale-100 sm:scale-101 transition-transform duration-500 z-10">
                                     <Image
                                         src="/assets/features/geisha_package.webp"
                                         alt="Sayni Geisha"
