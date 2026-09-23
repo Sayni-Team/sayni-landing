@@ -137,12 +137,10 @@ export default function Hero() {
 
     const toggleProduct = () => {
         if (activeProduct === "clasico") {
-            // Ir hacia Geysha
             setActiveProduct("geysha");
             targetFrameRef.current = 230;
             animationSpeedRef.current = 0.6;
         } else {
-            // Regresar a Clásico
             setActiveProduct("clasico");
             targetFrameRef.current = 150;
             animationSpeedRef.current = 0.6;
@@ -173,9 +171,9 @@ export default function Hero() {
     return (
         <section
             ref={wrapperRef}
-            className="relative w-full h-screen overflow-hidden bg-black flex items-center justify-between px-8 md:px-16"
+            className="relative w-full h-screen overflow-hidden bg-black flex items-center justify-end px-8 md:px-16"
         >
-            {/* CANVAS SIN TRASLACIONES NI SCALE */}
+            {/* CANVAS UNICO DE FONDO COMPLETO */}
             <canvas
                 ref={canvasRef}
                 className="absolute inset-0 w-full h-full pointer-events-none z-0"
@@ -184,62 +182,54 @@ export default function Hero() {
             {/* OVERLAY GRADIENT */}
             <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/60 z-10 pointer-events-none" />
 
-            {/* CONTENEDOR ESPECÍFICO DE LA BOLSA Y SUS BOTONES */}
-            <div className="relative inline-block w-full max-w-lg mx-auto">
-
-                {/* BOTÓN NAVEGACIÓN IZQUIERDA (Alineado al lado izquierdo de la bolsa) */}
-                <button
-                    onClick={toggleProduct}
-                    className="
-            absolute cursor-pointer left-2 md:-left-10 top-1/2 -translate-y-1/2 z-30
-            w-11 h-11 rounded-full flex items-center justify-center
-            bg-black/40 backdrop-blur-md text-white
-            hover:scale-110 active:scale-95 hover:bg-black/60
-            transition-all duration-300 group
-            border-t border-white/20
-            shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),_inset_0_-3px_6px_rgba(0,0,0,0.5),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
-        "
-                    aria-label="Anterior empaque Sayni"
+            {/* BOTÓN IZQUIERDO (Ubicación respecto al lienzo) */}
+            <button
+                onClick={toggleProduct}
+                className="
+                    absolute cursor-pointer left-6 md:left-19 top-1/2 -translate-y-1/2 z-30
+                    w-11 h-11 rounded-full flex items-center justify-center
+                    bg-black/40 backdrop-blur-md text-white
+                    hover:scale-110 active:scale-95 hover:bg-black/60
+                    transition-all duration-300 group
+                    border-t border-white/20
+                    shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),_inset_0_-3px_6px_rgba(0,0,0,0.5),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
+                "
+                aria-label="Anterior empaque Sayni"
+            >
+                <svg
+                    className="w-5 h-5 stroke-current transition-transform group-hover:-translate-x-0.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
                 >
-                    <svg
-                        className="w-5 h-5 stroke-current transition-transform group-hover:-translate-x-0.5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </button>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
 
-                {/* AQUÍ VA TU CANVAS / IMAGEN DE LA BOLSA */}
-                <canvas ref={canvasRef} className="w-full h-auto block" />
-
-                {/* BOTÓN NAVEGACIÓN DERECHA (Pegado al lado derecho de la bolsa) */}
-                <button
-                    onClick={toggleProduct}
-                    className="
-            absolute cursor-pointer right-2 md:-right-5 top-1/2 -translate-y-1/2 z-30
-            w-11 h-11 rounded-full flex items-center justify-center
-            bg-black/40 backdrop-blur-md text-white
-            hover:scale-110 active:scale-95 hover:bg-black/60
-            transition-all duration-300 group
-            border-t border-white/20
-            shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),_inset_0_-3px_6px_rgba(0,0,0,0.5),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
-        "
-                    aria-label="Siguiente empaque Sayni"
+            {/* BOTÓN DERECHO (Ajusta la clase left-[38%] o left-[40%] para separar/acercar respecto a la bolsa) */}
+            <button
+                onClick={toggleProduct}
+                className="
+                    absolute cursor-pointer left-[38%] xl:left-[42%] top-1/2 -translate-y-1/2 z-30
+                    w-11 h-11 rounded-full flex items-center justify-center
+                    bg-black/40 backdrop-blur-md text-white
+                    hover:scale-110 active:scale-95 hover:bg-black/60
+                    transition-all duration-300 group
+                    border-t border-white/20
+                    shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),_inset_0_-3px_6px_rgba(0,0,0,0.5),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
+                "
+                aria-label="Siguiente empaque Sayni"
+            >
+                <svg
+                    className="w-5 h-5 stroke-current transition-transform group-hover:translate-x-0.5"
+                    fill="none"
+                    viewBox="0 0 24 24"
                 >
-                    <svg
-                        className="w-5 h-5 stroke-current transition-transform group-hover:translate-x-0.5"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                    >
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                    </svg>
-                </button>
-
-            </div>
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                </svg>
+            </button>
 
             {/* CONTENIDO TEXTO + CALL TO ACTIONS */}
-            <div className="relative z-20 max-w-xl text-center flex flex-col items-center ml-auto mr-[8%]">
+            <div className="relative z-20 max-w-xl text-center flex flex-col items-center mr-[8%]">
                 <h1 className="text-4xl md:text-5xl font-clash font-semibold text-white tracking-wide leading-tight drop-shadow-md">
                     Una pausa que nace de nuestra tierra
                 </h1>
@@ -253,50 +243,45 @@ export default function Hero() {
                     <Link
                         href="#comprar"
                         className="
-            inline-flex items-center gap-4 bg-[#BCC90F] text-[#132219] font-bold
-            pl-7 pr-2 py-2.5 rounded-[100px] hover:scale-[1.02] active:scale-[0.98]
-            transition-all duration-300 group text-base sm:text-lg relative
-            /* ILUMINACIÓN SUPERIOR */
-            border-t border-white/40
-            /* SOMBRAS 3D */
-            shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
-        "
+                            inline-flex items-center gap-4 bg-[#BCC90F] text-[#132219] font-bold
+                            pl-7 pr-2 py-2.5 rounded-[100px] hover:scale-[1.02] active:scale-[0.98]
+                            transition-all duration-300 group text-base sm:text-lg relative
+                            border-t border-white/40
+                            shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
+                        "
                     >
-        <span className="font-urbanist tracking-wide select-none drop-shadow-[0_1px_1px_rgba(255,255,255,0.15)]">
-            Obtén tu Sayni
-        </span>
+                        <span className="font-urbanist tracking-wide select-none drop-shadow-[0_1px_1px_rgba(255,255,255,0.15)]">
+                            Obtén tu Sayni
+                        </span>
 
-                        {/* CÍRCULO OSCURO CON FLECHA LIMA */}
                         <span className="
-            bg-[#132219] text-[#BCC90F] rounded-full w-10 h-10 flex items-center justify-center
-            transition-transform group-hover:scale-105 shrink-0
-            shadow-[inset_0_-2px_4px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.15)]
-        ">
-            <svg
-                className="w-5 h-5 fill-current transition-transform group-hover:translate-x-0.5"
-                viewBox="0 0 24 24"
-            >
-                <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-        </span>
+                            bg-[#132219] text-[#BCC90F] rounded-full w-10 h-10 flex items-center justify-center
+                            transition-transform group-hover:scale-105 shrink-0
+                            shadow-[inset_0_-2px_4px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.15)]
+                        ">
+                            <svg
+                                className="w-5 h-5 fill-current transition-transform group-hover:translate-x-0.5"
+                                viewBox="0 0 24 24"
+                            >
+                                <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                        </span>
                     </Link>
 
-                    {/* BOTÓN SECUNDARIO 3D (OSCURO / TRANSPARENTE) */}
+                    {/* BOTÓN SECUNDARIO 3D (OSCURO) */}
                     <Link
                         href="#conocenos"
                         className="
-            inline-flex items-center justify-center bg-black/40 backdrop-blur-md text-white font-bold
-            px-8 py-4 rounded-[100px] hover:scale-[1.02] active:scale-[0.98] hover:bg-black/60
-            transition-all duration-300 group text-base sm:text-lg relative
-            /* ILUMINACIÓN SUPERIOR */
-            border-t border-white/20
-            /* SOMBRAS 3D OSCURAS */
-            shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),_inset_0_-4px_8px_rgba(0,0,0,0.5),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
-        "
+                            inline-flex items-center justify-center bg-black/40 backdrop-blur-md text-white font-bold
+                            px-8 py-4 rounded-[100px] hover:scale-[1.02] active:scale-[0.98] hover:bg-black/60
+                            transition-all duration-300 group text-base sm:text-lg relative
+                            border-t border-white/20
+                            shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),_inset_0_-4px_8px_rgba(0,0,0,0.5),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
+                        "
                     >
-        <span className="font-urbanist tracking-wide select-none">
-            Conócenos más
-        </span>
+                        <span className="font-urbanist tracking-wide select-none">
+                            Conócenos más
+                        </span>
                     </Link>
                 </div>
             </div>
