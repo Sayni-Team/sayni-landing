@@ -19,9 +19,9 @@ export default function Hero() {
     const [isTransitioning, setIsTransitioning] = useState(false);
 
     // Referencias mutables para el loop de animación sin re-renders
-    const currentFrameRef = useRef<number>(53); // Frame inicial de entrada Clásico
+    const currentFrameRef = useRef<number>(45); // Frame inicial de entrada Clásico
     const targetFrameRef = useRef<number>(150); // Frame final Clásico
-    const animationSpeedRef = useRef<number>(0.5); // Velocidad de reproducción
+    const animationSpeedRef = useRef<number>(0.4); // Velocidad de reproducción
 
     // 1. Detectar dispositivo móvil
     useEffect(() => {
@@ -66,16 +66,14 @@ export default function Hero() {
         }, 300);
 
         const render = () => {
-            let targetFrame = Math.floor(currentFrameRef.current);
-            let img = images[targetFrame];
+            const targetFrame = Math.floor(currentFrameRef.current);
+            const img = images[targetFrame];
 
-            // Fallback si la imagen aún no termina de cargar
-            while (targetFrame > 0 && (!img || !img.complete)) {
-                targetFrame--;
-                img = images[targetFrame];
+            // Si la imagen objetivo aún no carga, intentamos dibujarla cuando complete
+            if (!img || !img.complete) {
+                if (img) img.onload = render;
+                return;
             }
-
-            if (!img || !img.complete) return;
 
             const cw = canvas.width / (window.devicePixelRatio || 1);
             const ch = canvas.height / (window.devicePixelRatio || 1);
@@ -100,8 +98,13 @@ export default function Hero() {
         window.addEventListener("resize", resizeCanvas);
         resizeCanvas();
 
-        if (images[52]) {
-            images[52].onload = render;
+        // Cargar inmediatamente el frame 63 (índice 62)
+        if (images[62]) {
+            if (images[62].complete) {
+                render();
+            } else {
+                images[62].onload = render;
+            }
         }
 
         let animationFrameId: number;
@@ -126,6 +129,7 @@ export default function Hero() {
             animationFrameId = requestAnimationFrame(animate);
         };
 
+        // Iniciar la animación
         animate();
 
         return () => {
@@ -139,11 +143,11 @@ export default function Hero() {
         if (activeProduct === "clasico") {
             setActiveProduct("geysha");
             targetFrameRef.current = 230;
-            animationSpeedRef.current = 0.6;
+            animationSpeedRef.current = 0.4;
         } else {
             setActiveProduct("clasico");
             targetFrameRef.current = 150;
-            animationSpeedRef.current = 0.6;
+            animationSpeedRef.current = 0.4;
         }
     };
 
