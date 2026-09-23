@@ -184,7 +184,7 @@ export default function OurCoffees() {
                                         alt="Sayni Clásico"
                                         width={360}
                                         height={520}
-                                        className="h-full w-auto object-contain drop-shadow-[0_20px_30px_rgba(0,0,0,0.7)] hover:scale-105 transition-transform duration-500"
+                                        className="h-full w-auto object-contain hover:scale-101 transition-transform duration-500"
                                     />
                                 </div>
                             </div>
