@@ -3,11 +3,36 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { motion, Variants } from "framer-motion";
 
 const isMobile = () =>
     typeof window !== "undefined" && window.innerWidth <= 768;
 
 type ProductType = "clasico" | "geysha";
+
+// Variantes de animación para el contenedor de texto y botones
+const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    visible: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.15,
+            delayChildren: 0.2,
+        },
+    },
+};
+
+const itemUpVariants: Variants = {
+    hidden: { opacity: 0, y: 30 },
+    visible: {
+        opacity: 1,
+        y: 0,
+        transition: {
+            duration: 0.8,
+            ease: [0.215, 0.61, 0.355, 1], // Cubic-bezier ultra fluido
+        },
+    },
+};
 
 export default function Hero() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -186,8 +211,11 @@ export default function Hero() {
             {/* OVERLAY GRADIENT */}
             <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/60 z-10 pointer-events-none" />
 
-            {/* BOTÓN IZQUIERDO (Ubicación respecto al lienzo) */}
-            <button
+            {/* BOTÓN IZQUIERDO DE NAVEGACIÓN */}
+            <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
                 onClick={toggleProduct}
                 className="
                     absolute cursor-pointer left-6 md:left-19 top-1/2 -translate-y-1/2 z-30
@@ -207,10 +235,13 @@ export default function Hero() {
                 >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                 </svg>
-            </button>
+            </motion.button>
 
-            {/* BOTÓN DERECHO (Ajusta la clase left-[38%] o left-[40%] para separar/acercar respecto a la bolsa) */}
-            <button
+            {/* BOTÓN DERECHO DE NAVEGACIÓN */}
+            <motion.button
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
                 onClick={toggleProduct}
                 className="
                     absolute cursor-pointer left-[38%] xl:left-[42%] top-1/2 -translate-y-1/2 z-30
@@ -230,19 +261,30 @@ export default function Hero() {
                 >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
                 </svg>
-            </button>
+            </motion.button>
 
-            {/* CONTENIDO TEXTO + CALL TO ACTIONS */}
-            <div className="relative z-20 max-w-xl text-center flex flex-col items-center mr-[8%]">
-                <h1 className="text-4xl md:text-5xl font-clash font-semibold text-white tracking-wide leading-tight drop-shadow-md">
+            {/* CONTENIDO TEXTO + CALL TO ACTIONS CON ANIMACIÓN STAGGER */}
+            <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                animate="visible"
+                className="relative z-20 max-w-xl text-center flex flex-col items-center mr-[8%]"
+            >
+                <motion.h1
+                    variants={itemUpVariants}
+                    className="text-4xl md:text-5xl font-clash font-semibold text-white tracking-wide leading-tight drop-shadow-md"
+                >
                     Una pausa que nace de nuestra tierra
-                </h1>
+                </motion.h1>
 
-                <p className="mt-4 text-base md:text-lg text-gray-200 max-w-md font-light drop-shadow">
+                <motion.p
+                    variants={itemUpVariants}
+                    className="mt-4 text-base md:text-lg text-gray-200 max-w-md font-light drop-shadow"
+                >
                     Café peruano con origen, historia y propósito. Desde las alturas <span className="text-[#d4df37]">del Perú hasta tu taza.</span>
-                </p>
+                </motion.p>
 
-                <div className="mt-8 flex items-center gap-4">
+                <motion.div variants={itemUpVariants} className="mt-8 flex items-center gap-4">
                     {/* BOTÓN PRINCIPAL 3D (LIMA) */}
                     <Link
                         href="#comprar"
@@ -287,11 +329,16 @@ export default function Hero() {
                             Conócenos más
                         </span>
                     </Link>
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
 
             {/* MARCA DE AGUA VERTICAL SAYNI */}
-            <div className="absolute -right-5 top-0 bottom-0 h-full z-20 pointer-events-none flex items-center justify-end overflow-hidden pr-2">
+            <motion.div
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 0.9, x: 0 }}
+                transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
+                className="absolute -right-5 top-0 bottom-0 h-full z-20 pointer-events-none flex items-center justify-end overflow-hidden pr-2"
+            >
                 <Image
                     src="/assets/brand/sayni-vertical-brand.svg"
                     alt="Sayni Brand"
@@ -300,7 +347,7 @@ export default function Hero() {
                     className="h-full w-auto object-contain opacity-90 select-none mix-blend-screen"
                     priority
                 />
-            </div>
+            </motion.div>
         </section>
     );
 }
