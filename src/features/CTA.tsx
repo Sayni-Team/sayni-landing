@@ -30,7 +30,7 @@ const itemUpVariants: Variants = {
 
 export default function CtaSection() {
     return (
-        <section className="relative w-full py-20 lg:py-28 px-6 bg-sayni-black text-white text-center flex flex-col items-center justify-center overflow-hidden">
+        <section className="relative w-full py-60 lg:py-65 px-6 bg-sayni-black text-white text-center flex flex-col items-center justify-center overflow-hidden">
             <motion.div
                 variants={containerVariants}
                 initial="hidden"
