@@ -382,34 +382,44 @@ export default function OurCoffees() {
                                     />
                                 </div>
 
-                                <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 font-urbanist">
+                                <div className="flex flex-wrap items-center justify-center font-urbanist">
 
-                                    <div className="px-5 py-2.5 rounded-xl bg-[#1d2b20] border border-white/10 text-xs sm:text-sm text-gray-200">
-                                        <p className="font-bold text-white text-sm sm:text-base">
+                                    {/* Ítem 1 */}
+                                    <div className="flex flex-col items-center px-6 py-2">
+                                        <div className="bg-[#b3ca14] text-black font-bold px-6 py-3 rounded-2xl text-base sm:text-lg shadow-sm">
                                             4 Bolsas Sayni
-                                        </p>
-                                        <p className="text-[11px] text-gray-400 mt-0.5">
+                                        </div>
+                                        <p className="text-gray-300 text-xs sm:text-sm mt-3 text-center">
                                             Clásico 220g c/u - tueste oscuro
                                         </p>
                                     </div>
 
-                                    <div className="px-5 py-2.5 rounded-xl bg-[#1d2b20] border border-white/10 text-xs sm:text-sm text-gray-200">
-                                        <p className="font-bold text-white text-sm sm:text-base">
+                                    {/* Separador vertical */}
+                                    <div className="hidden sm:block h-16 w-[1px] bg-white/20 mx-2" />
+
+                                    {/* Ítem 2 */}
+                                    <div className="flex flex-col items-center px-6 py-2">
+                                        <div className="bg-[#b3ca14] text-black font-bold px-6 py-3 rounded-2xl text-base sm:text-lg shadow-sm">
                                             1 Prensa Francesa
-                                        </p>
-                                        <p className="text-[11px] text-gray-400 mt-0.5">
+                                        </div>
+                                        <p className="text-gray-300 text-xs sm:text-sm mt-3 text-center">
                                             350 ml - portátil
                                         </p>
                                     </div>
 
-                                    <div className="px-5 py-2.5 rounded-xl bg-[#1d2b20] border border-white/10 text-xs sm:text-sm text-gray-200">
-                                        <p className="font-bold text-white text-sm sm:text-base">
+                                    {/* Separador vertical */}
+                                    <div className="hidden sm:block h-16 w-[1px] bg-white/20 mx-2" />
+
+                                    {/* Ítem 3 */}
+                                    <div className="flex flex-col items-center px-6 py-2">
+                                        <div className="bg-[#b3ca14] text-black font-bold px-6 py-3 rounded-2xl text-base sm:text-lg shadow-sm">
                                             1 Estuche cofre
-                                        </p>
-                                        <p className="text-[11px] text-gray-400 mt-0.5">
+                                        </div>
+                                        <p className="text-gray-300 text-xs sm:text-sm mt-3 text-center">
                                             Verde andino dorado
                                         </p>
                                     </div>
+
                                 </div>
 
                                 <div className="pt-2 font-urbanist flex flex-col items-center gap-3">
