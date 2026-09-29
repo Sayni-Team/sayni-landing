@@ -512,7 +512,7 @@ export default function OurCoffees() {
                                                     weight: "250g",
                                                     price: 35.00,
                                                     quantity: 1, // <--- Agregar aquí
-                                                    image: "/assets/features/classic_package_.webp",
+                                                    image: "/assets/features/classic_package_250.webp",
                                                 })
                                             }
                                             className="
