@@ -3,39 +3,19 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { useCart } from '@/context/CartContext';
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const [isCartOpen, setIsCartOpen] = useState(false);
-
-    // Estado local de ejemplo para la interfaz del carrito (se puede conectar a Zustand, Context o Redux)
-    const [cartItems, setCartItems] = useState([
-        {
-            id: '1',
-            name: 'Sayni Geisha',
-            weight: '250g',
-            price: 45.00,
-            quantity: 1,
-            image: '/assets/features/geisha_package_250.webp'
-        }
-    ]);
-
-    const updateQuantity = (id: string, delta: number) => {
-        setCartItems(prev => prev.map(item => {
-            if (item.id === id) {
-                const newQty = item.quantity + delta;
-                return newQty > 0 ? { ...item, quantity: newQty } : item;
-            }
-            return item;
-        }));
-    };
-
-    const removeItem = (id: string) => {
-        setCartItems(prev => prev.filter(item => item.id !== id));
-    };
-
-    const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
-    const totalPrice = cartItems.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+    const {
+        cartItems,
+        updateQuantity,
+        removeFromCart,
+        totalCartCount,
+        totalPrice,
+        isCartOpen,
+        setIsCartOpen,
+    } = useCart();
 
     return (
         <>
@@ -115,7 +95,7 @@ export default function Header() {
                                 aria-label="Abrir carrito"
                             >
                                 <svg className="w-6 h-6 fill-current" viewBox="0 0 24 24">
-                                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
+                                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.89-2-1.99-2z" />
                                 </svg>
                                 {totalCartCount > 0 && (
                                     <span className="absolute -top-1 -right-1 bg-white text-sayni-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md">
@@ -134,7 +114,7 @@ export default function Header() {
                                 aria-label="Abrir carrito"
                             >
                                 <svg className="w-7 h-7 fill-current" viewBox="0 0 24 24">
-                                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
+                                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.89-2-1.99-2z" />
                                 </svg>
                                 {totalCartCount > 0 && (
                                     <span className="absolute top-0 right-0 bg-white text-sayni-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md">
@@ -212,7 +192,7 @@ export default function Header() {
                 <div className="p-6 border-b border-white/10 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <svg className="w-6 h-6 fill-[#BCC90F]" viewBox="0 0 24 24">
-                            <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z" />
+                            <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.89-2-1.99-2z" />
                         </svg>
                         <h3 className="text-xl font-bold font-heading">Tu Carrito</h3>
                     </div>
@@ -241,14 +221,14 @@ export default function Header() {
                             <div key={item.id} className="flex items-center gap-4 bg-[#1b2f22] p-3 rounded-2xl border border-white/5">
                                 <div className="relative w-16 h-16 shrink-0 bg-[#132219] rounded-xl overflow-hidden p-1">
                                     <Image
-                                        src={item.image}
-                                        alt={item.name}
+                                        src={item.image ?? "/assets/brand/logo.webp"} // <--- Usa '??' para fallback
+                                        alt={item.title}
                                         fill
                                         className="object-contain"
                                     />
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="font-bold text-white text-base leading-tight">{item.name}</h4>
+                                    <h4 className="font-bold text-white text-base leading-tight">{item.title}</h4>
                                     <p className="text-xs text-[#BCC90F]">{item.weight}</p>
                                     <p className="text-sm font-semibold text-gray-200 mt-1">S/ {item.price.toFixed(2)}</p>
                                 </div>
@@ -271,7 +251,7 @@ export default function Header() {
                                 </div>
                                 <button
                                     type="button"
-                                    onClick={() => removeItem(item.id)}
+                                    onClick={() => removeFromCart(item.id)}
                                     className="text-gray-400 hover:text-red-400 p-1 transition-colors"
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

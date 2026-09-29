@@ -1,0 +1,128 @@
+"use client";
+
+import React, { createContext, useContext, useState, useEffect } from "react";
+
+// 1. Define la interfaz de los ítems del carrito
+export interface CartItem {
+    id: string | number;
+    title: string;       // Manteniendo 'title' como indicas
+    price: number;
+    quantity: number;
+    image: string;       // <--- Cambiar de 'image?: string' a 'image: string'
+    grind?: string;
+    weight?: string;
+}
+
+// 2. Define la interfaz del contexto
+interface CartContextType {
+    cartItems: CartItem[];
+    addToCart: (item: CartItem) => void;
+    removeFromCart: (id: string | number) => void;
+    updateQuantity: (id: string | number, delta: number) => void;
+    clearCart: () => void;
+    totalCartCount: number;
+    totalPrice: number;
+    isInitialized: boolean;
+    isCartOpen: boolean;                                     // <--- AÑADIDO
+    setIsCartOpen: React.Dispatch<React.SetStateAction<boolean>>; // <--- AÑADIDO
+}
+const LOCAL_STORAGE_KEY = "sayni_cart";
+
+const CartContext = createContext<CartContextType | undefined>(undefined);
+
+export const CartProvider = ({ children }: { children: React.ReactNode }) => {
+    const [cartItems, setCartItems] = useState<CartItem[]>([]);
+    const [isInitialized, setIsInitialized] = useState(false);
+    const [isCartOpen, setIsCartOpen] = useState(false); // <--- ESTADO DEL DRAWER
+
+    useEffect(() => {
+        try {
+            const storedCart = localStorage.getItem(LOCAL_STORAGE_KEY);
+            if (storedCart) {
+                setCartItems(JSON.parse(storedCart));
+            }
+        } catch (error) {
+            console.error("Error cargando carrito de localStorage", error);
+        } finally {
+            setIsInitialized(true);
+        }
+    }, []);
+
+    useEffect(() => {
+        if (isInitialized) {
+            try {
+                localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cartItems));
+            } catch (error) {
+                console.error("Error guardando carrito en localStorage", error);
+            }
+        }
+    }, [cartItems, isInitialized]);
+
+    const addToCart = (newItem: CartItem) => {
+        const itemQty = newItem.quantity && !isNaN(newItem.quantity) ? newItem.quantity : 1;
+        setCartItems((prev) => {
+            const existingIndex = prev.findIndex((item) => item.id === newItem.id);
+            if (existingIndex > -1) {
+                const updated = [...prev];
+                updated[existingIndex] = {
+                    ...updated[existingIndex],
+                    quantity: updated[existingIndex].quantity + itemQty,
+                };
+                return updated;
+            }
+            return [...prev, { ...newItem, quantity: itemQty }];
+        });
+        setIsCartOpen(true); // Abre el carrito automáticamente al añadir un producto
+    };
+
+    const removeFromCart = (id: string | number) => {
+        setCartItems((prev) => prev.filter((item) => item.id !== id));
+    };
+
+    // Permite pasar delta (+1 o -1) desde las flechas del Header
+    const updateQuantity = (id: string | number, delta: number) => {
+        setCartItems((prev) =>
+            prev
+                .map((item) => {
+                    if (item.id === id) {
+                        const newQty = item.quantity + delta;
+                        return newQty > 0 ? { ...item, quantity: newQty } : null;
+                    }
+                    return item;
+                })
+                .filter((item): item is CartItem => item !== null)
+        );
+    };
+
+    const clearCart = () => setCartItems([]);
+
+    const totalCartCount = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+    const totalPrice = cartItems.reduce((acc, item) => acc + item.price * item.quantity, 0);
+
+    return (
+        <CartContext.Provider
+            value={{
+                cartItems,
+                addToCart,
+                removeFromCart,
+                updateQuantity,
+                clearCart,
+                totalCartCount,
+                totalPrice,
+                isInitialized,
+                isCartOpen,       // <--- AÑADIDO AL VALUE
+                setIsCartOpen,    // <--- AÑADIDO AL VALUE
+            }}
+        >
+            {children}
+        </CartContext.Provider>
+    );
+};
+
+export const useCart = () => {
+    const context = useContext(CartContext);
+    if (!context) {
+        throw new Error("useCart debe ser usado dentro de un CartProvider");
+    }
+    return context;
+};

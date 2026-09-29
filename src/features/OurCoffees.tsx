@@ -4,6 +4,7 @@ import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, Variants } from "framer-motion";
+import { useCart } from "@/context/CartContext";
 
 type CategoryType = "especialidad" | "comercial";
 
@@ -54,9 +55,7 @@ export default function OurCoffees() {
     const [activeCategory, setActiveCategory] =
         useState<CategoryType>("especialidad");
 
-    const handleAddToCart = () => {
-        // Placeholder para futura feature de carrito
-    };
+    const { addToCart } = useCart();
 
     return (
         <section
@@ -223,7 +222,16 @@ export default function OurCoffees() {
                                     <div className="pt-1">
                                         <button
                                             type="button"
-                                            onClick={handleAddToCart}
+                                            onClick={() =>
+                                                addToCart({
+                                                    id: "geisha-250",
+                                                    title: "Sayni Geisha",
+                                                    weight: "250g",
+                                                    price: 45.00,
+                                                    quantity: 1, // <--- Agregar aquí
+                                                    image: "/assets/features/geisha_package_250.webp",
+                                                })
+                                            }
                                             className="
                                                 inline-flex items-center gap-4 bg-[#BCC90F] text-[#132219] font-bold
                                                 pl-6 pr-2 py-2 rounded-[100px] hover:scale-[1.02] active:scale-[0.98]
@@ -300,7 +308,16 @@ export default function OurCoffees() {
                                     <div className="pt-1 self-start lg:self-end">
                                         <button
                                             type="button"
-                                            onClick={handleAddToCart}
+                                            onClick={() =>
+                                                addToCart({
+                                                    id: "geisha-500",
+                                                    title: "Sayni Geisha",
+                                                    weight: "500g",
+                                                    price: 80.00,
+                                                    quantity: 1, // <--- Agregar aquí
+                                                    image: "/assets/features/geisha_package_500.webp",
+                                                })
+                                            }
                                             className="
                                                 inline-flex items-center gap-4 bg-[#BCC90F] text-[#132219] font-bold
                                                 pl-6 pr-2 py-2 rounded-[100px] hover:scale-[1.02] active:scale-[0.98]
@@ -488,7 +505,16 @@ export default function OurCoffees() {
                                     <div className="pt-1 self-start lg:self-end">
                                         <button
                                             type="button"
-                                            onClick={handleAddToCart}
+                                            onClick={() =>
+                                                addToCart({
+                                                    id: "clasico-250",
+                                                    title: "Sayni Clásico",
+                                                    weight: "250g",
+                                                    price: 35.00,
+                                                    quantity: 1, // <--- Agregar aquí
+                                                    image: "/assets/features/classic_package_.webp",
+                                                })
+                                            }
                                             className="
                                                 inline-flex items-center gap-4 bg-[#BCC90F] text-[#132219] font-bold
                                                 pl-6 pr-2 py-2 rounded-[100px] hover:scale-[1.02] active:scale-[0.98]

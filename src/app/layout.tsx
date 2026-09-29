@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Urbanist } from "next/font/google";
 import localFont from "next/font/local";
+import { CartProvider } from "@/context/CartContext"; // <--- 1. Importar el CartProvider
 import "./globals.css";
 
 // Fuente Urbanist desde Google Fonts
@@ -14,7 +15,7 @@ const urbanist = Urbanist({
 const clashGrotesk = localFont({
     src: [
         {
-            path: "./fonts/ClashGrotesk-Regular.woff2", // Cambia a .ttf o .otf según los archivos que tengas
+            path: "./fonts/ClashGrotesk-Regular.woff2",
             weight: "400",
             style: "normal",
         },
@@ -50,7 +51,10 @@ export default function RootLayout({
     return (
         <html lang="es" className={`${urbanist.variable} ${clashGrotesk.variable}`}>
         <body className="bg-sayni-black text-sayni-light font-sans antialiased selection:bg-sayni-lime selection:text-sayni-black">
-        {children}
+        {/* 2. Envolver {children} dentro de <CartProvider> */}
+        <CartProvider>
+            {children}
+        </CartProvider>
         </body>
         </html>
     );
