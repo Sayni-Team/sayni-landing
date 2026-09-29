@@ -90,7 +90,7 @@ export default function AboutUs() {
                     >
                         <Image
                             src="/assets/features/about-us.webp"
-                            alt="Taza de café Sayni en ambiente natural"
+                            alt="Planta de café Sayni en ambiente natural"
                             fill
                             sizes="(max-width: 768px) 100vw, 50vw"
                             className="object-cover object-center transition-transform duration-[1800ms] ease-out"
@@ -136,44 +136,37 @@ export default function AboutUs() {
                         </div>
 
                         {/* ============================================== */}
-                        {/* BADGES */}
+                        {/* INSTAGRAM LINK */}
                         {/* ============================================== */}
 
                         <div
-                            className="space-y-3 pt-6 mt-auto"
+                            className="space-y-2 pt-6 mt-auto"
                             style={revealStyle(650, 900)}
                         >
-                            <span className="text-xs text-gray-400 uppercase tracking-wider block">
+                            <span className="text-xs text-gray-400 font-light block">
                                 Conoce más
                             </span>
 
-                            <div className="flex flex-wrap justify-center md:justify-start gap-2.5">
-
-                                {/* Badge 1 */}
-                                <div
-                                    className="px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-gray-200"
-                                    style={revealStyle(760, 800)}
+                            <a
+                                href="https://instagram.com/sayni_peru"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2.5 text-sayni-lime hover:text-white transition-colors duration-300 text-lg sm:text-xl font-medium group"
+                            >
+                                {/* Icono Instagram SVG */}
+                                <svg
+                                    className="w-6 h-6 stroke-current fill-none transition-transform duration-300 group-hover:scale-110"
+                                    viewBox="0 0 24 24"
+                                    strokeWidth="1.8"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
                                 >
-                                    100% Peruano
-                                </div>
-
-                                {/* Badge 2 */}
-                                <div
-                                    className="px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-gray-200"
-                                    style={revealStyle(850, 800)}
-                                >
-                                    Comercio Justo
-                                </div>
-
-                                {/* Badge 3 */}
-                                <div
-                                    className="px-3.5 py-2.5 rounded-xl bg-white/5 border border-white/10 text-xs text-gray-200"
-                                    style={revealStyle(940, 800)}
-                                >
-                                    Tueste Especial
-                                </div>
-
-                            </div>
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                                </svg>
+                                <span>@sayni_peru</span>
+                            </a>
                         </div>
 
                     </div>
