@@ -89,7 +89,7 @@ export default function AboutUs() {
                         style={revealStyle(180, 1200)}
                     >
                         <Image
-                            src="/assets/features/about-us.webp"
+                            src="/assets/features/about.webp"
                             alt="Planta de café Sayni en ambiente natural"
                             fill
                             sizes="(max-width: 768px) 100vw, 50vw"
