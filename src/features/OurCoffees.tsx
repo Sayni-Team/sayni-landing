@@ -386,7 +386,7 @@ export default function OurCoffees() {
 
                                     {/* Ítem 1 */}
                                     <div className="flex flex-col items-center px-6 py-2">
-                                        <div className="bg-[#b3ca14] text-black font-bold px-6 py-3 rounded-2xl text-base sm:text-lg shadow-sm">
+                                        <div className="bg-[#b3ca14] text-black font-bold px-6 py-2 rounded-lg text-base sm:text-lg shadow-sm">
                                             4 Bolsas Sayni
                                         </div>
                                         <p className="text-gray-300 text-xs sm:text-sm mt-3 text-center">
@@ -399,7 +399,7 @@ export default function OurCoffees() {
 
                                     {/* Ítem 2 */}
                                     <div className="flex flex-col items-center px-6 py-2">
-                                        <div className="bg-[#b3ca14] text-black font-bold px-6 py-3 rounded-2xl text-base sm:text-lg shadow-sm">
+                                        <div className="bg-[#b3ca14] text-black font-bold px-6 py-2 rounded-lg text-base sm:text-lg shadow-sm">
                                             1 Prensa Francesa
                                         </div>
                                         <p className="text-gray-300 text-xs sm:text-sm mt-3 text-center">
@@ -412,7 +412,7 @@ export default function OurCoffees() {
 
                                     {/* Ítem 3 */}
                                     <div className="flex flex-col items-center px-6 py-2">
-                                        <div className="bg-[#b3ca14] text-black font-bold px-6 py-3 rounded-2xl text-base sm:text-lg shadow-sm">
+                                        <div className="bg-[#b3ca14] text-black font-bold px-6 py-2 rounded-lg text-base sm:text-lg shadow-sm">
                                             1 Estuche cofre
                                         </div>
                                         <p className="text-gray-300 text-xs sm:text-sm mt-3 text-center">
