@@ -17,6 +17,24 @@ export default function Header() {
         setIsCartOpen,
     } = useCart();
 
+    const handleCheckout = () => {
+        const phoneNumber = "51991319377"; // Número con código de país de Perú (+51)
+
+        // Formatear los productos de la orden
+        const itemsList = cartItems
+            .map(
+                (item) =>
+                    `• ${item.quantity}x *${item.title}* (${item.weight}) - S/ ${(item.price * item.quantity).toFixed(2)}`
+            )
+            .join("\n");
+
+        const message = `¡Hola Sayni! ☕ Deseo realizar el siguiente pedido:\n\n${itemsList}\n\n*Total:* S/ ${totalPrice.toFixed(2)}`;
+
+        // Redirigir a WhatsApp
+        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, "_blank");
+    };
+
     return (
         <>
             <header className="absolute top-0 left-0 w-full z-50 px-6 sm:px-12 pt-8 pb-6 bg-transparent transition-all duration-300 ease-in-out">
@@ -272,13 +290,14 @@ export default function Header() {
                         </div>
                         <button
                             type="button"
+                            onClick={handleCheckout}
                             className="
-                                w-full inline-flex items-center justify-center gap-3 bg-[#BCC90F] text-[#132219] font-bold
-                                py-3.5 px-6 rounded-full hover:scale-[1.02] active:scale-[0.98]
-                                transition-all duration-300 text-base cursor-pointer
-                                border-t border-white/40
-                                shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]
-                            "
+                w-full inline-flex items-center justify-center gap-3 bg-[#BCC90F] text-[#132219] font-bold
+                py-3.5 px-6 rounded-full hover:scale-[1.02] active:scale-[0.98]
+                transition-all duration-300 text-base cursor-pointer
+                border-t border-white/40
+                shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]
+            "
                         >
                             <span>Finalizar Pedido</span>
                             <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
