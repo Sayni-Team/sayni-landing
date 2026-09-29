@@ -552,7 +552,7 @@ export default function OurCoffees() {
                                 {/* Bolsa derecha */}
                                 <div className="col-span-12 lg:col-span-6 flex justify-center lg:justify-start items-center h-[340px] sm:h-[400px] lg:h-[460px] order-1 lg:order-2 lg:pl-4">
                                     <Image
-                                        src="/assets/features/classic_package_.webp"
+                                        src="/assets/features/classic_package_250.webp"
                                         alt="Sayni Clásico 250g"
                                         width={340}
                                         height={480}
