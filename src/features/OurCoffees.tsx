@@ -492,7 +492,7 @@ export default function OurCoffees() {
                             </div>
 
                             {/* ITEM 2: PACK X4 SAYNI CLÁSICO (SIN ESTUCHE NI TARJETA) */}
-                            <div className="grid grid-cols-12 gap-0 items-stretch justify-center relative pt-6 border-t border-white/10">
+                            <div className="grid grid-cols-12 gap-0 items-stretch justify-center relative pt-6 ">
 
                                 {/* Bolsa - Imagen */}
                                 <div className="col-span-12 lg:col-span-6 flex justify-center lg:justify-end items-center min-h-[300px] sm:min-h-[360px] lg:min-h-0 h-full mr-2 relative py-4">
