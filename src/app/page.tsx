@@ -7,6 +7,8 @@ import TestimonialsSection from "@/features/Testimonials";
 import CtaSection from "@/features/CTA";
 import Hero from "@/features/Hero";
 import { SectionDivider } from "@/components/SectionDivider";
+import {SectionDividerLeft} from "@/components/SectionDividerLeft";
+import FAQSection from "@/features/FAQSection";
 
 export default function Home() {
     return (
@@ -17,11 +19,10 @@ export default function Home() {
                 <Hero />
                 <InfiniteMarquee />
                 <AboutUs />
-
                 <SectionDivider />
-
                 <OurCoffees />
                 <TestimonialsSection />
+                <FAQSection/>
                 <CtaSection />
             </main>
 

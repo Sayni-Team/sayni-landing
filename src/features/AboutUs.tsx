@@ -68,7 +68,7 @@ export default function AboutUs() {
                         <span className="h-[1px] w-12 sm:w-16 bg-white/20" />
                     </div>
 
-                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-white tracking-tight">
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-white tracking-wide">
                         Una historia que <br className="hidden sm:block" />
                         comienza en el origen
                     </h2>
@@ -96,6 +96,9 @@ export default function AboutUs() {
                             className="object-cover object-center transition-transform duration-[1800ms] ease-out"
                             priority
                         />
+
+                        {/* Overay con degradado negro bajito (30% de opacidad en la base hasta transparente 0) */}
+                        <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/39 via-black/25 to-black/10" />
                     </div>
 
                     {/* ================================================== */}

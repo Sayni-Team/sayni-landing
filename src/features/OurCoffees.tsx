@@ -62,6 +62,18 @@ export default function OurCoffees() {
             id="cafes"
             className="py-16 sm:py-20 lg:py-28 px-6 lg:px-16 bg-sayni-black text-sayni-light transition-all duration-500 relative overflow-hidden"
         >
+            {/* ILUSTRACIÓN ORNAMENTAL DE FONDO (ABAJO A LA IZQUIERDA) */}
+            <div className="absolute -left-20 sm:-left-58 bottom-30 pointer-events-none z-0 opacity-20 md:opacity-25 select-none">
+                <svg
+                    viewBox="0 0 500 500"
+                    className="w-[380px] sm:w-[520px] md:w-[650px] lg:w-[750px] h-auto text-[#8B7E56] object-contain rotate-12 origin-bottom-left"
+                    fill="currentColor"
+                    xmlns="http://www.w3.org/2000/svg"
+                >
+                    <image href="/assets/vector-ornamental-2.svg" width="500" height="500" />
+                </svg>
+            </div>
+
             <motion.div
                 variants={containerVariants}
                 initial="hidden"
@@ -158,41 +170,41 @@ export default function OurCoffees() {
                             initial="hidden"
                             animate="visible"
                             exit="exit"
-                            className="space-y-8 sm:space-y-12 pt-4"
+                            className="space-y-8 sm:space-y-30 pt-4"
                         >
 
                             {/* ====================================================== */}
                             {/* ITEM 1: SAYNI GEISHA 250g - BOLSA IZQUIERDA */}
                             {/* ====================================================== */}
 
-                            <div className="grid grid-cols-12 gap-0 items-center justify-center relative">
+                            <div className="grid grid-cols-12 gap-0 items-stretch justify-center relative">
 
-                                {/* Bolsa */}
-                                <div className="col-span-12 lg:col-span-6 flex justify-center lg:justify-end items-center h-[340px] sm:h-[400px] lg:h-[460px] mr-2 relative">
+                                {/* Bolsa - Se adapta dinámicamente al alto del contenido de al lado en LG */}
+                                <div className="col-span-12 lg:col-span-6 flex justify-center lg:justify-end items-center min-h-[340px] sm:min-h-[400px] lg:min-h-0 h-full mr-2 relative py-4">
                                     <Image
                                         src="/assets/features/geisha_package_250.webp"
                                         alt="Sayni Geisha 250g"
                                         width={340}
                                         height={480}
-                                        className="h-full w-auto object-contain hover:scale-105 transition-transform duration-500"
+                                        className="max-h-full w-auto object-contain hover:scale-105 transition-transform duration-500"
                                         priority
                                     />
                                 </div>
 
                                 {/* Información */}
-                                <div className="col-span-12 lg:col-span-6 flex flex-col justify-center gap-5 text-left font-urbanist lg:pl-4">
+                                <div className="col-span-12 lg:col-span-6 flex flex-col justify-center gap-5 text-left font-urbanist lg:pl-4 py-4">
 
                                     <div>
                                         <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-white tracking-wide">
                                             Sayni <br />
                                             Geisha{" "}
                                             <span className="text-base sm:text-lg font-normal text-[#BCC90F] ml-2">
-                                                250g
-                                            </span>
+                                250g
+                            </span>
                                         </h3>
 
                                         <p className="mt-3 text-gray-300 text-sm sm:text-base leading-relaxed max-w-[320px] font-light">
-                                            Café de todos los días. Un café peruano con alma andina para tu pausa diaria. Blend de origen Cusco (Inkawasi, La Convención), de tueste oscuro y sabor intenso. Haz una pausa, recarga el alma y sigue adelante.
+                                            Geisha de altura en presentación de 250g, 87 puntos SCA certificados por Q-Grader. Cultivado a +2,000 msnm en Inkawasi, Cusco. Lavado y de tueste medio, con notas de jazmín, cítricos y frutas rojas, y final de miel y chocolate. Ideal para disfrutar fresco semana a semana.
 
                                             <a
                                                 href="/ficha-tecnica-geisha.pdf"
@@ -228,30 +240,30 @@ export default function OurCoffees() {
                                                     title: "Sayni Geisha",
                                                     weight: "250g",
                                                     price: 45.00,
-                                                    quantity: 1, // <--- Agregar aquí
+                                                    quantity: 1,
                                                     image: "/assets/features/geisha_package_250.webp",
                                                 })
                                             }
                                             className="
-                                                inline-flex items-center gap-4 bg-[#BCC90F] text-[#132219] font-bold
-                                                pl-6 pr-2 py-2 rounded-[100px] hover:scale-[1.02] active:scale-[0.98]
-                                                transition-all duration-300 group text-sm sm:text-base cursor-pointer
-                                                border-t border-white/40
-                                                shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]
-                                            "
+                                inline-flex items-center gap-4 bg-[#BCC90F] text-[#132219] font-bold
+                                pl-6 pr-2 py-2 rounded-[100px] hover:scale-[1.02] active:scale-[0.98]
+                                transition-all duration-300 group text-sm sm:text-base cursor-pointer
+                                border-t border-white/40
+                                shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]
+                            "
                                         >
-                                            <span className="tracking-wide select-none">
-                                                Añadir al carrito
-                                            </span>
+                            <span className="tracking-wide select-none">
+                                Añadir al carrito
+                            </span>
 
                                             <span className="bg-[#132219] text-[#BCC90F] rounded-full w-9 h-9 flex items-center justify-center shrink-0">
-                                                <svg
-                                                    className="w-5 h-5 fill-current"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.89-2-1.99-2z" />
-                                                </svg>
-                                            </span>
+                                <svg
+                                    className="w-5 h-5 fill-current"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.89-2-1.99-2z" />
+                                </svg>
+                            </span>
                                         </button>
                                     </div>
                                 </div>
@@ -261,23 +273,22 @@ export default function OurCoffees() {
                             {/* ITEM 2: SAYNI GEISHA 500g - BOLSA DERECHA */}
                             {/* ====================================================== */}
 
-                            <div className="grid grid-cols-12 gap-0 items-center justify-center relative">
+                            <div className="grid grid-cols-12 gap-0 items-stretch justify-center relative">
 
                                 {/* Información */}
-                                <div className="col-span-12 lg:col-span-6 flex flex-col justify-center items-start lg:items-end gap-5 text-left lg:text-right font-urbanist order-2 lg:order-1 lg:pr-8">
+                                <div className="col-span-12 lg:col-span-6 flex flex-col justify-center items-start lg:items-end gap-5 text-left lg:text-right font-urbanist order-2 lg:order-1 lg:pr-8 py-4">
 
                                     <div className="flex flex-col items-start lg:items-end">
 
                                         <h3 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-white tracking-wide">
                                             Sayni <br />
+                                            <span className="text-base sm:text-lg font-normal text-[#BCC90F] ml-2">500g</span>{" "}
                                             Geisha{" "}
-                                            <span className="text-base sm:text-lg font-normal text-[#BCC90F] ml-2">
-                                                500g
-                                            </span>
+
                                         </h3>
 
                                         <p className="mt-3 text-gray-300 text-sm sm:text-base leading-relaxed max-w-[320px] font-light">
-                                            Café de todos los días. Un café peruano con alma andina para tu pausa diaria. Blend de origen Cusco (Inkawasi, La Convención), de tueste oscuro y sabor intenso. Haz una pausa, recarga el alma y sigue adelante.
+                                            Geisha de altura en presentación rinde-más de 500g, 87 puntos SCA certificados por Q-Grader. Cultivado a +2,000 msnm en Inkawasi, Cusco. Lavado y de tueste medio, con notas de jazmín, cítricos y frutas rojas, y final de miel y chocolate. La medida perfecta para los amantes constantes del buen café.
 
                                             <a
                                                 href="/ficha-tecnica-geisha.pdf"
@@ -314,42 +325,42 @@ export default function OurCoffees() {
                                                     title: "Sayni Geisha",
                                                     weight: "500g",
                                                     price: 80.00,
-                                                    quantity: 1, // <--- Agregar aquí
+                                                    quantity: 1,
                                                     image: "/assets/features/geisha_package_500.webp",
                                                 })
                                             }
                                             className="
-                                                inline-flex items-center gap-4 bg-[#BCC90F] text-[#132219] font-bold
-                                                pl-6 pr-2 py-2 rounded-[100px] hover:scale-[1.02] active:scale-[0.98]
-                                                transition-all duration-300 group text-sm sm:text-base cursor-pointer
-                                                border-t border-white/40
-                                                shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]
-                                            "
+                                inline-flex items-center gap-4 bg-[#BCC90F] text-[#132219] font-bold
+                                pl-6 pr-2 py-2 rounded-[100px] hover:scale-[1.02] active:scale-[0.98]
+                                transition-all duration-300 group text-sm sm:text-base cursor-pointer
+                                border-t border-white/40
+                                shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]
+                            "
                                         >
-                                            <span className="tracking-wide select-none">
-                                                Añadir al carrito
-                                            </span>
+                            <span className="tracking-wide select-none">
+                                Añadir al carrito
+                            </span>
 
                                             <span className="bg-[#132219] text-[#BCC90F] rounded-full w-9 h-9 flex items-center justify-center shrink-0">
-                                                <svg
-                                                    className="w-5 h-5 fill-current"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.89-2-1.99-2z" />
-                                                </svg>
-                                            </span>
+                                <svg
+                                    className="w-5 h-5 fill-current"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.89-2-1.99-2z" />
+                                </svg>
+                            </span>
                                         </button>
                                     </div>
                                 </div>
 
                                 {/* Bolsa derecha */}
-                                <div className="col-span-12 lg:col-span-6 flex justify-center lg:justify-start items-center h-[340px] sm:h-[400px] lg:h-[460px] order-1 lg:order-2 lg:pl-4">
+                                <div className="col-span-12 lg:col-span-6 flex justify-center lg:justify-start items-center min-h-[340px] sm:min-h-[400px] lg:min-h-0 h-full order-1 lg:order-2 lg:pl-4 py-4">
                                     <Image
                                         src="/assets/features/geisha_package_500.webp"
                                         alt="Sayni Geisha 500g"
                                         width={340}
                                         height={480}
-                                        className="h-full w-auto object-contain hover:scale-105 transition-transform duration-500"
+                                        className="max-h-full w-auto object-contain hover:scale-105 transition-transform duration-500"
                                     />
                                 </div>
                             </div>
@@ -440,26 +451,26 @@ export default function OurCoffees() {
                                         href="https://wa.me/"
                                         target="_blank"
                                         className="
-                                            inline-flex items-center gap-6 bg-[#BCC90F] text-[#132219] font-bold mt-5 mb-8
-                                            pl-8 pr-3 py-1.5 rounded-[100px]
-                                            hover:scale-[1.01] active:scale-[0.98]
-                                            transition-all duration-300 group text-base sm:text-lg
-                                            border-t border-white/40
-                                            shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]
-                                        "
+                            inline-flex items-center gap-6 bg-[#BCC90F] text-[#132219] font-bold mt-5 mb-8
+                            pl-8 pr-3 py-1.5 rounded-[100px]
+                            hover:scale-[1.01] active:scale-[0.98]
+                            transition-all duration-300 group text-base sm:text-lg
+                            border-t border-white/40
+                            shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]
+                        "
                                     >
-                                        <span className="tracking-wide select-none pr-1">
-                                            Pide tu Sayni
-                                        </span>
+                        <span className="tracking-wide select-none pr-1">
+                            Pide tu Sayni
+                        </span>
 
                                         <span className="bg-[#132219] text-[#BCC90F] rounded-full w-10 h-10 flex items-center justify-center shrink-0">
-                                            <svg
-                                                className="w-5 h-5 fill-current"
-                                                viewBox="0 0 24 24"
-                                            >
-                                                <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
-                                            </svg>
-                                        </span>
+                            <svg
+                                className="w-5 h-5 fill-current"
+                                viewBox="0 0 24 24"
+                            >
+                                <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z" />
+                            </svg>
+                        </span>
                                     </Link>
                                 </div>
                             </div>
@@ -468,10 +479,10 @@ export default function OurCoffees() {
                             {/* ITEM 2: SAYNI CLÁSICO 250g - BOLSA DERECHA */}
                             {/* ====================================================== */}
 
-                            <div className="grid grid-cols-12 gap-0 items-center justify-center relative">
+                            <div className="grid grid-cols-12 gap-0 items-stretch justify-center relative">
 
                                 {/* Información */}
-                                <div className="col-span-12 lg:col-span-6 flex flex-col justify-center items-start lg:items-end gap-5 text-left lg:text-right font-urbanist order-2 lg:order-1 lg:pr-8">
+                                <div className="col-span-12 lg:col-span-6 flex flex-col justify-center items-start lg:items-end gap-5 text-left lg:text-right font-urbanist order-2 lg:order-1 lg:pr-8 py-4">
 
                                     <div className="flex flex-col items-start lg:items-end">
 
@@ -479,8 +490,8 @@ export default function OurCoffees() {
                                             Sayni <br />
                                             Clásico{" "}
                                             <span className="text-base sm:text-lg font-normal text-[#BCC90F] ml-2">
-                                                250g
-                                            </span>
+                                250g
+                            </span>
                                         </h3>
 
                                         <p className="mt-3 text-gray-300 text-sm sm:text-base leading-relaxed max-w-[320px] font-light">
@@ -521,42 +532,42 @@ export default function OurCoffees() {
                                                     title: "Sayni Clásico",
                                                     weight: "250g",
                                                     price: 35.00,
-                                                    quantity: 1, // <--- Agregar aquí
+                                                    quantity: 1,
                                                     image: "/assets/features/classic_package_250.webp",
                                                 })
                                             }
                                             className="
-                                                inline-flex items-center gap-4 bg-[#BCC90F] text-[#132219] font-bold
-                                                pl-6 pr-2 py-2 rounded-[100px] hover:scale-[1.02] active:scale-[0.98]
-                                                transition-all duration-300 group text-sm sm:text-base cursor-pointer
-                                                border-t border-white/40
-                                                shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]
-                                            "
+                                inline-flex items-center gap-4 bg-[#BCC90F] text-[#132219] font-bold
+                                pl-6 pr-2 py-2 rounded-[100px] hover:scale-[1.02] active:scale-[0.98]
+                                transition-all duration-300 group text-sm sm:text-base cursor-pointer
+                                border-t border-white/40
+                                shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]
+                            "
                                         >
-                                            <span className="tracking-wide select-none">
-                                                Añadir al carrito
-                                            </span>
+                            <span className="tracking-wide select-none">
+                                Añadir al carrito
+                            </span>
 
                                             <span className="bg-[#132219] text-[#BCC90F] rounded-full w-9 h-9 flex items-center justify-center shrink-0">
-                                                <svg
-                                                    className="w-5 h-5 fill-current"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.89-2-1.99-2z" />
-                                                </svg>
-                                            </span>
+                                <svg
+                                    className="w-5 h-5 fill-current"
+                                    viewBox="0 0 24 24"
+                                >
+                                    <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.89-2-1.99-2z" />
+                                </svg>
+                            </span>
                                         </button>
                                     </div>
                                 </div>
 
                                 {/* Bolsa derecha */}
-                                <div className="col-span-12 lg:col-span-6 flex justify-center lg:justify-start items-center h-[340px] sm:h-[400px] lg:h-[460px] order-1 lg:order-2 lg:pl-4">
+                                <div className="col-span-12 lg:col-span-6 flex justify-center lg:justify-start items-center min-h-[340px] sm:min-h-[400px] lg:min-h-0 h-full order-1 lg:order-2 lg:pl-4 py-4">
                                     <Image
                                         src="/assets/features/classic_package_250.webp"
                                         alt="Sayni Clásico 250g"
                                         width={340}
                                         height={480}
-                                        className="h-full w-auto object-contain hover:scale-105 transition-transform duration-500"
+                                        className="max-h-full w-auto object-contain hover:scale-105 transition-transform duration-500"
                                     />
                                 </div>
                             </div>
