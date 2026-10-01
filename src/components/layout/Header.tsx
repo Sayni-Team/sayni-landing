@@ -38,8 +38,8 @@ export default function Header() {
     return (
         <>
             <header className="absolute top-0 left-0 w-full z-50 px-6 sm:px-12 pt-8 pb-6 bg-transparent transition-all duration-300 ease-in-out">
-                {/* Contenedor principal limitado a max-w-6xl */}
-                <div className="max-w-6xl mx-auto flex items-center justify-between transition-all duration-300 ease-in-out">
+                {/* Contenedor que ocupa exactamente los 3/5 derechos en Desktop */}
+                <div className="w-full md:w-3/5 md:ml-auto flex items-center justify-between md:justify-center transition-all duration-300 ease-in-out px-4">
 
                     {/* 1. LOGO MÓVIL (Solo visible en pantallas pequeñas < md) */}
                     <Link
@@ -57,19 +57,16 @@ export default function Header() {
                         </div>
                     </Link>
 
-                    {/* 2. ESPACIADOR (Solo para Tablets y Desktop para empujar el menú a la derecha) */}
-                    <div className="hidden md:block md:flex-1 transition-all duration-300" />
+                    {/* 2. BLOQUE NAVEGACIÓN DESKTOP */}
+                    <div className="flex items-center justify-end md:justify-center transition-all duration-300 ease-in-out w-full">
 
-                    {/* 3. BLOQUE DERECHO (Navegación Desktop/Tablet + Carrito + Hamburguesa Mobile) */}
-                    <div className="flex items-center justify-end gap-6 md:gap-16 transition-all duration-300 ease-in-out">
+                        {/* Navegación Desktop con el GAP correcto */}
+                        <nav className="hidden md:flex items-center justify-center gap-12 lg:gap-20 text-sm font-medium tracking-wide text-sayni-light/90 transition-all duration-300 ease-in-out">
 
-                        {/* Navegación Desktop / Tablet */}
-                        <nav className="hidden md:flex items-center gap-10 lg:gap-14 text-sm font-medium tracking-wide text-sayni-light/90 transition-all duration-300 ease-in-out">
-
-                            {/* Logo Desktop / Tablet */}
+                            {/* Logo Desktop */}
                             <Link
                                 href="/"
-                                className="flex items-center shrink-0 transition-transform duration-300 hover:scale-105 active:scale-95 mr-4"
+                                className="flex items-center shrink-0 transition-transform duration-300 hover:scale-105 active:scale-95"
                             >
                                 <div className="relative w-10 h-10 sm:w-11 sm:h-11">
                                     <Image
@@ -82,7 +79,7 @@ export default function Header() {
                                 </div>
                             </Link>
 
-                            {/* Links Desktop / Tablet */}
+                            {/* Links Desktop */}
                             <Link
                                 href="#inicio"
                                 className="relative py-1 inline-block hover:text-sayni-lime transition-all duration-300 hover:scale-110 active:scale-95 origin-center group"
@@ -105,7 +102,7 @@ export default function Header() {
                                 <span className="absolute bottom-0 left-0 w-0 h-[2px] bg-sayni-lime transition-all duration-300 group-hover:w-full" />
                             </Link>
 
-                            {/* Botón Carrito Desktop / Tablet */}
+                            {/* Botón Carrito Desktop */}
                             <button
                                 type="button"
                                 onClick={() => setIsCartOpen(true)}
@@ -117,13 +114,13 @@ export default function Header() {
                                 </svg>
                                 {totalCartCount > 0 && (
                                     <span className="absolute -top-1 -right-1 bg-white text-sayni-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md">
-                                        {totalCartCount}
-                                    </span>
+                            {totalCartCount}
+                        </span>
                                 )}
                             </button>
                         </nav>
 
-                        {/* Botones Móvil: Carrito + Menú Hamburguesa */}
+                        {/* Botones Móvil */}
                         <div className="flex items-center gap-2 md:hidden">
                             <button
                                 type="button"
@@ -136,8 +133,8 @@ export default function Header() {
                                 </svg>
                                 {totalCartCount > 0 && (
                                     <span className="absolute top-0 right-0 bg-white text-sayni-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md">
-                                        {totalCartCount}
-                                    </span>
+                            {totalCartCount}
+                        </span>
                                 )}
                             </button>
 
@@ -159,37 +156,6 @@ export default function Header() {
 
                     </div>
 
-                </div>
-
-                {/* Menú desplegable Mobile */}
-                <div
-                    className={`absolute top-full left-0 w-full bg-sayni-black/95 backdrop-blur-xl border-b border-white/10 py-8 px-8 flex flex-col gap-6 md:hidden shadow-2xl transition-all duration-300 ease-out origin-top ${
-                        isMenuOpen
-                            ? 'opacity-100 scale-y-100 translate-y-0 pointer-events-auto'
-                            : 'opacity-0 scale-y-95 -translate-y-2 pointer-events-none'
-                    }`}
-                >
-                    <Link
-                        href="#inicio"
-                        onClick={() => setIsMenuOpen(false)}
-                        className="text-lg font-medium w-max hover:text-sayni-lime transition-all duration-300 hover:scale-105 active:scale-95 origin-left"
-                    >
-                        Inicio
-                    </Link>
-                    <Link
-                        href="#nosotros"
-                        onClick={() => setIsMenuOpen(false)}
-                        className="text-lg font-medium w-max hover:text-sayni-lime transition-all duration-300 hover:scale-105 active:scale-95 origin-left"
-                    >
-                        Nosotros
-                    </Link>
-                    <Link
-                        href="#cafes"
-                        onClick={() => setIsMenuOpen(false)}
-                        className="text-lg font-medium w-max hover:text-sayni-lime transition-all duration-300 hover:scale-105 active:scale-95 origin-left"
-                    >
-                        Cafés
-                    </Link>
                 </div>
             </header>
 
