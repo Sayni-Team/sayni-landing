@@ -2,18 +2,16 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-// 1. Define la interfaz de los ítems del carrito
 export interface CartItem {
     id: string | number;
-    title: string;       // Manteniendo 'title' como indicas
+    title: string;
     price: number;
     quantity: number;
-    image: string;       // <--- Cambiar de 'image?: string' a 'image: string'
+    image: string;
     grind?: string;
     weight?: string;
 }
 
-// 2. Define la interfaz del contexto
 interface CartContextType {
     cartItems: CartItem[];
     addToCart: (item: CartItem) => void;
@@ -23,9 +21,10 @@ interface CartContextType {
     totalCartCount: number;
     totalPrice: number;
     isInitialized: boolean;
-    isCartOpen: boolean;                                     // <--- AÑADIDO
-    setIsCartOpen: React.Dispatch<React.SetStateAction<boolean>>; // <--- AÑADIDO
+    isCartOpen: boolean;
+    setIsCartOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
 const LOCAL_STORAGE_KEY = "sayni_cart";
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -33,7 +32,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export const CartProvider = ({ children }: { children: React.ReactNode }) => {
     const [cartItems, setCartItems] = useState<CartItem[]>([]);
     const [isInitialized, setIsInitialized] = useState(false);
-    const [isCartOpen, setIsCartOpen] = useState(false); // <--- ESTADO DEL DRAWER
+    const [isCartOpen, setIsCartOpen] = useState(false);
 
     useEffect(() => {
         try {
@@ -72,14 +71,13 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
             }
             return [...prev, { ...newItem, quantity: itemQty }];
         });
-        setIsCartOpen(true); // Abre el carrito automáticamente al añadir un producto
+        setIsCartOpen(true);
     };
 
     const removeFromCart = (id: string | number) => {
         setCartItems((prev) => prev.filter((item) => item.id !== id));
     };
 
-    // Permite pasar delta (+1 o -1) desde las flechas del Header
     const updateQuantity = (id: string | number, delta: number) => {
         setCartItems((prev) =>
             prev
@@ -110,8 +108,8 @@ export const CartProvider = ({ children }: { children: React.ReactNode }) => {
                 totalCartCount,
                 totalPrice,
                 isInitialized,
-                isCartOpen,       // <--- AÑADIDO AL VALUE
-                setIsCartOpen,    // <--- AÑADIDO AL VALUE
+                isCartOpen,
+                setIsCartOpen,
             }}
         >
             {children}

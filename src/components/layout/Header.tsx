@@ -114,8 +114,8 @@ export default function Header() {
                                 </svg>
                                 {totalCartCount > 0 && (
                                     <span className="absolute -top-1 -right-1 bg-white text-sayni-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md">
-                            {totalCartCount}
-                        </span>
+                                        {totalCartCount}
+                                    </span>
                                 )}
                             </button>
                         </nav>
@@ -133,8 +133,8 @@ export default function Header() {
                                 </svg>
                                 {totalCartCount > 0 && (
                                     <span className="absolute top-0 right-0 bg-white text-sayni-black text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center shadow-md">
-                            {totalCartCount}
-                        </span>
+                                        {totalCartCount}
+                                    </span>
                                 )}
                             </button>
 
@@ -159,7 +159,7 @@ export default function Header() {
                 </div>
             </header>
 
-            {/* OVERLAY & DRAWER DEL CARRITO (Mobile, Tablet & Desktop) */}
+            {/* OVERLAY & DRAWER DEL CARRITO */}
             <div
                 className={`fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm transition-opacity duration-300 ${
                     isCartOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
@@ -201,53 +201,56 @@ export default function Header() {
                             <p className="text-base">Tu carrito está vacío</p>
                         </div>
                     ) : (
-                        cartItems.map((item) => (
-                            <div key={item.id} className="flex items-center gap-4 bg-[#1b2f22] p-3 rounded-2xl border border-white/5">
-                                <div className="relative w-16 h-16 shrink-0 bg-[#132219] rounded-xl overflow-hidden p-1">
-                                    <Image
-                                        src={item.image ?? "/assets/brand/logo.webp"} // <--- Usa '??' para fallback
-                                        alt={item.title}
-                                        fill
-                                        className="object-contain"
-                                    />
-                                </div>
-                                <div className="flex-1">
-                                    <h4 className="font-bold text-white text-base leading-tight">{item.title}</h4>
-                                    <p className="text-xs text-[#BCC90F]">{item.weight}</p>
-                                    <p className="text-sm font-semibold text-gray-200 mt-1">S/ {item.price.toFixed(2)}</p>
-                                </div>
-                                <div className="flex items-center gap-2 bg-[#132219] rounded-full px-2 py-1 border border-white/10">
+                        cartItems
+                            .slice() // Copia para no mutar el array original en el estado
+                            .sort((a, b) => (a.id === "pack-regalo-clasico" ? -1 : b.id === "pack-regalo-clasico" ? 1 : 0))
+                            .map((item) => (
+                                <div key={item.id} className="flex items-center gap-4 bg-[#1b2f22] p-3 rounded-2xl border border-white/5">
+                                    <div className="relative w-16 h-16 shrink-0 bg-[#132219] rounded-xl overflow-hidden p-1">
+                                        <Image
+                                            src={item.image ?? "/assets/brand/logo.webp"}
+                                            alt={item.title}
+                                            fill
+                                            className="object-contain"
+                                        />
+                                    </div>
+                                    <div className="flex-1">
+                                        <h4 className="font-bold text-white text-base leading-tight">{item.title}</h4>
+                                        <p className="text-xs text-[#BCC90F]">{item.weight}</p>
+                                        <p className="text-sm font-semibold text-gray-200 mt-1">S/ {item.price.toFixed(2)}</p>
+                                    </div>
+                                    <div className="flex items-center gap-2 bg-[#132219] rounded-full px-2 py-1 border border-white/10">
+                                        <button
+                                            type="button"
+                                            onClick={() => updateQuantity(item.id, -1)}
+                                            className="w-5 h-5 flex items-center justify-center text-gray-300 hover:text-white"
+                                        >
+                                            -
+                                        </button>
+                                        <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
+                                        <button
+                                            type="button"
+                                            onClick={() => updateQuantity(item.id, 1)}
+                                            className="w-5 h-5 flex items-center justify-center text-gray-300 hover:text-white"
+                                        >
+                                            +
+                                        </button>
+                                    </div>
                                     <button
                                         type="button"
-                                        onClick={() => updateQuantity(item.id, -1)}
-                                        className="w-5 h-5 flex items-center justify-center text-gray-300 hover:text-white"
+                                        onClick={() => removeFromCart(item.id)}
+                                        className="text-gray-400 hover:text-red-400 p-1 transition-colors"
                                     >
-                                        -
-                                    </button>
-                                    <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => updateQuantity(item.id, 1)}
-                                        className="w-5 h-5 flex items-center justify-center text-gray-300 hover:text-white"
-                                    >
-                                        +
+                                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
                                     </button>
                                 </div>
-                                <button
-                                    type="button"
-                                    onClick={() => removeFromCart(item.id)}
-                                    className="text-gray-400 hover:text-red-400 p-1 transition-colors"
-                                >
-                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
-                            </div>
-                        ))
+                            ))
                     )}
                 </div>
 
-                {/* Footer Carrito (Resumen y Checkout) */}
+                {/* Footer Carrito */}
                 {cartItems.length > 0 && (
                     <div className="p-6 border-t border-white/10 bg-[#0d1711] space-y-4 font-urbanist">
                         <div className="flex justify-between items-center text-gray-300">
@@ -258,14 +261,14 @@ export default function Header() {
                             type="button"
                             onClick={handleCheckout}
                             className="
-                w-full inline-flex items-center justify-center gap-3 bg-[#BCC90F] text-[#132219] font-bold
-                py-3.5 px-6 rounded-full hover:scale-[1.02] active:scale-[0.98]
-                transition-all duration-300 text-base cursor-pointer
-                border-t border-white/40
-                shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]
-            "
+                                w-full inline-flex items-center justify-center gap-3 bg-[#BCC90F] text-[#132219] font-bold
+                                py-3.5 px-6 rounded-full hover:scale-[1.02] active:scale-[0.98]
+                                transition-all duration-300 text-base cursor-pointer
+                                border-t border-white/40
+                                shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]
+                            "
                         >
-                            <span>Finalizar Pedido</span>
+                            <span>Finalizar Pedido por WhatsApp</span>
                             <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
                                 <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
                             </svg>
