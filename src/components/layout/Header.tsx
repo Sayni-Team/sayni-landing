@@ -17,7 +17,6 @@ export default function Header() {
         setIsCartOpen,
     } = useCart();
 
-    // Función para forzar el scroll a la sección objetivo aunque el hash sea el mismo
     const handleScroll = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, id: string) => {
         e.preventDefault();
         setIsMenuOpen(false);
@@ -30,9 +29,8 @@ export default function Header() {
     };
 
     const handleCheckout = () => {
-        const phoneNumber = "51991319377"; // Número con código de país de Perú (+51)
+        const phoneNumber = "51991319377";
 
-        // Formatear los productos de la orden
         const itemsList = cartItems
             .map(
                 (item) =>
@@ -42,7 +40,6 @@ export default function Header() {
 
         const message = `¡Hola Sayni! ☕ Deseo realizar el siguiente pedido:\n\n${itemsList}\n\n*Total:* S/ ${totalPrice.toFixed(2)}`;
 
-        // Redirigir a WhatsApp
         const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, "_blank");
     };
@@ -50,14 +47,14 @@ export default function Header() {
     return (
         <>
             <header className="absolute top-0 left-0 w-full z-50 px-6 sm:px-12 pt-8 pb-6 bg-transparent transition-all duration-300 ease-in-out">
-                {/* Contenedor que ocupa exactamente los 3/5 derechos en Desktop */}
-                <div className="w-full md:w-3/5 md:ml-auto flex items-center justify-between md:justify-center transition-all duration-300 ease-in-out px-4">
+                {/* Contenedor desktop en el lado derecho solo a partir de lg (1024px) */}
+                <div className="w-full lg:w-3/5 lg:ml-auto flex items-center justify-between lg:justify-center transition-all duration-300 ease-in-out px-4">
 
-                    {/* 1. LOGO MÓVIL */}
+                    {/* 1. LOGO MÓVIL Y TABLET (Visible hasta lg) */}
                     <Link
                         href="#inicio"
                         onClick={(e) => handleScroll(e, 'inicio')}
-                        className="flex items-center shrink-0 md:hidden transition-transform duration-300 hover:scale-105 active:scale-95 z-50"
+                        className="flex items-center shrink-0 lg:hidden transition-transform duration-300 hover:scale-105 active:scale-95 z-50"
                     >
                         <div className="relative w-10 h-10 sm:w-11 sm:h-11">
                             <Image
@@ -71,10 +68,10 @@ export default function Header() {
                     </Link>
 
                     {/* 2. BLOQUE NAVEGACIÓN DESKTOP */}
-                    <div className="flex items-center justify-end md:justify-center transition-all duration-300 ease-in-out w-full">
+                    <div className="flex items-center justify-end lg:justify-center transition-all duration-300 ease-in-out w-full">
 
-                        {/* Navegación Desktop */}
-                        <nav className="hidden md:flex items-center justify-center gap-12 lg:gap-20 text-sm font-medium tracking-wide text-sayni-light/90 transition-all duration-300 ease-in-out">
+                        {/* Navegación Desktop (Solo visible desde lg: 1024px) */}
+                        <nav className="hidden lg:flex items-center justify-center gap-12 lg:gap-20 text-sm font-medium tracking-wide text-sayni-light/90 transition-all duration-300 ease-in-out">
 
                             {/* Logo Desktop */}
                             <Link
@@ -137,8 +134,8 @@ export default function Header() {
                             </button>
                         </nav>
 
-                        {/* Botones Móvil */}
-                        <div className="flex items-center gap-2 md:hidden z-50">
+                        {/* Botones Móvil y Tablet (Hasta lg) */}
+                        <div className="flex items-center gap-2 lg:hidden z-50">
                             <button
                                 type="button"
                                 onClick={() => setIsCartOpen(true)}
@@ -158,7 +155,7 @@ export default function Header() {
                             <button
                                 type="button"
                                 onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                className="text-sayni-light focus:outline-none p-2 transition-transform duration-300 active:scale-90"
+                                className="text-sayni-light focus:outline-none p-2 transition-transform duration-300 active:scale-90 cursor-pointer"
                                 aria-label="Abrir menú"
                             >
                                 <svg className="w-8 h-8 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -176,13 +173,13 @@ export default function Header() {
                 </div>
             </header>
 
-            {/* MENÚ DESPLEGABLE MÓVIL */}
+            {/* MENÚ DESPLEGABLE MÓVIL Y TABLET (Hasta lg) */}
             <div
-                className={`fixed inset-0 z-40 bg-[#132219]/95 backdrop-blur-md md:hidden transition-all duration-300 ease-in-out flex flex-col justify-center items-center ${
+                className={`fixed inset-0 z-40 bg-[#132219]/95 backdrop-blur-md lg:hidden transition-all duration-300 ease-in-out flex flex-col justify-center items-center ${
                     isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
                 }`}
             >
-                <nav className="flex flex-col items-center gap-8 text-2xl font-bold tracking-wide text-white">
+                <nav className="flex flex-col items-center gap-8 text-2xl font-bold tracking-wide text-white font-heading">
                     <Link
                         href="#inicio"
                         onClick={(e) => handleScroll(e, 'inicio')}
@@ -231,7 +228,7 @@ export default function Header() {
                     <button
                         type="button"
                         onClick={() => setIsCartOpen(false)}
-                        className="p-2 text-gray-400 hover:text-white transition-colors"
+                        className="p-2 text-gray-400 hover:text-white transition-colors cursor-pointer"
                     >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
