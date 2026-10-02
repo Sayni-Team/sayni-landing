@@ -45,7 +45,7 @@ export default function AboutUs() {
             ref={sectionRef}
             id="nosotros"
             /* REMOVIDO: overflow-hidden -> Cambiado a relative para permitir que el Divider sobresalga sin cortarse */
-            className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-16 bg-sayni-black text-sayni-light relative"
+            className="py-16 sm:py-20 lg:py-24 px-10 sm:px-26 lg:px-16 bg-sayni-black text-sayni-light relative"
         >
             <div className="max-w-4xl mx-auto space-y-10 sm:space-y-12">
 
