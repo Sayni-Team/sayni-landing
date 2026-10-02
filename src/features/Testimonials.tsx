@@ -67,17 +67,6 @@ export default function TestimonialsSection() {
                 className="w-full max-w-5xl mx-auto px-6 text-center space-y-12 relative z-10 font-clash"
             >
 
-                {/* BADGES FLOTANTES SUPERIORES */}
-                <motion.div variants={itemUpVariants} className="flex flex-wrap items-center justify-evenly gap-4">
-                    <div className="px-8 py-2.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-sm sm:text-lg font-medium shadow-xl transition-colors duration-300 hover:border-[#BCC90F]/40">
-                        <span className="text-[#BCC90F] font-bold">87</span> puntos SCA
-                    </div>
-
-                    <div className="px-8 py-2.5 rounded-full bg-white/5 backdrop-blur-md border border-white/10 text-sm sm:text-lg font-medium shadow-xl transition-colors duration-300 hover:border-[#BCC90F]/40">
-                        <span className="text-[#BCC90F] font-bold">100%</span> café de Cusco
-                    </div>
-                </motion.div>
-
                 {/* SECCIÓN CITA / TESTIMONIAL */}
                 <motion.div variants={itemUpVariants} className="space-y-6 max-w-md sm:max-w-lg mx-auto">
                     <div className="flex items-center justify-center gap-3 mb-0">
