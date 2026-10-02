@@ -180,7 +180,7 @@ export default function OurCoffees() {
 
                                         {/* Descripción — solo desktop */}
                                         <p className="mt-3 text-gray-300 text-sm sm:text-base leading-relaxed max-w-[340px] font-light hidden lg:block">
-                                            Geisha de altura en presentación rinde-más de 500g (solo en grano entero), 87 puntos SCA certificados por Q-Grader. Cultivado a +2,000 msnm en Inkawasi, Cusco. Lavado y de tueste medio.
+                                            Geisha de altura en presentación de 500g (solo en grano entero), 87 puntos SCA certificados por Q-Grader. Cultivado a +2,000 msnm en Inkawasi, Cusco. Lavado y de tueste medio.
                                         </p>
 
                                         {/* Ficha técnica — siempre visible */}
@@ -255,7 +255,7 @@ export default function OurCoffees() {
                                     </div>
                                     <div className="hidden sm:block h-12 w-[1px] bg-white/20 mx-1" />
                                     <div className="flex flex-col items-center px-4 py-2">
-                                        <div className="bg-[#BCC90F] text-black font-bold px-5 py-1.5 rounded-lg text-sm sm:text-base shadow-sm">1 Estuche Cofre</div>
+                                        <div className="bg-[#BCC90F] text-black font-bold px-5 py-1.5 rounded-lg text-sm sm:text-base shadow-sm">1 Caja Diseño Premium</div>
                                         <p className="text-gray-300 text-xs mt-2 text-center">Verde andino con detalles dorados</p>
                                     </div>
                                     <div className="hidden sm:block h-12 w-[1px] bg-white/20 mx-1" />

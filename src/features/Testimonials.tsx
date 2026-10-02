@@ -68,15 +68,7 @@ export default function TestimonialsSection() {
             >
 
                 {/* SECCIÓN CITA / TESTIMONIAL */}
-                <motion.div variants={itemUpVariants} className="space-y-6 max-w-md sm:max-w-lg mx-auto">
-                    <div className="flex items-center justify-center gap-3 mb-0">
-                        <span className="h-[1px] w-8 sm:w-16 bg-white/20" />
-                        <span className="font-urbanist text-xs sm:text-sm font-medium tracking-wide whitespace-nowrap">
-                            <span className="text-[#BCC90F]">¿Qué opinan</span> de nosotros?
-                        </span>
-                        <span className="h-[1px] w-8 sm:w-16 bg-white/20" />
-                    </div>
-
+                <motion.div variants={itemUpVariants} className="space-y-6 max-w-md sm:max-w-lg mx-auto mb-3 sm:mb-10">
                     <blockquote className="font-clash text-2xl sm:text-3xl lg:text-4xl font-medium leading-tight tracking-wide text-white max-w-[280px] sm:max-w-[380px] mx-auto text-balance">
                         <span className="text-[#BCC90F] font-serif">“</span>
                         Haz una pausa y <br /> recarga tu alma con la <br /> esencia que nace de nuestra tierra
