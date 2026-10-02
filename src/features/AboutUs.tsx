@@ -19,8 +19,8 @@ export default function AboutUs() {
                 }
             },
             {
-                threshold: 0.05,              // ← bajado de 0.15 a 0.05 para mobile
-                rootMargin: "0px 0px -20px 0px", // ← menos margen negativo
+                threshold: 0.05,
+                rootMargin: "0px 0px -20px 0px",
             }
         );
 
@@ -44,7 +44,8 @@ export default function AboutUs() {
         <section
             ref={sectionRef}
             id="nosotros"
-            className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-16 bg-sayni-black text-sayni-light overflow-hidden"
+            /* REMOVIDO: overflow-hidden -> Cambiado a relative para permitir que el Divider sobresalga sin cortarse */
+            className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-16 bg-sayni-black text-sayni-light relative"
         >
             <div className="max-w-4xl mx-auto space-y-10 sm:space-y-12">
 
@@ -110,9 +111,9 @@ export default function AboutUs() {
                             </p>
                         </div>
 
-                        {/* INSTAGRAM LINK */}
+                        {/* INSTAGRAM LINK (AGREGADO: relative z-20) */}
                         <div
-                            className="space-y-2 pt-4 sm:pt-6 mt-auto"
+                            className="space-y-2 pt-4 sm:pt-6 mt-auto relative z-21"
                             style={revealStyle(650, 900)}
                         >
                             <span className="text-xs text-gray-400 font-light block">
