@@ -17,6 +17,18 @@ export default function Header() {
         setIsCartOpen,
     } = useCart();
 
+    // Función para forzar el scroll a la sección objetivo aunque el hash sea el mismo
+    const handleScroll = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, id: string) => {
+        e.preventDefault();
+        setIsMenuOpen(false);
+
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+            window.history.pushState(null, '', `#${id}`);
+        }
+    };
+
     const handleCheckout = () => {
         const phoneNumber = "51991319377"; // Número con código de país de Perú (+51)
 
@@ -41,10 +53,11 @@ export default function Header() {
                 {/* Contenedor que ocupa exactamente los 3/5 derechos en Desktop */}
                 <div className="w-full md:w-3/5 md:ml-auto flex items-center justify-between md:justify-center transition-all duration-300 ease-in-out px-4">
 
-                    {/* 1. LOGO MÓVIL (Solo visible en pantallas pequeñas < md) */}
+                    {/* 1. LOGO MÓVIL */}
                     <Link
-                        href="/"
-                        className="flex items-center shrink-0 md:hidden transition-transform duration-300 hover:scale-105 active:scale-95"
+                        href="#inicio"
+                        onClick={(e) => handleScroll(e, 'inicio')}
+                        className="flex items-center shrink-0 md:hidden transition-transform duration-300 hover:scale-105 active:scale-95 z-50"
                     >
                         <div className="relative w-10 h-10 sm:w-11 sm:h-11">
                             <Image
@@ -65,7 +78,8 @@ export default function Header() {
 
                             {/* Logo Desktop */}
                             <Link
-                                href="/"
+                                href="#inicio"
+                                onClick={(e) => handleScroll(e, 'inicio')}
                                 className="flex items-center shrink-0 transition-transform duration-300 hover:scale-105 active:scale-95"
                             >
                                 <div className="relative w-10 h-10 sm:w-11 sm:h-11">
@@ -82,6 +96,7 @@ export default function Header() {
                             {/* Links Desktop */}
                             <Link
                                 href="#inicio"
+                                onClick={(e) => handleScroll(e, 'inicio')}
                                 className="relative py-1 inline-block hover:text-sayni-lime transition-all duration-300 hover:scale-110 active:scale-95 origin-center group"
                             >
                                 Inicio
@@ -89,6 +104,7 @@ export default function Header() {
                             </Link>
                             <Link
                                 href="#nosotros"
+                                onClick={(e) => handleScroll(e, 'nosotros')}
                                 className="relative py-1 inline-block hover:text-sayni-lime transition-all duration-300 hover:scale-110 active:scale-95 origin-center group"
                             >
                                 Nosotros
@@ -96,6 +112,7 @@ export default function Header() {
                             </Link>
                             <Link
                                 href="#cafes"
+                                onClick={(e) => handleScroll(e, 'cafes')}
                                 className="relative py-1 inline-block hover:text-sayni-lime transition-all duration-300 hover:scale-110 active:scale-95 origin-center group"
                             >
                                 Cafés
@@ -121,7 +138,7 @@ export default function Header() {
                         </nav>
 
                         {/* Botones Móvil */}
-                        <div className="flex items-center gap-2 md:hidden">
+                        <div className="flex items-center gap-2 md:hidden z-50">
                             <button
                                 type="button"
                                 onClick={() => setIsCartOpen(true)}
@@ -159,6 +176,37 @@ export default function Header() {
                 </div>
             </header>
 
+            {/* MENÚ DESPLEGABLE MÓVIL */}
+            <div
+                className={`fixed inset-0 z-40 bg-[#132219]/95 backdrop-blur-md md:hidden transition-all duration-300 ease-in-out flex flex-col justify-center items-center ${
+                    isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+                }`}
+            >
+                <nav className="flex flex-col items-center gap-8 text-2xl font-bold tracking-wide text-white">
+                    <Link
+                        href="#inicio"
+                        onClick={(e) => handleScroll(e, 'inicio')}
+                        className="hover:text-sayni-lime transition-colors"
+                    >
+                        Inicio
+                    </Link>
+                    <Link
+                        href="#nosotros"
+                        onClick={(e) => handleScroll(e, 'nosotros')}
+                        className="hover:text-sayni-lime transition-colors"
+                    >
+                        Nosotros
+                    </Link>
+                    <Link
+                        href="#cafes"
+                        onClick={(e) => handleScroll(e, 'cafes')}
+                        className="hover:text-sayni-lime transition-colors"
+                    >
+                        Cafés
+                    </Link>
+                </nav>
+            </div>
+
             {/* OVERLAY & DRAWER DEL CARRITO */}
             <div
                 className={`fixed inset-0 z-[60] bg-black/70 backdrop-blur-sm transition-opacity duration-300 ${
@@ -191,7 +239,7 @@ export default function Header() {
                     </button>
                 </div>
 
-                {/* Lista de Items con Scrollbar Personalizado estilo Sayni */}
+                {/* Lista de Items */}
                 <div className="flex-1 overflow-y-auto p-6 space-y-4 font-urbanist
                     [&::-webkit-scrollbar]:w-2
                     [&::-webkit-scrollbar-track]:bg-[#0d1711]
