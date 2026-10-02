@@ -60,7 +60,7 @@ export default function Header() {
                     {/* 2. BLOQUE NAVEGACIÓN DESKTOP */}
                     <div className="flex items-center justify-end md:justify-center transition-all duration-300 ease-in-out w-full">
 
-                        {/* Navegación Desktop con el GAP correcto */}
+                        {/* Navegación Desktop */}
                         <nav className="hidden md:flex items-center justify-center gap-12 lg:gap-20 text-sm font-medium tracking-wide text-sayni-light/90 transition-all duration-300 ease-in-out">
 
                             {/* Logo Desktop */}
@@ -191,8 +191,15 @@ export default function Header() {
                     </button>
                 </div>
 
-                {/* Lista de Items */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-4 font-urbanist">
+                {/* Lista de Items con Scrollbar Personalizado estilo Sayni */}
+                <div className="flex-1 overflow-y-auto p-6 space-y-4 font-urbanist
+                    [&::-webkit-scrollbar]:w-2
+                    [&::-webkit-scrollbar-track]:bg-[#0d1711]
+                    [&::-webkit-scrollbar-track]:rounded-full
+                    [&::-webkit-scrollbar-thumb]:bg-[#BCC90F]/60
+                    [&::-webkit-scrollbar-thumb]:rounded-full
+                    hover:[&::-webkit-scrollbar-thumb]:bg-[#BCC90F]"
+                >
                     {cartItems.length === 0 ? (
                         <div className="h-full flex flex-col items-center justify-center text-center text-gray-400 gap-3">
                             <svg className="w-12 h-12 stroke-current opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -202,7 +209,7 @@ export default function Header() {
                         </div>
                     ) : (
                         cartItems
-                            .slice() // Copia para no mutar el array original en el estado
+                            .slice()
                             .sort((a, b) => (a.id === "pack-regalo-clasico" ? -1 : b.id === "pack-regalo-clasico" ? 1 : 0))
                             .map((item) => (
                                 <div key={item.id} className="flex items-center gap-4 bg-[#1b2f22] p-3 rounded-2xl border border-white/5">

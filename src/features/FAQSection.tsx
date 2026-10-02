@@ -39,7 +39,7 @@ export default function FAQSection() {
     };
 
     return (
-        <section className="bg-sayni-black text-white py-24 px-6 md:px-12 flex justify-center items-center">
+        <section className="bg-sayni-black text-white py-24 px-10 sm:px-6 md:px-12 flex justify-center items-center">
             <div className="w-full max-w-3xl mx-auto">
                 {/* Encabezado */}
                 <div className="text-center mb-14">

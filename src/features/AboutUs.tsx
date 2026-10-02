@@ -9,7 +9,6 @@ export default function AboutUs() {
 
     useEffect(() => {
         const section = sectionRef.current;
-
         if (!section) return;
 
         const observer = new IntersectionObserver(
@@ -20,13 +19,12 @@ export default function AboutUs() {
                 }
             },
             {
-                threshold: 0.15,
-                rootMargin: "0px 0px -60px 0px",
+                threshold: 0.05,              // ← bajado de 0.15 a 0.05 para mobile
+                rootMargin: "0px 0px -20px 0px", // ← menos margen negativo
             }
         );
 
         observer.observe(section);
-
         return () => observer.disconnect();
     }, []);
 
@@ -46,25 +44,20 @@ export default function AboutUs() {
         <section
             ref={sectionRef}
             id="nosotros"
-            className="py-16 sm:py-20 lg:py-24 px-6 lg:px-16 bg-sayni-black text-sayni-light overflow-hidden"
+            className="py-16 sm:py-20 lg:py-24 px-4 sm:px-6 lg:px-16 bg-sayni-black text-sayni-light overflow-hidden"
         >
             <div className="max-w-4xl mx-auto space-y-10 sm:space-y-12">
 
-                {/* ====================================================== */}
                 {/* ENCABEZADO */}
-                {/* ====================================================== */}
-
                 <div
                     className="text-center space-y-3"
                     style={revealStyle(0, 1100)}
                 >
                     <div className="flex items-center justify-center gap-3">
                         <span className="h-[1px] w-12 sm:w-16 bg-white/20" />
-
                         <span className="text-sayni-lime font-heading tracking-widest text-xs sm:text-sm uppercase font-medium">
                             Sayni
                         </span>
-
                         <span className="h-[1px] w-12 sm:w-16 bg-white/20" />
                     </div>
 
@@ -74,18 +67,12 @@ export default function AboutUs() {
                     </h2>
                 </div>
 
-                {/* ====================================================== */}
                 {/* CONTENIDO PRINCIPAL */}
-                {/* ====================================================== */}
-
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-10 lg:gap-12 items-stretch max-w-3xl mx-auto">
 
-                    {/* ================================================== */}
                     {/* IMAGEN */}
-                    {/* ================================================== */}
-
                     <div
-                        className="relative aspect-[2/3] w-full max-w-sm mx-auto rounded-3xl overflow-hidden border border-white/10 shadow-2xl"
+                        className="relative aspect-[2/3] w-full max-w-[260px] sm:max-w-sm mx-auto rounded-3xl overflow-hidden border border-white/10 shadow-2xl"
                         style={revealStyle(180, 1200)}
                     >
                         <Image
@@ -96,54 +83,36 @@ export default function AboutUs() {
                             className="object-cover object-center transition-transform duration-[1800ms] ease-out"
                             priority
                         />
-
-                        {/* Overay con degradado negro bajito (30% de opacidad en la base hasta transparente 0) */}
                         <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/39 via-black/25 to-black/10" />
                     </div>
 
-                    {/* ================================================== */}
                     {/* COLUMNA DERECHA */}
-                    {/* ================================================== */}
-
-                    <div className="flex flex-col justify-between py-2 text-center md:text-left">
-
-                        {/* ============================================== */}
-                        {/* BLOQUE DE TEXTO */}
-                        {/* ============================================== */}
+                    <div className="flex flex-col justify-between py-2 px-1 text-center md:text-left">
 
                         <div className="flex flex-col justify-center flex-1 space-y-4 my-auto">
 
-                            {/* Primer párrafo */}
                             <p
-                                className="text-gray-300 text-sm sm:text-xl leading-relaxed font-light"
+                                className="text-gray-300 text-sm sm:text-base lg:text-xl leading-relaxed font-light"
                                 style={revealStyle(380, 1000)}
                             >
                                 Sayni nace de la conexión entre la tierra, las personas y el café peruano. Inspirados en{" "}
-                                <strong className="text-white font-medium">
-                                    Samay
-                                </strong>
+                                <strong className="text-white font-medium">Samay</strong>
                                 , el respiro que renueva, y{" "}
-                                <strong className="text-white font-medium">
-                                    Ayni
-                                </strong>
+                                <strong className="text-white font-medium">Ayni</strong>
                                 , la reciprocidad que nos une, llevamos en cada taza una parte de nuestro origen.
                             </p>
 
-                            {/* Segundo párrafo */}
                             <p
-                                className="text-sayni-lime text-sm sm:text-xl font-normal leading-relaxed"
+                                className="text-sayni-lime text-sm sm:text-base lg:text-xl font-normal leading-relaxed"
                                 style={revealStyle(520, 1000)}
                             >
                                 De nuestra tierra a tu taza, creamos momentos para hacer una pausa, recargar el alma y continuar.
                             </p>
                         </div>
 
-                        {/* ============================================== */}
                         {/* INSTAGRAM LINK */}
-                        {/* ============================================== */}
-
                         <div
-                            className="space-y-2 pt-6 mt-auto"
+                            className="space-y-2 pt-4 sm:pt-6 mt-auto"
                             style={revealStyle(650, 900)}
                         >
                             <span className="text-xs text-gray-400 font-light block">
@@ -156,7 +125,6 @@ export default function AboutUs() {
                                 rel="noopener noreferrer"
                                 className="inline-flex items-center gap-2.5 text-sayni-lime hover:text-white transition-colors duration-300 text-lg sm:text-xl font-medium group"
                             >
-                                {/* Icono Instagram SVG */}
                                 <svg
                                     className="w-6 h-6 stroke-current fill-none transition-transform duration-300 group-hover:scale-110"
                                     viewBox="0 0 24 24"
@@ -171,7 +139,6 @@ export default function AboutUs() {
                                 <span>@sayni_peru</span>
                             </a>
                         </div>
-
                     </div>
                 </div>
             </div>
