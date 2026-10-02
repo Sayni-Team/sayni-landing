@@ -219,9 +219,16 @@ export default function OurCoffees() {
 
                             {/* PACK OCASIÓN ESPECIAL — full width, sin cambios */}
                             <div className="max-w-3xl mx-auto text-center space-y-6 relative bg-[#182a1f] p-6 sm:p-10 rounded-3xl border border-[#BCC90F]/30 shadow-2xl">
-                                <div className="inline-flex items-center gap-2 bg-[#BCC90F] text-[#132219] font-bold text-xs sm:text-sm uppercase tracking-wider px-4 py-1.5 rounded-full shadow-md">
-                                    <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M20 6h-3.17c.07-.32.17-.63.17-1 0-2.21-1.79-4-4-4-1.62 0-3.02.96-3.66 2.34C8.7 2.04 7.42 1 6 1 3.79 1 2 2.79 2 5c0 .37.1.68.17 1H0v15c0 1.1.9 2 2 2h20c1.1 0 2-.9 2-2V6h-4zm-7-3c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zM6 3c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm16 18H2V8h20v13z"/></svg>
-                                    Ideal para ocasiones especiales
+                                <div className="inline-flex items-center justify-center gap-2 bg-[#BCC90F] text-[#132219] font-bold text-xs sm:text-sm uppercase tracking-wider px-4 py-2 rounded-full shadow-md leading-none">
+                                    {/* SVG de regalo bien estructurado */}
+                                    <svg className="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
+                                        <path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.67C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1h-2.12l.41-.55C13.61 4.9 14.26 4 15 4zM9 4c.74 0 1.39.9 1.71 1.45l.41.55H9c-.55 0-1-.45-1-1s.45-1 1-1zm11 15H4V13h7v6h2v-6h7v6zm0-8H4V8h16v3z"/>
+                                    </svg>
+
+                                    {/* Contenedor o ajuste de línea para alineación óptica */}
+                                    <span className="translate-y-[0.5px]">
+        Ideal para ocasiones especiales
+    </span>
                                 </div>
                                 <h3 className="text-3xl sm:text-4xl font-bold font-heading text-white tracking-wide">Pack Ocasión Especial</h3>
                                 <p className="text-3xl font-bold text-[#BCC90F]">S/ 99.90</p>
