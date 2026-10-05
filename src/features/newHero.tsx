@@ -143,12 +143,13 @@ export default function NewHero() {
                         </motion.div>
                     </AnimatePresence>
 
-                    {/* Text Button superpuesto independiente y más grande (Desktop) */}
+                    {/* Text Button superpuesto con fondo Blur & Gradient suave */}
                     <button
                         type="button"
                         onClick={() => paginate(1)}
                         className={cn(
-                            "pointer-events-auto absolute bottom-[12%] left-[53%] z-30 hidden items-center gap-3 text-white transition-transform duration-300 hover:scale-105 active:scale-95 cursor-pointer md:flex",
+                            "pointer-events-auto absolute bottom-[12%] left-[53%] z-30 hidden items-center gap-3 rounded-full px-5 py-2 text-white transition-transform duration-300 hover:scale-105 active:scale-95 cursor-pointer md:flex",
+                            "bg-gradient-to-r from-black/40 via-black/25 to-black/40 backdrop-blur-md border border-white/10 shadow-lg",
                             ENTER_ANIM.fade,
                             "[animation-delay:600ms]"
                         )}
@@ -175,8 +176,8 @@ export default function NewHero() {
                         </motion.div>
 
                         <span className="font-urbanist text-sm sm:text-base font-bold tracking-widest uppercase text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-                            Desliza
-                        </span>
+        Desliza
+    </span>
                     </button>
 
                     <div className="pointer-events-none absolute inset-0 bg-black/45 md:hidden" />
