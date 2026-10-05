@@ -77,14 +77,14 @@ export default function AboutUs() {
                         style={revealStyle(180, 1200)}
                     >
                         <Image
-                            src="/assets/features/about.webp"
+                            src="/assets/features/about-us-image.webp"
                             alt="Planta de café Sayni en ambiente natural"
                             fill
                             sizes="(max-width: 768px) 100vw, 50vw"
                             className="object-cover object-center transition-transform duration-[1800ms] ease-out"
                             priority
                         />
-                        <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/39 via-black/25 to-black/10" />
+                        <div className="absolute inset-0 pointer-events-none" />
                     </div>
 
                     {/* COLUMNA DERECHA */}
@@ -93,22 +93,20 @@ export default function AboutUs() {
                         <div className="flex flex-col justify-center flex-1 space-y-4 my-auto">
 
                             <p
-                                className="text-gray-300 text-sm sm:text-base lg:text-xl leading-relaxed font-light"
+                                className="text-white text-sm sm:text-base lg:text-2xl leading-relaxed font-light"
                                 style={revealStyle(380, 1000)}
                             >
-                                Sayni nace de la conexión entre la tierra, las personas y el café peruano. Inspirados en{" "}
-                                <strong className="text-white font-medium">Samay</strong>
-                                , el respiro que renueva, y{" "}
-                                <strong className="text-white font-medium">Ayni</strong>
-                                , la reciprocidad que nos une, llevamos en cada taza una parte de nuestro origen.
+                                Sayni nace de la conexión entre la tierra, las personas y el café peruano. Inspirados en Samay, el respiro que renueva, y Ayni, la reciprocidad que nos une, llevamos en cada taza una parte de nuestro origen.
                             </p>
 
                             <p
-                                className="text-sayni-lime text-sm sm:text-base lg:text-xl font-normal leading-relaxed"
+                                className="text-sayni-lime text-sm sm:text-base lg:text-2xl font-normal leading-relaxed"
                                 style={revealStyle(520, 1000)}
                             >
                                 De nuestra tierra a tu taza, creamos momentos para hacer una pausa, recargar el alma y continuar.
                             </p>
+                            <br/>
+                            <br/>
                         </div>
 
                         {/* INSTAGRAM LINK (AGREGADO: relative z-20) */}
@@ -116,7 +114,7 @@ export default function AboutUs() {
                             className="space-y-2 pt-4 sm:pt-6 mt-auto relative z-21"
                             style={revealStyle(650, 900)}
                         >
-                            <span className="text-xs text-gray-400 font-light block">
+                            <span className="text-sm text-gray-400 font-light block">
                                 Conoce más
                             </span>
 
@@ -124,7 +122,7 @@ export default function AboutUs() {
                                 href="https://instagram.com/sayni_peru"
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2.5 text-sayni-lime hover:text-white transition-colors duration-300 text-lg sm:text-xl font-medium group"
+                                className="inline-flex items-center gap-2.5 text-sayni-lime hover:text-white transition-colors duration-300 text-lg sm:text-2xl font-medium group"
                             >
                                 <svg
                                     className="w-6 h-6 stroke-current fill-none transition-transform duration-300 group-hover:scale-110"

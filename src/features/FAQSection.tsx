@@ -71,7 +71,7 @@ export default function FAQSection() {
                                     className="w-full py-5 flex items-center justify-between text-left gap-6 group cursor-pointer focus:outline-none"
                                 >
                                     {/* Pregunta */}
-                                    <span className="text-sm sm:text-lg font-normal text-gray-200 group-hover:text-white transition-colors leading-snug">
+                                    <span className="text-sm sm:text-xl font-normal text-gray-200 group-hover:text-white transition-colors leading-snug">
                                         {item.question}
                                     </span>
 
@@ -100,7 +100,7 @@ export default function FAQSection() {
                                             transition={{ duration: 0.3, ease: "easeInOut" }}
                                             className="overflow-hidden"
                                         >
-                                            <p className="pb-5 pr-10 text-sm text-gray-400 font-light leading-relaxed">
+                                            <p className="pb-5 pr-10 text-lg text-gray-400 font-light leading-relaxed">
                                                 {item.answer}
                                             </p>
                                         </motion.div>

@@ -40,7 +40,7 @@ export default function OurCoffees() {
             className="py-16 sm:py-20 lg:py-28 px-5 sm:px-6 lg:px-16 bg-sayni-black text-sayni-light transition-all duration-500 relative overflow-hidden"
         >
             {/* ILUSTRACIÓN ORNAMENTAL DE FONDO */}
-            <div className="absolute -left-20 sm:-left-108 bottom-30 pointer-events-none z-0 opacity-20 md:opacity-25 select-none">
+            <div className="absolute -left-20 sm:-left-108 bottom-30 pointer-events-none z-0 opacity-50 md:opacity-50 select-none">
                 <Image
                     src="/assets/vector-ornamental-2.svg"
                     alt=""
@@ -49,6 +49,18 @@ export default function OurCoffees() {
                     className="w-[380px] sm:w-[520px] md:w-[650px] lg:w-[750px] h-auto object-contain rotate-12 origin-bottom-left"
                 />
             </div>
+
+            {/* ELLIPSE ILUMINADA CON BLUR
+            <div className="absolute -right-10 sm:-right-20 -bottom-10 pointer-events-none z-0 select-none overflow-hidden">
+                <Image
+                    src="/assets/ellipse.svg"
+                    alt=""
+                    width={1000}
+                    height={650} // Ajusta a la proporción real de tu SVG
+                    className="w-[800px] sm:w-[1100px] lg:w-[1300px] h-auto object-contain origin-bottom-right opacity-80"
+                    priority
+                />
+            </div>*/}
 
             <motion.div
                 variants={containerVariants}
@@ -131,7 +143,7 @@ export default function OurCoffees() {
                                         <p className="mt-1 lg:mt-2 text-lg sm:text-2xl font-bold text-[#BCC90F]">S/ 50.00</p>
 
                                         {/* Descripción — solo desktop */}
-                                        <p className="mt-3 text-gray-300 text-sm sm:text-base leading-relaxed max-w-[340px] font-light hidden lg:block">
+                                        <p className="mt-3 text-white text-sm sm:text-base leading-relaxed max-w-[340px] font-light hidden lg:block">
                                             Geisha de altura en presentación de 250g (solo en grano entero), 87 puntos SCA certificados por Q-Grader. Cultivado a +2,000 msnm en Inkawasi, Cusco. Lavado y de tueste medio, con notas de jazmín, cítricos y frutas rojas.
                                         </p>
 
@@ -179,7 +191,7 @@ export default function OurCoffees() {
                                         <p className="mt-1 lg:mt-2 text-lg sm:text-2xl font-bold text-[#BCC90F]">S/ 95.00</p>
 
                                         {/* Descripción — solo desktop */}
-                                        <p className="mt-3 text-gray-300 text-sm sm:text-base leading-relaxed max-w-[340px] font-light hidden lg:block">
+                                        <p className="mt-3 text-white text-sm sm:text-base leading-relaxed max-w-[340px] font-light hidden lg:block">
                                             Geisha de altura en presentación de 500g (solo en grano entero), 87 puntos SCA certificados por Q-Grader. Cultivado a +2,000 msnm en Inkawasi, Cusco. Lavado y de tueste medio.
                                         </p>
 
@@ -265,7 +277,7 @@ export default function OurCoffees() {
                                     </div>
                                 </div>
                                 <div className="pt-2 font-urbanist flex flex-col items-center gap-4">
-                                    <p className="text-gray-300 text-xs sm:text-sm max-w-[420px] font-light leading-relaxed">
+                                    <p className="text-white text-xs sm:text-sm max-w-[420px] font-light leading-relaxed">
                                         El detalle perfecto listo para regalar. Incluye tarjeta especial de 11x8 cm con el mensaje inspirador de Sayni.
                                         <a href="/ficha-tecnica-clasico.pdf" download className="inline-block ml-2 text-[#BCC90F] underline underline-offset-4 transition-colors">Descargar ficha técnica</a>
                                     </p>
@@ -311,7 +323,7 @@ export default function OurCoffees() {
                                         <p className="mt-1 lg:mt-2 text-lg sm:text-2xl font-bold text-[#BCC90F]">S/ 89.90</p>
 
                                         {/* Descripción — solo desktop */}
-                                        <p className="mt-3 text-gray-300 text-sm sm:text-base leading-relaxed max-w-[340px] font-light hidden lg:block">
+                                        <p className="mt-3 text-white text-sm sm:text-base leading-relaxed max-w-[340px] font-light hidden lg:block">
                                             Pack de 4 bolsas de Sayni Clásico 220g (sin estuche ni tarjeta). Ideal para el consumo diario en casa o en la oficina. Blend 100% cusqueño de tueste oscuro con sabor intenso.
                                         </p>
 

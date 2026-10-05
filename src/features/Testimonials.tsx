@@ -3,15 +3,17 @@
 import Image from "next/image";
 import { motion, Variants } from "framer-motion";
 
-// Array de imágenes base
+// Array de imágenes base (5 imágenes)
 const galleryImages = [
-    { src: "/assets/features/family.webp", alt: "Proceso de café 1 - Familia" },
-    { src: "/assets/features/field.webp", alt: "Proceso de café 2 - Campo" },
-    { src: "/assets/features/farmer.webp", alt: "Proceso de café 3 - Agricultor" },
+    { src: "/assets/features/carousel/landscape-1.webp", alt: "Proceso de café 1 - Campo" },
+    { src: "/assets/features/carousel/landscape-2.webp", alt: "Proceso de café 2 - Campo" },
+    { src: "/assets/features/carousel/landscape-3.webp", alt: "Proceso de café 3 - Agricultor" },
+    { src: "/assets/features/carousel/landscape-4.webp", alt: "Proceso de café 4 - Campo" },
+    { src: "/assets/features/carousel/landscape-5.webp", alt: "Proceso de café 5 - Campo" },
 ];
 
-// Duplicamos las imágenes para lograr el loop infinito continuo
-const marqueeImages = [...galleryImages, ...galleryImages, ...galleryImages, ...galleryImages];
+// Duplicamos el array exacto para un bucle continuo de 50% a -50%
+const marqueeImages = [...galleryImages, ...galleryImages];
 
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -58,7 +60,7 @@ export default function TestimonialsSection() {
                 <div className="absolute inset-0 bg-gradient-to-b from-[#0e0e0e]/80 via-transparent to-[#0e0e0e]/80" />
             </motion.div>
 
-            {/* CONTENEDOR TEXTOS Y BADGES (CON MAX-WIDTH) */}
+            {/* CONTENEDOR TEXTOS Y BADGES */}
             <motion.div
                 variants={containerVariants}
                 initial="hidden"
@@ -66,7 +68,6 @@ export default function TestimonialsSection() {
                 viewport={{ once: true, amount: 0.2 }}
                 className="w-full max-w-5xl mx-auto px-6 text-center space-y-12 relative z-10 font-clash"
             >
-
                 {/* SECCIÓN CITA / TESTIMONIAL */}
                 <motion.div variants={itemUpVariants} className="space-y-6 max-w-md sm:max-w-lg mx-auto mb-3 sm:mb-10">
                     <blockquote className="font-clash text-2xl sm:text-3xl lg:text-4xl font-medium leading-tight tracking-wide text-white max-w-[280px] sm:max-w-[380px] mx-auto text-balance">
@@ -75,10 +76,9 @@ export default function TestimonialsSection() {
                         <span className="text-[#BCC90F] font-serif">”</span>
                     </blockquote>
                 </motion.div>
-
             </motion.div>
 
-            {/* CARRUSEL INFINITO FULL WIDTH (SIN FADE LATERAL) */}
+            {/* CARRUSEL INFINITO FULL WIDTH */}
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -87,24 +87,25 @@ export default function TestimonialsSection() {
                 className="w-full mt-12 overflow-hidden relative z-10"
             >
                 <motion.div
-                    className="flex items-center gap-4 sm:gap-6 w-max"
-                    animate={{ x: ["0%", "-25%"] }}
+                    className="flex items-center gap-3 sm:gap-4 lg:gap-5 w-max"
+                    animate={{ x: ["0%", "-50%"] }}
                     transition={{
                         ease: "linear",
-                        duration: 20,
+                        duration: 40, // Aumentado a 40s para que avance suave y lento
                         repeat: Infinity,
                     }}
                 >
                     {marqueeImages.map((img, idx) => (
                         <div
                             key={idx}
-                            className="relative aspect-[3/2] w-[280px] sm:w-[360px] md:w-[420px] shrink-0 rounded-2xl overflow-hidden border border-white/10"
+                            /* Calculamos el ancho exacto para encajar 5 ítems con sus gaps en pantallas lg */
+                            className="relative aspect-[9/16] w-[220px] sm:w-[280px] lg:w-[calc((100vw-80px)/5)] shrink-0 rounded-2xl overflow-hidden border border-white/10"
                         >
                             <Image
                                 src={img.src}
                                 alt={img.alt}
                                 fill
-                                className="object-cover transition-transform duration-500 hover:scale-105"
+                                className="object-cover transition-transform duration-500 hover:scale-101"
                             />
                         </div>
                     ))}
