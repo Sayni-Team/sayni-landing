@@ -70,7 +70,6 @@ const labelVariants: Variants = {
 export default function NewHero() {
     const [[index, direction], setSlide] = useState<[number, number]>([0, 0]);
     const current = PRODUCTS[index];
-    const next = PRODUCTS[(index + 1) % PRODUCTS.length];
 
     const paginate = (dir: number) => {
         setSlide(([i]) => [(i + dir + PRODUCTS.length) % PRODUCTS.length, dir]);
@@ -144,6 +143,42 @@ export default function NewHero() {
                         </motion.div>
                     </AnimatePresence>
 
+                    {/* Text Button superpuesto independiente y más grande (Desktop) */}
+                    <button
+                        type="button"
+                        onClick={() => paginate(1)}
+                        className={cn(
+                            "pointer-events-auto absolute bottom-[12%] left-[53%] z-30 hidden items-center gap-3 text-white transition-transform duration-300 hover:scale-105 active:scale-95 cursor-pointer md:flex",
+                            ENTER_ANIM.fade,
+                            "[animation-delay:600ms]"
+                        )}
+                    >
+                        <motion.div
+                            animate={{ x: [-2, 6, -2] }}
+                            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                            className="text-[#BCC90F] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+                        >
+                            <svg
+                                className="size-6 sm:size-7"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                                <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6" />
+                                <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8" />
+                                <path d="M18 8a2 2 0 0 1 2 2v4a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.8-5.9-2.2L2 17" />
+                            </svg>
+                        </motion.div>
+
+                        <span className="font-urbanist text-sm sm:text-base font-bold tracking-widest uppercase text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+                            Desliza
+                        </span>
+                    </button>
+
                     <div className="pointer-events-none absolute inset-0 bg-black/45 md:hidden" />
                 </div>
 
@@ -159,27 +194,27 @@ export default function NewHero() {
                         type="button"
                         onClick={() => paginate(1)}
                         className="
-            group relative inline-flex items-center gap-3 rounded-[100px] bg-white/10 py-3 pl-8 pr-3 text-base font-bold text-white backdrop-blur-md
-            transition-all duration-300 hover:scale-[1.02] hover:bg-white/15 active:scale-[0.98] sm:text-lg
-            border-t border-white/20
-            shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),_inset_0_-4px_8px_rgba(0,0,0,0.5),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
-        "
+                            group relative inline-flex items-center gap-3 rounded-[100px] bg-white/10 py-3 pl-8 pr-3 text-base font-bold text-white backdrop-blur-md
+                            transition-all duration-300 hover:scale-[1.02] hover:bg-white/15 active:scale-[0.98] sm:text-lg
+                            border-t border-white/20
+                            shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),_inset_0_-4px_8px_rgba(0,0,0,0.5),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
+                        "
                     >
                         <span className="select-none font-urbanist tracking-wide">Siguiente</span>
                         <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-[scale] group-hover:scale-105">
-            <svg
-                className="size-5 transition-transform duration-300 group-hover:translate-x-0.5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-            >
-                <path d="m9 18 6-6-6-6" />
-            </svg>
-        </span>
+                            <svg
+                                className="size-5 transition-transform duration-300 group-hover:translate-x-0.5"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden="true"
+                            >
+                                <path d="m9 18 6-6-6-6" />
+                            </svg>
+                        </span>
                     </button>
                 </div>
             </div>
