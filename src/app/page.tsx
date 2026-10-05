@@ -8,6 +8,7 @@ import CtaSection from "@/features/CTA";
 import Hero from "@/features/Hero";
 import { SectionDivider } from "@/components/SectionDivider";
 import FAQSection from "@/features/FAQSection";
+import NewHero from "@/features/newHero";
 
 export default function Home() {
     // JSON-LD para Organización y Producto Principal
@@ -61,7 +62,7 @@ export default function Home() {
             <Header />
 
             <main className="flex-grow overflow-visible relative">
-                <Hero />
+                <NewHero />
                 <InfiniteMarquee />
                 <AboutUs />
                 <SectionDivider />
