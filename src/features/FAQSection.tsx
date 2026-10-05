@@ -120,7 +120,7 @@ export default function FAQSection() {
                                     className="group flex w-full cursor-pointer items-center justify-between gap-6 rounded-lg py-5 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C2D813]"
                                 >
                                     {/* Pregunta */}
-                                    <span className="text-sm font-normal leading-snug text-gray-200 transition-colors group-hover:text-white sm:text-xl">
+                                    <span className="text-md font-normal leading-snug text-gray-200 transition-colors group-hover:text-white sm:text-xl">
                                         {item.question}
                                     </span>
 
@@ -153,7 +153,7 @@ export default function FAQSection() {
                                                 initial={{ y: -8 }}
                                                 animate={{ y: 0 }}
                                                 transition={{ duration: 0.35, ease: "easeOut" }}
-                                                className="pb-5 pr-10 text-lg font-light leading-relaxed text-gray-400"
+                                                className="pb-5 pr-10 text-md sm:text-lg font-light leading-relaxed text-gray-400"
                                             >
                                                 {item.answer}
                                             </motion.p>

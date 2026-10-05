@@ -96,7 +96,7 @@ export default function OurCoffees() {
                 variants={ornamentIn}
                 initial="hidden"
                 animate={state}
-                className="pointer-events-none absolute -left-20 bottom-30 z-0 select-none sm:-left-108"
+                className="pointer-events-none absolute -left-60 bottom-0 z-0 select-none sm:-left-78 lg:-left-124"
             >
                 <Image
                     src="/assets/vector-ornamental-2.svg"
