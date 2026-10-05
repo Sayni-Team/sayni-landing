@@ -3,36 +3,22 @@
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { motion, Variants, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
+import { ENTER_ANIM } from "@/lib/reveal";
 
 const isMobile = () =>
     typeof window !== "undefined" && window.innerWidth <= 768;
 
 type ProductType = "clasico" | "geysha";
 
-// Variantes de animación para el contenedor de texto y botones
-const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: {
-            staggerChildren: 0.15,
-            delayChildren: 0.2,
-        },
-    },
-};
-
-const itemUpVariants: Variants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
-        opacity: 1,
-        y: 0,
-        transition: {
-            duration: 0.8,
-            ease: [0.215, 0.61, 0.355, 1], // Cubic-bezier ultra fluido
-        },
-    },
-};
+// Estilo común de los botones circulares de navegación
+const NAV_BUTTON = cn(
+    "cursor-pointer w-11 h-11 rounded-full flex items-center justify-center",
+    "bg-white/5 backdrop-blur-md text-white",
+    "hover:scale-110 active:scale-95 hover:bg-white/10",
+    "transition-all duration-300 group border-t border-white/20",
+    "shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),_inset_0_-3px_6px_rgba(0,0,0,0.5),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]"
+);
 
 export default function Hero() {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -41,14 +27,11 @@ export default function Hero() {
 
     const [mobile, setMobile] = useState(false);
     const [activeProduct, setActiveProduct] = useState<ProductType>("clasico");
-    const [isTransitioning, setIsTransitioning] = useState(false);
 
-    // Referencias mutables para el loop de animación sin re-renders
-    const currentFrameRef = useRef<number>(45); // Frame inicial de entrada Clásico
-    const targetFrameRef = useRef<number>(150); // Frame final Clásico
-    const animationSpeedRef = useRef<number>(0.4); // Velocidad de reproducción
+    const currentFrameRef = useRef<number>(45);
+    const targetFrameRef = useRef<number>(150);
+    const animationSpeedRef = useRef<number>(0.4);
 
-    // 1. Detectar dispositivo móvil
     useEffect(() => {
         setMobile(isMobile());
         const onResize = () => setMobile(isMobile());
@@ -56,7 +39,6 @@ export default function Hero() {
         return () => window.removeEventListener("resize", onResize);
     }, []);
 
-    // 2. Lógica para Mobile (Video continuo)
     useEffect(() => {
         if (!mobile) return;
         const video = videoRef.current;
@@ -64,7 +46,6 @@ export default function Hero() {
         video.play().catch(() => {});
     }, [mobile]);
 
-    // 3. Lógica para Desktop (Canvas plano sin zoom ni parallax)
     useEffect(() => {
         if (mobile) return;
 
@@ -73,7 +54,6 @@ export default function Hero() {
         const frameCount = 240;
         const images: HTMLImageElement[] = [];
 
-        // Pre-carga inicial crítica
         const CRITICAL_FRAMES = 150;
         for (let i = 1; i <= Math.min(CRITICAL_FRAMES, frameCount); i++) {
             const img = new window.Image();
@@ -81,7 +61,6 @@ export default function Hero() {
             images[i - 1] = img;
         }
 
-        // Pre-carga diferida para el resto de la secuencia (Geysha)
         const preloadTimeout = setTimeout(() => {
             for (let i = CRITICAL_FRAMES + 1; i <= frameCount; i++) {
                 const img = new window.Image();
@@ -94,7 +73,6 @@ export default function Hero() {
             const targetFrame = Math.floor(currentFrameRef.current);
             const img = images[targetFrame];
 
-            // Si la imagen objetivo aún no carga, intentamos dibujarla cuando complete
             if (!img || !img.complete) {
                 if (img) img.onload = render;
                 return;
@@ -123,7 +101,6 @@ export default function Hero() {
         window.addEventListener("resize", resizeCanvas);
         resizeCanvas();
 
-        // Cargar inmediatamente el frame 63 (índice 62)
         if (images[62]) {
             if (images[62].complete) {
                 render();
@@ -147,14 +124,12 @@ export default function Hero() {
                 }
             } else {
                 currentFrameRef.current = target;
-                setIsTransitioning(false);
             }
 
             render();
             animationFrameId = requestAnimationFrame(animate);
         };
 
-        // Iniciar la animación
         animate();
 
         return () => {
@@ -176,13 +151,16 @@ export default function Hero() {
         }
     };
 
-    // Render Móvil
     if (mobile) {
         return (
             <section className="relative w-full h-screen overflow-hidden bg-black flex items-center justify-center">
                 <video
                     ref={videoRef}
-                    className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                    className={cn(
+                        "absolute inset-0 w-full h-full object-cover pointer-events-none",
+                        ENTER_ANIM.fade,
+                        "duration-1000"
+                    )}
                     src="/assets/features/hero/hero_saymi.mp4"
                     muted
                     autoPlay
@@ -196,165 +174,147 @@ export default function Hero() {
         );
     }
 
-    // Render Desktop
     return (
         <section
             ref={wrapperRef}
             className="relative w-full h-screen overflow-hidden bg-black flex items-center justify-end px-8 md:px-16"
         >
-            {/* CANVAS UNICO DE FONDO COMPLETO */}
             <canvas
                 ref={canvasRef}
-                className="absolute inset-0 w-full h-full pointer-events-none z-0"
+                className={cn(
+                    "absolute inset-0 w-full h-full pointer-events-none z-0",
+                    ENTER_ANIM.fade,
+                    "duration-1000"
+                )}
             />
 
-            {/* OVERLAY GRADIENT */}
             <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-black/60 z-10 pointer-events-none" />
 
-            {/* BOTÓN IZQUIERDO DE NAVEGACIÓN */}
-            <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
-                onClick={toggleProduct}
-                className="
-                    absolute cursor-pointer left-6 md:left-19 top-1/2 -translate-y-1/2 z-30
-                    w-11 h-11 rounded-full flex items-center justify-center
-                    bg-white/5 backdrop-blur-md text-white
-                    hover:scale-110 active:scale-95 hover:bg-white/10
-                    transition-all duration-300 group
-                    border-t border-white/20
-                    shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),_inset_0_-3px_6px_rgba(0,0,0,0.5),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
-                "
-                aria-label="Anterior empaque Sayni"
+            {/* BOTÓN IZQUIERDO: el contenedor lleva posición y entrada; el botón, su hover */}
+            <div
+                className={cn(
+                    "absolute left-6 md:left-19 top-1/2 -translate-y-1/2 z-30",
+                    ENTER_ANIM.zoom,
+                    "delay-500"
+                )}
             >
-                <svg
-                    className="w-5 h-5 stroke-current transition-transform group-hover:-translate-x-0.5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
-                </svg>
-            </motion.button>
+                <button onClick={toggleProduct} className={NAV_BUTTON} aria-label="Anterior empaque Sayni">
+                    <svg
+                        className="w-5 h-5 stroke-current transition-transform group-hover:-translate-x-0.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                </button>
+            </div>
 
-            {/* BOTÓN DERECHO DE NAVEGACIÓN */}
-            <motion.button
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
-                onClick={toggleProduct}
-                className="
-                    absolute cursor-pointer left-[38%] xl:left-[42%] top-1/2 -translate-y-1/2 z-30
-                    w-11 h-11 rounded-full flex items-center justify-center
-                    bg-white/5 backdrop-blur-md text-white
-                    hover:scale-110 active:scale-95 hover:bg-white/10
-                    transition-all duration-300 group
-                    border-t border-white/20
-                    shadow-[inset_0_2px_4px_rgba(255,255,255,0.2),_inset_0_-3px_6px_rgba(0,0,0,0.5),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
-                "
-                aria-label="Siguiente empaque Sayni"
+            {/* BOTÓN DERECHO: mismo patrón */}
+            <div
+                className={cn(
+                    "absolute left-[38%] xl:left-[42%] top-1/2 -translate-y-1/2 z-30",
+                    ENTER_ANIM.zoom,
+                    "delay-500"
+                )}
             >
-                <svg
-                    className="w-5 h-5 stroke-current transition-transform group-hover:translate-x-0.5"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
-                </svg>
-            </motion.button>
+                <button onClick={toggleProduct} className={NAV_BUTTON} aria-label="Siguiente empaque Sayni">
+                    <svg
+                        className="w-5 h-5 stroke-current transition-transform group-hover:translate-x-0.5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                    >
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                </button>
+            </div>
 
-            {/* CONTENIDO TEXTO + CALL TO ACTIONS CON ANIMACIÓN STAGGER */}
-            <motion.div
-                variants={containerVariants}
-                initial="hidden"
-                animate="visible"
-                className="relative z-20 w-3/5 flex flex-col items-center justify-center text-center px-4"
-            >
-                <motion.h1
-                    variants={itemUpVariants}
-                    className="text-4xl md:text-[50px] font-clash font-semibold text-white tracking-wide leading-none drop-shadow-md"
+            {/* CONTENIDO TEXTO + CALL TO ACTIONS */}
+            <div className="relative z-20 w-3/5 flex flex-col items-center justify-center text-center px-4">
+                {/* TÍTULO H1 CON BLUR + TRANSLATE Y */}
+                <h1
+                    className={cn(
+                        "text-4xl md:text-[50px] font-clash font-semibold text-white tracking-wide leading-none drop-shadow-md",
+                        ENTER_ANIM.blurUp
+                    )}
                 >
-                    Una pausa que nace <br/> de nuestra tierra
-                </motion.h1>
+                    Una pausa que nace <br /> de nuestra tierra
+                </h1>
 
-                <motion.p
-                    variants={itemUpVariants}
-                    className="mt-4 text-base md:text-lg text-gray-200 max-w-md font-light drop-shadow"
+                {/* PÁRRAFO CON BLUR + TRANSLATE Y + DELAY */}
+                <p
+                    className={cn(
+                        "mt-4 text-base md:text-lg text-gray-200 max-w-md font-light drop-shadow",
+                        ENTER_ANIM.blurUp,
+                        "delay-150"
+                    )}
                 >
-                    Café cultivado desde las alturas del <br/> <span className="text-[#d4df37]">del Perú hasta tu taza.</span>
-                </motion.p>
+                    Café cultivado desde las alturas del <br />{" "}
+                    <span className="text-[#d4df37]">del Perú hasta tu taza.</span>
+                </p>
 
-                <motion.div variants={itemUpVariants} className="mt-8 flex items-center justify-center gap-4 w-full">
-                    {/* BOTÓN PRINCIPAL 3D DINÁMICO SEGÚN PRODUCTO SELECCIONADO */}
+                {/* BOTONES CON TRANSLATE Y + DELAY (la entrada va en el contenedor) */}
+                <div
+                    className={cn(
+                        "mt-8 flex items-center justify-center gap-4 w-full",
+                        ENTER_ANIM.up,
+                        "delay-300"
+                    )}
+                >
                     <Link
                         href="#cafes"
                         className="
-                inline-flex items-center gap-4 bg-[#BCC90F] text-[#132219] font-bold
-                pl-7 pr-2 py-2 rounded-[100px] hover:scale-[1.02] active:scale-[0.98]
-                transition-all duration-300 group text-base sm:text-lg relative
-                border-t border-white/40
-                shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
-            "
+                            inline-flex items-center gap-4 bg-[#BCC90F] text-[#132219] font-bold
+                            pl-7 pr-2 py-2 rounded-[100px] hover:scale-[1.02] active:scale-[0.98]
+                            transition-all duration-300 group text-base sm:text-lg relative
+                            border-t border-white/40
+                            shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
+                        "
                     >
-                        <AnimatePresence mode="wait">
-                            <motion.span
-                                key={activeProduct}
-                                initial={{ opacity: 0, y: 6 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -6 }}
-                                transition={{ duration: 0.2 }}
-                                className="font-urbanist tracking-wide select-none drop-shadow-[0_1px_1px_rgba(255,255,255,0.15)] pr-1"
-                            >
-                                {activeProduct === "clasico" ? "Pedir Clásico" : "Pedir Geisha"}
-                            </motion.span>
-                        </AnimatePresence>
+                        <span className="font-urbanist tracking-wide select-none drop-shadow-[0_1px_1px_rgba(255,255,255,0.15)] pr-1 transition-all duration-300">
+                            {activeProduct === "clasico" ? "Pedir Clásico" : "Pedir Geisha"}
+                        </span>
 
-                        {/* CÍRCULO CON ICONO DE CARRITO PERSONALIZADO */}
                         <span className="
-                bg-[#132219] text-[#BCC90F] rounded-full w-11 h-11 flex items-center justify-center
-                transition-transform group-hover:scale-105 shrink-0
-                shadow-[inset_0_-2px_4px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.15)]
-            ">
-                <svg
-                    className="w-6 h-6 fill-[#BCC90F] transition-transform group-hover:scale-110"
-                    viewBox="0 0 28 28"
-                    fill="none"
-                    xmlns="http://www.w3.org/2000/svg"
-                >
-                    <mask id="mask0_hero_cart" style={{ maskType: "alpha" }} maskUnits="userSpaceOnUse" x="0" y="0" width="28" height="28">
-                        <rect width="28" height="28" fill="#D9D9D9"/>
-                    </mask>
-                    <g mask="url(#mask0_hero_cart)">
-                        <path d="M6.51908 24.9813C6.06213 24.5243 5.83366 23.975 5.83366 23.3334C5.83366 22.6917 6.06213 22.1424 6.51908 21.6855C6.97602 21.2285 7.52533 21 8.16699 21C8.80866 21 9.35796 21.2285 9.81491 21.6855C10.2719 22.1424 10.5003 22.6917 10.5003 23.3334C10.5003 23.975 10.2719 24.5243 9.81491 24.9813C9.35796 25.4382 8.80866 25.6667 8.16699 25.6667C7.52533 25.6667 6.97602 25.4382 6.51908 24.9813ZM18.1857 24.9813C17.7288 24.5243 17.5003 23.975 17.5003 23.3334C17.5003 22.6917 17.7288 22.1424 18.1857 21.6855C18.6427 21.2285 19.192 21 19.8337 21C20.4753 21 21.0246 21.2285 21.4816 21.6855C21.9385 22.1424 22.167 22.6917 22.167 23.3334C22.167 23.975 21.9385 24.5243 21.4816 24.9813C21.0246 25.4382 20.4753 25.6667 19.8337 25.6667C19.192 25.6667 18.6427 25.4382 18.1857 24.9813ZM7.17533 7.00004L9.97533 12.8334H18.142L21.3503 7.00004H7.17533ZM6.06699 4.66671H23.2753C23.7225 4.66671 24.0628 4.86601 24.2962 5.26462C24.5295 5.66324 24.5392 6.06671 24.3253 6.47504L20.1837 13.9417C19.9698 14.3306 19.683 14.632 19.3232 14.8459C18.9635 15.0598 18.5698 15.1667 18.142 15.1667H9.45033L8.16699 17.5H22.167V19.8334H8.16699C7.29199 19.8334 6.63088 19.4493 6.18366 18.6813C5.73644 17.9132 5.71699 17.15 6.12533 16.3917L7.70033 13.5334L3.50033 4.66671H1.16699V2.33337H4.95866L6.06699 4.66671Z" fill="#BCC90F"/>
-                    </g>
-                </svg>
-            </span>
+                            bg-[#132219] text-[#BCC90F] rounded-full w-11 h-11 flex items-center justify-center
+                            transition-transform group-hover:scale-105 shrink-0
+                            shadow-[inset_0_-2px_4px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.15)]
+                        ">
+                            <svg
+                                className="w-6 h-6 transition-transform group-hover:scale-110"
+                                viewBox="0 0 28 28"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                aria-hidden
+                            >
+                                <path d="M6.51908 24.9813C6.06213 24.5243 5.83366 23.975 5.83366 23.3334C5.83366 22.6917 6.06213 22.1424 6.51908 21.6855C6.97602 21.2285 7.52533 21 8.16699 21C8.80866 21 9.35796 21.2285 9.81491 21.6855C10.2719 22.1424 10.5003 22.6917 10.5003 23.3334C10.5003 23.975 10.2719 24.5243 9.81491 24.9813C9.35796 25.4382 8.80866 25.6667 8.16699 25.6667C7.52533 25.6667 6.97602 25.4382 6.51908 24.9813ZM18.1857 24.9813C17.7288 24.5243 17.5003 23.975 17.5003 23.3334C17.5003 22.6917 17.7288 22.1424 18.1857 21.6855C18.6427 21.2285 19.192 21 19.8337 21C20.4753 21 21.0246 21.2285 21.4816 21.6855C21.9385 22.1424 22.167 22.6917 22.167 23.3334C22.167 23.975 21.9385 24.5243 21.4816 24.9813C21.0246 25.4382 20.4753 25.6667 19.8337 25.6667C19.192 25.6667 18.6427 25.4382 18.1857 24.9813ZM7.17533 7.00004L9.97533 12.8334H18.142L21.3503 7.00004H7.17533ZM6.06699 4.66671H23.2753C23.7225 4.66671 24.0628 4.86601 24.2962 5.26462C24.5295 5.66324 24.5392 6.06671 24.3253 6.47504L20.1837 13.9417C19.9698 14.3306 19.683 14.632 19.3232 14.8459C18.9635 15.0598 18.5698 15.1667 18.142 15.1667H9.45033L8.16699 17.5H22.167V19.8334H8.16699C7.29199 19.8334 6.63088 19.4493 6.18366 18.6813C5.73644 17.9132 5.71699 17.15 6.12533 16.3917L7.70033 13.5334L3.50033 4.66671H1.16699V2.33337H4.95866L6.06699 4.66671Z" fill="currentColor"/>
+                            </svg>
+                        </span>
                     </Link>
 
-                    {/* BOTÓN SECUNDARIO 3D (OSCURO) */}
                     <Link
                         href="#nosotros"
                         className="
-                inline-flex items-center justify-center bg-white/10 backdrop-blur-md text-white font-bold
-                px-8 py-4 rounded-[100px] hover:scale-[1.02] active:scale-[0.98] hover:bg-white/15
-                transition-all duration-300 group text-base sm:text-lg relative
-                border-t border-white/20
-                shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),_inset_0_-4px_8px_rgba(0,0,0,0.5),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
-            "
+                            inline-flex items-center justify-center bg-white/10 backdrop-blur-md text-white font-bold
+                            px-8 py-4 rounded-[100px] hover:scale-[1.02] active:scale-[0.98] hover:bg-white/15
+                            transition-all duration-300 group text-base sm:text-lg relative
+                            border-t border-white/20
+                            shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),_inset_0_-4px_8px_rgba(0,0,0,0.5),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
+                        "
                     >
-            <span className="font-urbanist tracking-wide select-none">
-                Conócenos más
-            </span>
+                        <span className="font-urbanist tracking-wide select-none">
+                            Conócenos más
+                        </span>
                     </Link>
-                </motion.div>
-            </motion.div>
+                </div>
+            </div>
 
-            {/* MARCA DE AGUA VERTICAL SAYNI */}
-            <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 0.9, x: 0 }}
-                transition={{ duration: 1.2, delay: 0.4, ease: "easeOut" }}
-                className="absolute -right-5 top-0 bottom-0 h-full z-20 pointer-events-none flex items-center justify-end overflow-hidden pr-2"
+            {/* MARCA DE AGUA CON FADE PURO */}
+            <div
+                className={cn(
+                    "absolute -right-5 top-0 bottom-0 h-full z-20 pointer-events-none flex items-center justify-end overflow-hidden pr-2",
+                    ENTER_ANIM.fade,
+                    "delay-500"
+                )}
             >
                 <Image
                     src="/assets/brand/sayni-vertical-brand.svg"
@@ -364,7 +324,7 @@ export default function Hero() {
                     className="h-full w-auto object-contain opacity-90 select-none mix-blend-screen"
                     priority
                 />
-            </motion.div>
+            </div>
         </section>
     );
 }

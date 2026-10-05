@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useRef, useState } from "react";
+import { motion, AnimatePresence, useInView, type Variants } from "framer-motion";
 
 interface FAQItem {
     question: string;
@@ -31,86 +31,148 @@ const faqData: FAQItem[] = [
     },
 ];
 
+const EASE = [0.215, 0.61, 0.355, 1] as const;
+
+/* ── Variantes ─────────────────────────────── */
+
+const container: Variants = {
+    hidden: {},
+    visible: { transition: { staggerChildren: 0.12 } },
+};
+
+const fadeDown: Variants = {
+    hidden: { opacity: 0, y: -16 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
+};
+
+const zoomIn: Variants = {
+    hidden: { opacity: 0, scale: 0.92 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.8, ease: EASE } },
+};
+
+// Líneas que se dibujan (el originX se define en cada línea)
+const drawLine: Variants = {
+    hidden: { scaleX: 0 },
+    visible: { scaleX: 1, transition: { duration: 0.8, ease: EASE, delay: 0.2 } },
+};
+
+// Cada pregunta: se desliza desde la izquierda y escalona su línea y su botón
+const itemIn: Variants = {
+    hidden: { opacity: 0, x: -24 },
+    visible: {
+        opacity: 1,
+        x: 0,
+        transition: { duration: 0.7, ease: EASE, staggerChildren: 0.1 },
+    },
+};
+
+// Botón "+" con un pequeño rebote
+const popIn: Variants = {
+    hidden: { opacity: 0, scale: 0 },
+    visible: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 300, damping: 15 } },
+};
+
 export default function FAQSection() {
     const [openIndex, setOpenIndex] = useState<number | null>(null);
+
+    const sectionRef = useRef<HTMLElement>(null);
+    const inView = useInView(sectionRef, { once: true, amount: 0.2 });
+    const state = inView ? "visible" : "hidden";
 
     const toggleFAQ = (index: number) => {
         setOpenIndex(openIndex === index ? null : index);
     };
 
     return (
-        <section className="bg-sayni-black text-white py-24 px-10 sm:px-6 md:px-12 flex justify-center items-center">
-            <div className="w-full max-w-3xl mx-auto">
+        <section
+            ref={sectionRef}
+            className="flex items-center justify-center bg-sayni-black px-10 py-24 text-white sm:px-6 md:px-12"
+        >
+            <motion.div variants={container} initial="hidden" animate={state} className="mx-auto w-full max-w-3xl">
                 {/* Encabezado */}
-                <div className="text-center mb-14">
-                    {/* Badge / Label FAQ */}
-                    <div className="flex items-center justify-center gap-4 mb-4">
-                        <div className="w-16 h-[1px] bg-white/20" />
-                        <span className="text-[#C2D813] font-mono text-xs sm:text-sm tracking-widest uppercase">
-                            FAQ
-                        </span>
-                        <div className="w-16 h-[1px] bg-white/20" />
-                    </div>
+                <motion.div variants={container} className="mb-14 text-center">
+                    {/* Badge / Label FAQ: baja; las líneas se dibujan hacia fuera */}
+                    <motion.div variants={fadeDown} className="mb-4 flex items-center justify-center gap-4">
+                        <motion.div variants={drawLine} style={{ originX: 1 }} className="h-px w-16 bg-white/20" />
+                        <span className="font-mono text-xs uppercase tracking-widest text-[#C2D813] sm:text-sm">FAQ</span>
+                        <motion.div variants={drawLine} style={{ originX: 0 }} className="h-px w-16 bg-white/20" />
+                    </motion.div>
 
-                    {/* Título Principal */}
-                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-wide text-white">
+                    {/* Título: crece hasta su tamaño */}
+                    <motion.h2 variants={zoomIn} className="text-3xl font-bold tracking-wide text-white sm:text-4xl md:text-5xl">
                         Preguntas Frecuentes
-                    </h2>
-                </div>
+                    </motion.h2>
+                </motion.div>
 
-                {/* Lista de Preguntas */}
-                <div>
+                {/* Lista de Preguntas: una tras otra */}
+                <motion.div variants={container}>
                     {faqData.map((item, index) => {
                         const isOpen = openIndex === index;
+                        const answerId = `faq-answer-${index}`;
 
                         return (
-                            <div key={index} className="border-b border-white/15">
+                            <motion.div key={item.question} variants={itemIn} className="relative">
                                 <button
                                     type="button"
                                     onClick={() => toggleFAQ(index)}
-                                    className="w-full py-5 flex items-center justify-between text-left gap-6 group cursor-pointer focus:outline-none"
+                                    aria-expanded={isOpen}
+                                    aria-controls={answerId}
+                                    className="group flex w-full cursor-pointer items-center justify-between gap-6 rounded-lg py-5 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#C2D813]"
                                 >
                                     {/* Pregunta */}
-                                    <span className="text-sm sm:text-xl font-normal text-gray-200 group-hover:text-white transition-colors leading-snug">
+                                    <span className="text-sm font-normal leading-snug text-gray-200 transition-colors group-hover:text-white sm:text-xl">
                                         {item.question}
                                     </span>
 
-                                    {/* Botón Circular Verde (+) más pequeño */}
-                                    <span
-                                        className={`w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-[#C2D813] text-black flex items-center justify-center shrink-0 transition-transform duration-300 ease-in-out ${
+                                    {/* Botón "+": rebote de entrada; gira al abrir */}
+                                    <motion.span
+                                        variants={popIn}
+                                        aria-hidden
+                                        className={`flex size-6 shrink-0 items-center justify-center rounded-full bg-[#C2D813] text-black transition-[rotate] duration-300 ease-in-out sm:size-7 ${
                                             isOpen ? "rotate-45" : ""
                                         }`}
                                     >
-                                        <svg
-                                            className="w-3.5 h-3.5 fill-current stroke-current stroke-[0.5]"
-                                            viewBox="0 0 24 24"
-                                        >
+                                        <svg className="size-3.5 fill-current stroke-current stroke-[0.5]" viewBox="0 0 24 24">
                                             <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
                                         </svg>
-                                    </span>
+                                    </motion.span>
                                 </button>
 
-                                {/* Respuesta desplegable */}
+                                {/* Respuesta desplegable: el texto baja mientras se abre */}
                                 <AnimatePresence initial={false}>
                                     {isOpen && (
                                         <motion.div
+                                            id={answerId}
                                             initial={{ height: 0, opacity: 0 }}
                                             animate={{ height: "auto", opacity: 1 }}
                                             exit={{ height: 0, opacity: 0 }}
                                             transition={{ duration: 0.3, ease: "easeInOut" }}
                                             className="overflow-hidden"
                                         >
-                                            <p className="pb-5 pr-10 text-lg text-gray-400 font-light leading-relaxed">
+                                            <motion.p
+                                                initial={{ y: -8 }}
+                                                animate={{ y: 0 }}
+                                                transition={{ duration: 0.35, ease: "easeOut" }}
+                                                className="pb-5 pr-10 text-lg font-light leading-relaxed text-gray-400"
+                                            >
                                                 {item.answer}
-                                            </p>
+                                            </motion.p>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
-                            </div>
+
+                                {/* Línea inferior: se dibuja de izquierda a derecha */}
+                                <motion.span
+                                    variants={drawLine}
+                                    style={{ originX: 0 }}
+                                    aria-hidden
+                                    className="absolute inset-x-0 bottom-0 h-px bg-white/15"
+                                />
+                            </motion.div>
                         );
                     })}
-                </div>
-            </div>
+                </motion.div>
+            </motion.div>
         </section>
     );
 }

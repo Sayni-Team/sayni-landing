@@ -1,100 +1,153 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Image from "next/image";
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import { motion, AnimatePresence, useInView, type Variants } from "framer-motion";
 import { useCart } from "@/context/CartContext";
 
 type CategoryType = "especialidad" | "comercial";
 
-const containerVariants: Variants = {
-    hidden: { opacity: 0 },
-    visible: {
-        opacity: 1,
-        transition: { staggerChildren: 0.18, delayChildren: 0.1 },
-    },
-};
+const EASE = [0.215, 0.61, 0.355, 1] as const;
 
-const itemUpVariants: Variants = {
+/* ── Variantes ─────────────────────────────── */
+
+const stagger = (staggerChildren = 0.15, delayChildren = 0): Variants => ({
+    hidden: {},
+    visible: { transition: { staggerChildren, delayChildren } },
+});
+
+const fadeUp: Variants = {
     hidden: { opacity: 0, y: 30 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.8, ease: EASE } },
+};
+
+const fadeDown: Variants = {
+    hidden: { opacity: 0, y: -20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.7, ease: EASE } },
+};
+
+const slideFromLeft: Variants = {
+    hidden: { opacity: 0, x: -60 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.9, ease: EASE } },
+};
+
+const slideFromRight: Variants = {
+    hidden: { opacity: 0, x: 60 },
+    visible: { opacity: 1, x: 0, transition: { duration: 0.9, ease: EASE } },
+};
+
+const zoomIn: Variants = {
+    hidden: { opacity: 0, scale: 0.9 },
+    visible: { opacity: 1, scale: 1, transition: { duration: 0.7, ease: EASE } },
+};
+
+// Blur reservado para títulos destacados
+const blurIn: Variants = {
+    hidden: { opacity: 0, y: 12, filter: "blur(6px)" },
+    visible: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.9, ease: EASE } },
+};
+
+// Líneas que se dibujan (el originX se define en cada línea)
+const drawLine: Variants = {
+    hidden: { scaleX: 0 },
+    visible: { scaleX: 1, transition: { duration: 0.8, ease: EASE, delay: 0.3 } },
+};
+
+// Tarjeta del pack: crece y luego escalona su contenido
+const cardIn: Variants = {
+    hidden: { opacity: 0, scale: 0.95 },
     visible: {
         opacity: 1,
-        y: 0,
-        transition: { duration: 0.8, ease: [0.215, 0.61, 0.355, 1] },
+        scale: 1,
+        transition: { duration: 0.8, ease: EASE, staggerChildren: 0.12, delayChildren: 0.2 },
     },
 };
 
-const tabContentVariants: Variants = {
-    hidden: { opacity: 0, y: 15 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5, ease: "easeOut" } },
+const ornamentIn: Variants = {
+    hidden: { opacity: 0, rotate: -6 },
+    visible: { opacity: 0.5, rotate: 0, transition: { duration: 1.4, ease: EASE } },
+};
+
+const tabContent: Variants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
     exit: { opacity: 0, y: -15, transition: { duration: 0.3, ease: "easeIn" } },
 };
+
+/* ── Componente ─────────────────────────────── */
 
 export default function OurCoffees() {
     const [activeCategory, setActiveCategory] = useState<CategoryType>("especialidad");
     const { addToCart } = useCart();
 
+    // Un solo "en vista" para todo: la sección y cada pestaña nueva animan desde aquí
+    const sectionRef = useRef<HTMLElement>(null);
+    const inView = useInView(sectionRef, { once: true, amount: 0.1 });
+    const state = inView ? "visible" : "hidden";
+
     return (
         <section
+            ref={sectionRef}
             id="cafes"
-            className="py-16 sm:py-20 lg:py-28 px-5 sm:px-6 lg:px-16 bg-sayni-black text-sayni-light transition-all duration-500 relative overflow-hidden"
+            className="relative overflow-hidden bg-sayni-black px-5 py-16 text-sayni-light sm:px-6 sm:py-20 lg:px-16 lg:py-28"
         >
             {/* ILUSTRACIÓN ORNAMENTAL DE FONDO */}
-            <div className="absolute -left-20 sm:-left-108 bottom-30 pointer-events-none z-0 opacity-50 md:opacity-50 select-none">
+            <motion.div
+                variants={ornamentIn}
+                initial="hidden"
+                animate={state}
+                className="pointer-events-none absolute -left-20 bottom-30 z-0 select-none sm:-left-108"
+            >
                 <Image
                     src="/assets/vector-ornamental-2.svg"
                     alt=""
                     width={500}
                     height={500}
-                    className="w-[380px] sm:w-[520px] md:w-[650px] lg:w-[750px] h-auto object-contain rotate-12 origin-bottom-left"
+                    className="h-auto w-[380px] origin-bottom-left rotate-12 object-contain sm:w-[520px] md:w-[650px] lg:w-[750px]"
                 />
-            </div>
-
-            {/* ELLIPSE ILUMINADA CON BLUR
-            <div className="absolute -right-10 sm:-right-20 -bottom-10 pointer-events-none z-0 select-none overflow-hidden">
-                <Image
-                    src="/assets/ellipse.svg"
-                    alt=""
-                    width={1000}
-                    height={650} // Ajusta a la proporción real de tu SVG
-                    className="w-[800px] sm:w-[1100px] lg:w-[1300px] h-auto object-contain origin-bottom-right opacity-80"
-                    priority
-                />
-            </div>*/}
+            </motion.div>
 
             <motion.div
-                variants={containerVariants}
+                variants={stagger(0.18, 0.1)}
                 initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, amount: 0.1 }}
-                className="max-w-5xl mx-auto space-y-16 relative z-20"
+                animate={state}
+                className="relative z-20 mx-auto max-w-5xl space-y-16"
             >
                 {/* ENCABEZADO */}
-                <motion.div variants={itemUpVariants} className="text-center space-y-6 relative z-20">
+                <motion.div variants={stagger(0.15)} className="relative z-20 space-y-6 text-center">
                     <div className="space-y-3">
-                        <div className="flex items-center justify-center gap-3">
-                            <span className="h-[1px] w-12 sm:w-16 bg-white/20" />
-                            <span className="text-sayni-lime font-heading tracking-widest text-xs sm:text-sm uppercase font-medium">Nuestros cafés</span>
-                            <span className="h-[1px] w-12 sm:w-16 bg-white/20" />
-                        </div>
-                        <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-heading text-white tracking-wide">
+                        <motion.div variants={fadeDown} className="flex items-center justify-center gap-3">
+                            <motion.span variants={drawLine} style={{ originX: 1 }} className="h-px w-12 bg-white/20 sm:w-16" />
+                            <span className="font-heading text-xs font-medium uppercase tracking-widest text-sayni-lime sm:text-sm">
+                                Nuestros cafés
+                            </span>
+                            <motion.span variants={drawLine} style={{ originX: 0 }} className="h-px w-12 bg-white/20 sm:w-16" />
+                        </motion.div>
+
+                        <motion.h2
+                            variants={blurIn}
+                            className="font-heading text-3xl font-bold tracking-wide text-white sm:text-4xl lg:text-5xl"
+                        >
                             Dos cafés <br />Una misma esencia
-                        </h2>
+                        </motion.h2>
                     </div>
 
                     {/* TOGGLE */}
-                    <div
+                    <motion.div
+                        variants={zoomIn}
                         role="tablist"
                         aria-label="Categorías de café"
-                        className="relative inline-grid grid-cols-2 p-1.5 bg-[#151f15] border border-white/15 rounded-full shadow-[inset_0_3px_8px_rgba(0,0,0,0.7)] backdrop-blur-md select-none w-full max-w-[360px] font-urbanist"
+                        className="relative inline-grid w-full max-w-[360px] select-none grid-cols-2 rounded-full border border-white/15 bg-[#151f15] p-1.5 font-urbanist shadow-[inset_0_3px_8px_rgba(0,0,0,0.7)] backdrop-blur-md"
                     >
-                        <div className={`absolute top-1.5 bottom-1.5 left-1.5 w-[calc(50%-6px)] bg-[#BCC90F] rounded-full border-t border-white/40 shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_4px_10px_rgba(0,0,0,0.4)] transition-transform duration-300 ease-out pointer-events-none z-0 ${activeCategory === "especialidad" ? "translate-x-0" : "translate-x-full"}`} />
+                        <div
+                            className={`pointer-events-none absolute bottom-1.5 left-1.5 top-1.5 z-0 w-[calc(50%-6px)] rounded-full border-t border-white/40 bg-[#BCC90F] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_4px_10px_rgba(0,0,0,0.4)] transition-[translate] duration-300 ease-out ${activeCategory === "especialidad" ? "translate-x-0" : "translate-x-full"}`}
+                        />
                         <button
                             type="button"
                             role="tab"
                             aria-selected={activeCategory === "especialidad"}
                             onClick={() => setActiveCategory("especialidad")}
-                            className={`relative z-10 flex items-center justify-center py-2 px-3 rounded-full text-sm sm:text-base font-bold transition-colors duration-300 cursor-pointer text-center ${activeCategory === "especialidad" ? "text-[#132219]" : "text-white/80 hover:text-white"}`}
+                            className={`relative z-10 flex cursor-pointer items-center justify-center rounded-full px-3 py-2 text-center text-sm font-bold transition-colors duration-300 sm:text-base ${activeCategory === "especialidad" ? "text-[#132219]" : "text-white/80 hover:text-white"}`}
                         >
                             De especialidad
                         </button>
@@ -103,139 +156,169 @@ export default function OurCoffees() {
                             role="tab"
                             aria-selected={activeCategory === "comercial"}
                             onClick={() => setActiveCategory("comercial")}
-                            className={`relative z-10 flex items-center justify-center py-2 px-3 rounded-full text-sm sm:text-base font-bold transition-colors duration-300 cursor-pointer text-center ${activeCategory === "comercial" ? "text-[#132219]" : "text-white/80 hover:text-white"}`}
+                            className={`relative z-10 flex cursor-pointer items-center justify-center rounded-full px-3 py-2 text-center text-sm font-bold transition-colors duration-300 sm:text-base ${activeCategory === "comercial" ? "text-[#132219]" : "text-white/80 hover:text-white"}`}
                         >
                             Comercial
                         </button>
-                    </div>
+                    </motion.div>
                 </motion.div>
 
                 <AnimatePresence mode="wait">
-
                     {/* ══════════════════════════════════════════ */}
                     {/* PESTAÑA 1: DE ESPECIALIDAD                */}
                     {/* ══════════════════════════════════════════ */}
                     {activeCategory === "especialidad" && (
-                        <motion.div key="especialidad-tab" variants={tabContentVariants} initial="hidden" animate="visible" exit="exit" className="space-y-8 sm:space-y-20 pt-4">
-
+                        <motion.div
+                            key="especialidad-tab"
+                            variants={tabContent}
+                            initial="hidden"
+                            animate={state}
+                            exit="exit"
+                            className="space-y-8 pt-4 sm:space-y-20"
+                        >
                             {/* ITEM 1: GEISHA 250g — bolsa IZQUIERDA */}
-                            <div className="grid grid-cols-2 lg:grid-cols-12 gap-2 md:gap-6 lg:gap-0 items-center justify-center relative md:max-w-xl md:mx-auto lg:max-w-none">
-
-                                {/* BOLSA — izquierda */}
-                                <div className="col-span-1 lg:col-span-6 flex justify-center md:justify-center lg:justify-end items-center min-h-[200px] sm:min-h-[400px] lg:min-h-0 h-full lg:mr-2 relative py-2 lg:py-4">
+                            <motion.div
+                                variants={stagger(0.15)}
+                                className="relative grid grid-cols-2 items-center justify-center gap-2 md:mx-auto md:max-w-xl md:gap-6 lg:max-w-none lg:grid-cols-12 lg:gap-0"
+                            >
+                                {/* BOLSA — entra desde la izquierda */}
+                                <motion.div
+                                    variants={slideFromLeft}
+                                    className="relative col-span-1 flex h-full min-h-[200px] items-center justify-center py-2 sm:min-h-[400px] md:justify-center lg:col-span-6 lg:mr-2 lg:min-h-0 lg:justify-end lg:py-4"
+                                >
                                     <Image
                                         src="/assets/features/geisha_package_250.webp"
                                         alt="Sayni Geisha 250g"
-                                        width={340} height={480}
-                                        className="max-h-[220px] sm:max-h-full w-auto object-contain hover:scale-105 transition-transform duration-500"
+                                        width={340}
+                                        height={480}
+                                        className="max-h-[220px] w-auto object-contain transition-[scale] duration-500 hover:scale-105 sm:max-h-full"
                                         priority
                                     />
-                                </div>
+                                </motion.div>
 
-                                {/* INFO — derecha */}
-                                <div className="col-span-1 lg:col-span-6 flex flex-col justify-center items-start gap-3 lg:gap-5 text-left font-urbanist md:pl-2 lg:pl-4 py-2 lg:py-4">
-                                    <div>
-                                        <h3 className="text-2xl sm:text-4xl lg:text-5xl font-bold font-heading text-white tracking-wide">
+                                {/* INFO — derecha, por partes */}
+                                <motion.div
+                                    variants={stagger(0.12)}
+                                    className="col-span-1 flex flex-col items-start justify-center gap-3 py-2 text-left font-urbanist md:pl-2 lg:col-span-6 lg:gap-5 lg:py-4 lg:pl-4"
+                                >
+                                    <motion.div variants={fadeUp}>
+                                        <h3 className="font-heading text-2xl font-bold tracking-wide text-white sm:text-4xl lg:text-5xl">
                                             Sayni <br />
                                             Geisha{" "}
-                                            <span className="text-sm sm:text-lg font-normal text-[#BCC90F] ml-1">250g</span>
+                                            <span className="ml-1 text-sm font-normal text-[#BCC90F] sm:text-lg">250g</span>
                                         </h3>
-                                        <p className="mt-1 lg:mt-2 text-lg sm:text-2xl font-bold text-[#BCC90F]">S/ 50.00</p>
+                                        <p className="mt-1 text-lg font-bold text-[#BCC90F] sm:text-2xl lg:mt-2">S/ 50.00</p>
 
                                         {/* Descripción — solo desktop */}
-                                        <p className="mt-3 text-white text-sm sm:text-base leading-relaxed max-w-[340px] font-light hidden lg:block">
+                                        <p className="mt-3 hidden max-w-[340px] text-sm font-light leading-relaxed text-white sm:text-base lg:block">
                                             Geisha de altura en presentación de 250g (solo en grano entero), 87 puntos SCA certificados por Q-Grader. Cultivado a +2,000 msnm en Inkawasi, Cusco. Lavado y de tueste medio, con notas de jazmín, cítricos y frutas rojas.
                                         </p>
 
                                         {/* Ficha técnica — siempre visible */}
-                                        <a href="/ficha-tecnica-geisha.pdf" download className="inline-block mt-2 text-[#BCC90F] text-xs sm:text-sm underline underline-offset-4 transition-colors">
+                                        <a href="/ficha-tecnica-geisha.pdf" download className="mt-2 inline-block text-xs text-[#BCC90F] underline underline-offset-4 transition-colors sm:text-sm">
                                             Descargar ficha técnica
                                         </a>
-                                    </div>
+                                    </motion.div>
 
-                                    {/* Imagen grano — solo desktop */}
-                                    <div className="relative w-full max-w-[200px] sm:max-w-[240px] hidden lg:block">
-                                        <span className="hidden lg:block absolute right-full top-1/2 -translate-y-1/2 w-20 lg:w-18 h-[1px] bg-[#BCC90F] pointer-events-none -z-10" />
-                                        <div className="relative z-10 aspect-[16/9] w-full rounded-2xl overflow-hidden border border-white/10 shadow-lg bg-[#132219]">
+                                    {/* Imagen grano — solo desktop: crece y su línea se dibuja */}
+                                    <motion.div variants={zoomIn} className="relative hidden w-full max-w-[200px] sm:max-w-[240px] lg:block">
+                                        <motion.span
+                                            variants={drawLine}
+                                            style={{ originX: 1 }}
+                                            className="pointer-events-none absolute right-full top-1/2 -z-10 hidden h-px w-20 -translate-y-1/2 bg-[#BCC90F] lg:block lg:w-18"
+                                        />
+                                        <div className="relative z-10 aspect-[16/9] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#132219] shadow-lg">
                                             <Image src="/assets/features/geisha-grain.webp" alt="Sayni Geisha Detalle" fill className="object-cover" />
                                         </div>
-                                    </div>
+                                    </motion.div>
 
                                     {/* Botón */}
-                                    <div className="pt-0 lg:pt-1">
+                                    <motion.div variants={fadeUp} className="pt-0 lg:pt-1">
                                         <button
                                             type="button"
-                                            onClick={() => addToCart({ id: "geisha-250", title: "Sayni Geisha (Grano)", weight: "250g", price: 50.00, quantity: 1, image: "/assets/features/geisha_package_250.webp" })}
-                                            className="inline-flex mt-3 items-center gap-2 sm:gap-4 bg-[#BCC90F] text-[#132219] font-bold pl-4 sm:pl-6 pr-2 py-1.5 sm:py-2 rounded-[100px] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 text-xs sm:text-base cursor-pointer border-t border-white/40 shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]"
+                                            onClick={() => addToCart({ id: "geisha-250", title: "Sayni Geisha (Grano)", weight: "250g", price: 50.0, quantity: 1, image: "/assets/features/geisha_package_250.webp" })}
+                                            className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-1.5 pl-4 pr-2 text-xs font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] sm:gap-4 sm:py-2 sm:pl-6 sm:text-base"
                                         >
-                                            <span className="tracking-wide select-none hidden sm:inline">Añadir al carrito</span>
-                                            <span className="tracking-wide select-none sm:hidden">Añadir</span>
-                                            <span className="bg-[#132219] text-[#BCC90F] rounded-full w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center shrink-0">
-                                                <svg className="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.89-2-1.99-2z" /></svg>
+                                            <span className="hidden select-none tracking-wide sm:inline">Añadir al carrito</span>
+                                            <span className="select-none tracking-wide sm:hidden">Añadir</span>
+                                            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#132219] text-[#BCC90F] sm:size-9">
+                                                <CartIcon className="size-4 sm:size-5" />
                                             </span>
                                         </button>
-                                    </div>
-                                </div>
-                            </div>
+                                    </motion.div>
+                                </motion.div>
+                            </motion.div>
 
                             {/* ITEM 2: GEISHA 500g — bolsa DERECHA */}
-                            <div className="grid grid-cols-2 lg:grid-cols-12 gap-2 md:gap-6 lg:gap-0 items-center justify-center relative md:max-w-xl md:mx-auto lg:max-w-none">
-
-                                {/* INFO — izquierda */}
-                                <div className="col-span-1 lg:col-span-6 flex flex-col justify-center items-end gap-3 lg:gap-5 text-right font-urbanist md:pr-2 lg:pr-8 py-2 lg:py-4">
-                                    <div className="flex flex-col items-end">
-                                        <h3 className="text-2xl sm:text-4xl lg:text-5xl font-bold font-heading text-white tracking-wide">
+                            <motion.div
+                                variants={stagger(0.15)}
+                                className="relative grid grid-cols-2 items-center justify-center gap-2 md:mx-auto md:max-w-xl md:gap-6 lg:max-w-none lg:grid-cols-12 lg:gap-0"
+                            >
+                                {/* INFO — izquierda, por partes */}
+                                <motion.div
+                                    variants={stagger(0.12)}
+                                    className="col-span-1 flex flex-col items-end justify-center gap-3 py-2 text-right font-urbanist md:pr-2 lg:col-span-6 lg:gap-5 lg:py-4 lg:pr-8"
+                                >
+                                    <motion.div variants={fadeUp} className="flex flex-col items-end">
+                                        <h3 className="font-heading text-2xl font-bold tracking-wide text-white sm:text-4xl lg:text-5xl">
                                             Sayni <br />
-                                            <span className="text-sm sm:text-lg font-normal text-[#BCC90F] mr-1">500g</span>{" "}Geisha
+                                            <span className="mr-1 text-sm font-normal text-[#BCC90F] sm:text-lg">500g</span> Geisha
                                         </h3>
-                                        <p className="mt-1 lg:mt-2 text-lg sm:text-2xl font-bold text-[#BCC90F]">S/ 95.00</p>
+                                        <p className="mt-1 text-lg font-bold text-[#BCC90F] sm:text-2xl lg:mt-2">S/ 95.00</p>
 
                                         {/* Descripción — solo desktop */}
-                                        <p className="mt-3 text-white text-sm sm:text-base leading-relaxed max-w-[340px] font-light hidden lg:block">
+                                        <p className="mt-3 hidden max-w-[340px] text-sm font-light leading-relaxed text-white sm:text-base lg:block">
                                             Geisha de altura en presentación de 500g (solo en grano entero), 87 puntos SCA certificados por Q-Grader. Cultivado a +2,000 msnm en Inkawasi, Cusco. Lavado y de tueste medio.
                                         </p>
 
                                         {/* Ficha técnica — siempre visible */}
-                                        <a href="/ficha-tecnica-geisha.pdf" download className="inline-block mt-2 text-[#BCC90F] text-xs sm:text-sm underline underline-offset-4 transition-colors">
+                                        <a href="/ficha-tecnica-geisha.pdf" download className="mt-2 inline-block text-xs text-[#BCC90F] underline underline-offset-4 transition-colors sm:text-sm">
                                             Descargar ficha técnica
                                         </a>
-                                    </div>
+                                    </motion.div>
 
-                                    {/* Imagen grano — solo desktop */}
-                                    <div className="relative w-full max-w-[200px] sm:max-w-[240px] hidden lg:block">
-                                        <span className="hidden lg:block absolute left-full top-1/2 -translate-y-1/2 w-16 lg:w-20 h-[1px] bg-[#BCC90F] pointer-events-none -z-10" />
-                                        <div className="relative z-10 aspect-[16/9] w-full rounded-2xl overflow-hidden border border-white/10 shadow-lg bg-[#132219]">
+                                    {/* Imagen grano — solo desktop: crece y su línea se dibuja */}
+                                    <motion.div variants={zoomIn} className="relative hidden w-full max-w-[200px] sm:max-w-[240px] lg:block">
+                                        <motion.span
+                                            variants={drawLine}
+                                            style={{ originX: 0 }}
+                                            className="pointer-events-none absolute left-full top-1/2 -z-10 hidden h-px w-16 -translate-y-1/2 bg-[#BCC90F] lg:block lg:w-20"
+                                        />
+                                        <div className="relative z-10 aspect-[16/9] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#132219] shadow-lg">
                                             <Image src="/assets/features/geisha-grain.webp" alt="Sayni Geisha Detalle" fill className="object-cover" />
                                         </div>
-                                    </div>
+                                    </motion.div>
 
                                     {/* Botón — alineado a la derecha */}
-                                    <div className="pt-0 lg:pt-1 self-end">
+                                    <motion.div variants={fadeUp} className="self-end pt-0 lg:pt-1">
                                         <button
                                             type="button"
-                                            onClick={() => addToCart({ id: "geisha-500", title: "Sayni Geisha (Grano)", weight: "500g", price: 95.00, quantity: 1, image: "/assets/features/geisha_package_500.webp" })}
-                                            className="inline-flex mt-3 items-center gap-2 sm:gap-4 bg-[#BCC90F] text-[#132219] font-bold pl-4 sm:pl-6 pr-2 py-1.5 sm:py-2 rounded-[100px] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 text-xs sm:text-base cursor-pointer border-t border-white/40 shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]"
+                                            onClick={() => addToCart({ id: "geisha-500", title: "Sayni Geisha (Grano)", weight: "500g", price: 95.0, quantity: 1, image: "/assets/features/geisha_package_500.webp" })}
+                                            className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-1.5 pl-4 pr-2 text-xs font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] sm:gap-4 sm:py-2 sm:pl-6 sm:text-base"
                                         >
-                                            <span className="tracking-wide select-none hidden sm:inline">Añadir al carrito</span>
-                                            <span className="tracking-wide select-none sm:hidden">Añadir</span>
-                                            <span className="bg-[#132219] text-[#BCC90F] rounded-full w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center shrink-0">
-                                                <svg className="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.89-2-1.99-2z" /></svg>
+                                            <span className="hidden select-none tracking-wide sm:inline">Añadir al carrito</span>
+                                            <span className="select-none tracking-wide sm:hidden">Añadir</span>
+                                            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#132219] text-[#BCC90F] sm:size-9">
+                                                <CartIcon className="size-4 sm:size-5" />
                                             </span>
                                         </button>
-                                    </div>
-                                </div>
+                                    </motion.div>
+                                </motion.div>
 
-                                {/* BOLSA 500g — derecha */}
-                                <div className="col-span-1 lg:col-span-6 flex justify-center md:justify-center lg:justify-start items-center min-h-[240px] sm:min-h-[400px] lg:min-h-0 h-full lg:pl-4 py-2 lg:py-4">
+                                {/* BOLSA 500g — entra desde la derecha */}
+                                <motion.div
+                                    variants={slideFromRight}
+                                    className="col-span-1 flex h-full min-h-[240px] items-center justify-center py-2 sm:min-h-[400px] md:justify-center lg:col-span-6 lg:min-h-0 lg:justify-start lg:py-4 lg:pl-4"
+                                >
                                     <Image
                                         src="/assets/features/geisha_package_500.webp"
                                         alt="Sayni Geisha 500g"
                                         width={340}
                                         height={480}
-                                        className="max-h-[260px] sm:max-h-full w-auto object-contain scale-110 sm:scale-100 hover:scale-103 transition-transform duration-500"
+                                        className="max-h-[260px] w-auto scale-110 object-contain transition-[scale] duration-500 hover:scale-103 sm:max-h-full sm:scale-100"
                                     />
-                                </div>
-                            </div>
+                                </motion.div>
+                            </motion.div>
                         </motion.div>
                     )}
 
@@ -243,124 +326,165 @@ export default function OurCoffees() {
                     {/* PESTAÑA 2: COMERCIAL                      */}
                     {/* ══════════════════════════════════════════ */}
                     {activeCategory === "comercial" && (
-                        <motion.div key="comercial-tab" variants={tabContentVariants} initial="hidden" animate="visible" exit="exit" className="space-y-16 sm:space-y-24 pt-4">
-
-                            {/* PACK OCASIÓN ESPECIAL */}
-                            <div className="max-w-3xl mx-auto text-center space-y-6 relative bg-[#182a1f] p-6 sm:p-10 rounded-3xl border border-[#BCC90F]/30 shadow-2xl">
-                                <div className="inline-flex items-center justify-center gap-2 bg-[#BCC90F] text-[#132219] font-bold text-xs sm:text-sm uppercase tracking-wider px-4 py-2 rounded-full shadow-md leading-none">
-                                    <svg className="w-4 h-4 shrink-0 fill-current" viewBox="0 0 24 24">
+                        <motion.div
+                            key="comercial-tab"
+                            variants={tabContent}
+                            initial="hidden"
+                            animate={state}
+                            exit="exit"
+                            className="space-y-16 pt-4 sm:space-y-24"
+                        >
+                            {/* PACK OCASIÓN ESPECIAL — la tarjeta crece y escalona su contenido */}
+                            <motion.div
+                                variants={cardIn}
+                                className="relative mx-auto max-w-3xl space-y-6 rounded-3xl border border-[#BCC90F]/30 bg-[#182a1f] p-6 text-center shadow-2xl sm:p-10"
+                            >
+                                <motion.div
+                                    variants={fadeDown}
+                                    className="inline-flex items-center justify-center gap-2 rounded-full bg-[#BCC90F] px-4 py-2 text-xs font-bold uppercase leading-none tracking-wider text-[#132219] shadow-md sm:text-sm"
+                                >
+                                    <svg className="size-4 shrink-0 fill-current" viewBox="0 0 24 24" aria-hidden>
                                         <path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.67C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-5-2c.55 0 1 .45 1 1s-.45 1-1 1h-2.12l.41-.55C13.61 4.9 14.26 4 15 4zM9 4c.74 0 1.39.9 1.71 1.45l.41.55H9c-.55 0-1-.45-1-1s.45-1 1-1zm11 15H4V13h7v6h2v-6h7v6zm0-8H4V8h16v3z" />
                                     </svg>
-                                    <span className="translate-y-[0.5px]">
-                                        Ideal para ocasiones especiales
-                                    </span>
-                                </div>
-                                <h3 className="text-3xl sm:text-4xl font-bold font-heading text-[#ffffff] tracking-wide">Pack Ocasión Especial</h3>
-                                <p className="text-3xl font-bold text-[#BCC90F]">S/ 99.90</p>
-                                <div className="relative w-full h-64 sm:h-80 md:h-[320px] mx-auto">
+                                    <span className="translate-y-[0.5px]">Ideal para ocasiones especiales</span>
+                                </motion.div>
+
+                                <motion.h3 variants={blurIn} className="font-heading text-3xl font-bold tracking-wide text-white sm:text-4xl">
+                                    Pack Ocasión Especial
+                                </motion.h3>
+
+                                <motion.p variants={fadeUp} className="text-3xl font-bold text-[#BCC90F]">
+                                    S/ 99.90
+                                </motion.p>
+
+                                <motion.div variants={zoomIn} className="relative mx-auto h-64 w-full sm:h-80 md:h-[320px]">
                                     <Image src="/assets/features/sayni-package.webp" alt="Pack Ocasión Especial Sayni" fill className="object-contain" />
-                                </div>
-                                <div className="flex flex-wrap items-center justify-center font-urbanist gap-3 sm:gap-0">
-                                    <div className="flex flex-col items-center px-4 py-2">
-                                        <div className="bg-[#BCC90F] text-black font-bold px-5 py-1.5 rounded-lg text-sm sm:text-base shadow-sm">4 Bolsas Sayni Clásico</div>
-                                        <p className="text-gray-300 text-xs mt-2 text-center">220g c/u - blend cusqueño</p>
-                                    </div>
-                                    <div className="hidden sm:block h-12 w-[1px] bg-white/20 mx-1" />
-                                    <div className="flex flex-col items-center px-4 py-2">
-                                        <div className="bg-[#BCC90F] text-black font-bold px-5 py-1.5 rounded-lg text-sm sm:text-base shadow-sm">1 Caja Diseño Premium</div>
-                                        <p className="text-gray-300 text-xs mt-2 text-center">Verde andino con detalles dorados</p>
-                                    </div>
-                                    <div className="hidden sm:block h-12 w-[1px] bg-white/20 mx-1" />
-                                    <div className="flex flex-col items-center px-4 py-2">
-                                        <div className="bg-[#BCC90F] text-black font-bold px-5 py-1.5 rounded-lg text-sm sm:text-base shadow-sm">1 Tarjeta Especial</div>
-                                        <p className="text-gray-300 text-xs mt-2 text-center">Con mensaje predeterminado e impresos "Para/De"</p>
-                                    </div>
-                                </div>
-                                <div className="pt-2 font-urbanist flex flex-col items-center gap-4">
-                                    <p className="text-white text-xs sm:text-sm max-w-[420px] font-light leading-relaxed">
+                                </motion.div>
+
+                                {/* Contenido del pack: uno tras otro */}
+                                <motion.div variants={stagger(0.12)} className="flex flex-wrap items-center justify-center gap-3 font-urbanist sm:gap-0">
+                                    <motion.div variants={fadeUp} className="flex flex-col items-center px-4 py-2">
+                                        <div className="rounded-lg bg-[#BCC90F] px-5 py-1.5 text-sm font-bold text-black shadow-sm sm:text-base">4 Bolsas Sayni Clásico</div>
+                                        <p className="mt-2 text-center text-xs text-gray-300">220g c/u - blend cusqueño</p>
+                                    </motion.div>
+                                    <div className="mx-1 hidden h-12 w-px bg-white/20 sm:block" />
+                                    <motion.div variants={fadeUp} className="flex flex-col items-center px-4 py-2">
+                                        <div className="rounded-lg bg-[#BCC90F] px-5 py-1.5 text-sm font-bold text-black shadow-sm sm:text-base">1 Caja Diseño Premium</div>
+                                        <p className="mt-2 text-center text-xs text-gray-300">Verde andino con detalles dorados</p>
+                                    </motion.div>
+                                    <div className="mx-1 hidden h-12 w-px bg-white/20 sm:block" />
+                                    <motion.div variants={fadeUp} className="flex flex-col items-center px-4 py-2">
+                                        <div className="rounded-lg bg-[#BCC90F] px-5 py-1.5 text-sm font-bold text-black shadow-sm sm:text-base">1 Tarjeta Especial</div>
+                                        <p className="mt-2 text-center text-xs text-gray-300">Con mensaje predeterminado e impresos &quot;Para/De&quot;</p>
+                                    </motion.div>
+                                </motion.div>
+
+                                <motion.div variants={fadeUp} className="flex flex-col items-center gap-4 pt-2 font-urbanist">
+                                    <p className="max-w-[420px] text-xs font-light leading-relaxed text-white sm:text-sm">
                                         El detalle perfecto listo para regalar. Incluye tarjeta especial de 11x8 cm con el mensaje inspirador de Sayni.
-                                        <a href="/ficha-tecnica-clasico.pdf" download className="inline-block ml-2 text-[#BCC90F] underline underline-offset-4 transition-colors">Descargar ficha técnica</a>
+                                        <a href="/ficha-tecnica-clasico.pdf" download className="ml-2 inline-block text-[#BCC90F] underline underline-offset-4 transition-colors">
+                                            Descargar ficha técnica
+                                        </a>
                                     </p>
                                     <button
                                         type="button"
-                                        onClick={() => addToCart({ id: "pack-regalo-clasico", title: "Pack Ocasión Especial", weight: "4 Bolsas 220g + Estuche + Tarjeta", price: 99.90, quantity: 1, image: "/assets/features/sayni-package.webp" })}
-                                        className="inline-flex items-center gap-2 sm:gap-4 bg-[#BCC90F] text-[#132219] font-bold mt-2 pl-5 sm:pl-8 pr-2 sm:pr-3 py-2.5 sm:py-3 rounded-[100px] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 group text-[11px] sm:text-lg cursor-pointer border-t border-white/40 shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]"
+                                        onClick={() => addToCart({ id: "pack-regalo-clasico", title: "Pack Ocasión Especial", weight: "4 Bolsas 220g + Estuche + Tarjeta", price: 99.9, quantity: 1, image: "/assets/features/sayni-package.webp" })}
+                                        className="group mt-2 inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-2.5 pl-5 pr-2 text-[11px] font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] sm:gap-4 sm:py-3 sm:pl-8 sm:pr-3 sm:text-lg"
                                     >
-                                        <span className="tracking-wide select-none sm:hidden">
-                                            Añadir por S/ 99.90
-                                        </span>
-                                        <span className="tracking-wide select-none hidden sm:inline">
-                                            Añadir al carrito — S/ 99.90
-                                        </span>
-                                        <span className="bg-[#132219] text-[#BCC90F] rounded-full w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center shrink-0">
-                                            <svg className="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.89-2-1.99-2z" /></svg>
+                                        <span className="select-none tracking-wide sm:hidden">Añadir por S/ 99.90</span>
+                                        <span className="hidden select-none tracking-wide sm:inline">Añadir al carrito — S/ 99.90</span>
+                                        <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#132219] text-[#BCC90F] sm:size-10">
+                                            <CartIcon className="size-4 sm:size-5" />
                                         </span>
                                     </button>
-                                </div>
-                            </div>
+                                </motion.div>
+                            </motion.div>
 
                             {/* PACK X4 CLÁSICO */}
-                            <div className="grid grid-cols-2 lg:grid-cols-12 gap-2 md:gap-6 lg:gap-0 items-center justify-center relative pt-6 md:max-w-xl md:mx-auto lg:max-w-none">
-
-                                {/* BOLSA — izquierda */}
-                                <div className="col-span-1 lg:col-span-6 flex justify-center md:justify-center lg:justify-end items-center min-h-[200px] sm:min-h-[360px] lg:min-h-0 h-full lg:mr-2 relative py-2 lg:py-4">
+                            <motion.div
+                                variants={stagger(0.15)}
+                                className="relative grid grid-cols-2 items-center justify-center gap-2 pt-6 md:mx-auto md:max-w-xl md:gap-6 lg:max-w-none lg:grid-cols-12 lg:gap-0"
+                            >
+                                {/* BOLSA — entra desde la izquierda */}
+                                <motion.div
+                                    variants={slideFromLeft}
+                                    className="relative col-span-1 flex h-full min-h-[200px] items-center justify-center py-2 sm:min-h-[360px] md:justify-center lg:col-span-6 lg:mr-2 lg:min-h-0 lg:justify-end lg:py-4"
+                                >
                                     <Image
                                         src="/assets/features/classic_package_250.webp"
                                         alt="Pack x4 Sayni Clásico 220g"
-                                        width={320} height={440}
-                                        className="max-h-[220px] sm:max-h-full w-auto object-contain hover:scale-105 transition-transform duration-500"
+                                        width={320}
+                                        height={440}
+                                        className="max-h-[220px] w-auto object-contain transition-[scale] duration-500 hover:scale-105 sm:max-h-full"
                                     />
-                                </div>
+                                </motion.div>
 
-                                {/* INFO — derecha */}
-                                <div className="col-span-1 lg:col-span-6 flex flex-col justify-center items-start gap-3 lg:gap-5 text-left font-urbanist md:pl-2 lg:pl-6 py-2 lg:py-4">
-                                    <div>
-                                        <h3 className="text-2xl sm:text-4xl lg:text-5xl font-bold font-heading text-white tracking-wide">
+                                {/* INFO — derecha, por partes */}
+                                <motion.div
+                                    variants={stagger(0.12)}
+                                    className="col-span-1 flex flex-col items-start justify-center gap-3 py-2 text-left font-urbanist md:pl-2 lg:col-span-6 lg:gap-5 lg:py-4 lg:pl-6"
+                                >
+                                    <motion.div variants={fadeUp}>
+                                        <h3 className="font-heading text-2xl font-bold tracking-wide text-white sm:text-4xl lg:text-5xl">
                                             Pack x4 <br />
                                             Sayni Clásico{" "}
-                                            <span className="text-sm sm:text-lg font-normal text-[#BCC90F] ml-1">(220g c/u)</span>
+                                            <span className="ml-1 text-sm font-normal text-[#BCC90F] sm:text-lg">(220g c/u)</span>
                                         </h3>
-                                        <p className="mt-1 lg:mt-2 text-lg sm:text-2xl font-bold text-[#BCC90F]">S/ 89.90</p>
+                                        <p className="mt-1 text-lg font-bold text-[#BCC90F] sm:text-2xl lg:mt-2">S/ 89.90</p>
 
                                         {/* Descripción — solo desktop */}
-                                        <p className="mt-3 text-white text-sm sm:text-base leading-relaxed max-w-[340px] font-light hidden lg:block">
+                                        <p className="mt-3 hidden max-w-[340px] text-sm font-light leading-relaxed text-white sm:text-base lg:block">
                                             Pack de 4 bolsas de Sayni Clásico 220g (sin estuche ni tarjeta). Ideal para el consumo diario en casa o en la oficina. Blend 100% cusqueño de tueste oscuro con sabor intenso.
                                         </p>
 
                                         {/* Ficha técnica — siempre visible */}
-                                        <a href="/ficha-tecnica-clasico.pdf" download className="inline-block mt-2 text-[#BCC90F] text-xs sm:text-sm underline underline-offset-4 transition-colors">
+                                        <a href="/ficha-tecnica-clasico.pdf" download className="mt-2 inline-block text-xs text-[#BCC90F] underline underline-offset-4 transition-colors sm:text-sm">
                                             Descargar ficha técnica
                                         </a>
-                                    </div>
+                                    </motion.div>
 
-                                    {/* Imagen detalle grano con LÍNEA DECORATIVA — solo desktop */}
-                                    <div className="relative w-full max-w-[200px] sm:max-w-[240px] hidden lg:block">
-                                        <span className="hidden lg:block absolute right-full top-1/2 -translate-y-1/2 w-20 lg:w-18 h-[1px] bg-[#BCC90F] pointer-events-none -z-10" />
-                                        <div className="relative z-10 aspect-[16/9] w-full rounded-2xl overflow-hidden border border-white/10 shadow-lg bg-[#132219]">
+                                    {/* Imagen detalle grano — solo desktop: crece y su línea se dibuja */}
+                                    <motion.div variants={zoomIn} className="relative hidden w-full max-w-[200px] sm:max-w-[240px] lg:block">
+                                        <motion.span
+                                            variants={drawLine}
+                                            style={{ originX: 1 }}
+                                            className="pointer-events-none absolute right-full top-1/2 -z-10 hidden h-px w-20 -translate-y-1/2 bg-[#BCC90F] lg:block lg:w-18"
+                                        />
+                                        <div className="relative z-10 aspect-[16/9] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#132219] shadow-lg">
                                             <Image src="/assets/features/geisha-grain.webp" alt="Sayni Clásico Detalle" fill className="object-cover" />
                                         </div>
-                                    </div>
+                                    </motion.div>
 
                                     {/* Botón */}
-                                    <div className="pt-0 lg:pt-2">
+                                    <motion.div variants={fadeUp} className="pt-0 lg:pt-2">
                                         <button
                                             type="button"
-                                            onClick={() => addToCart({ id: "pack-clasico-4x", title: "Pack x4 Sayni Clásico", weight: "4 Bolsas 220g", price: 89.90, quantity: 1, image: "/assets/features/classic_package_250.webp" })}
-                                            className="inline-flex mt-3 items-center gap-2 sm:gap-4 bg-[#BCC90F] text-[#132219] font-bold pl-4 sm:pl-6 pr-2 py-1.5 sm:py-2.5 rounded-[100px] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 text-xs sm:text-base cursor-pointer border-t border-white/40 shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]"
+                                            onClick={() => addToCart({ id: "pack-clasico-4x", title: "Pack x4 Sayni Clásico", weight: "4 Bolsas 220g", price: 89.9, quantity: 1, image: "/assets/features/classic_package_250.webp" })}
+                                            className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-1.5 pl-4 pr-2 text-xs font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] sm:gap-4 sm:py-2.5 sm:pl-6 sm:text-base"
                                         >
-                                            <span className="tracking-wide select-none hidden sm:inline">Añadir al carrito</span>
-                                            <span className="tracking-wide select-none sm:hidden">Añadir</span>
-                                            <span className="bg-[#132219] text-[#BCC90F] rounded-full w-7 h-7 sm:w-9 sm:h-9 flex items-center justify-center shrink-0">
-                                                <svg className="w-4 h-4 sm:w-5 sm:h-5 fill-current" viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.89-2-1.99-2z" /></svg>
+                                            <span className="hidden select-none tracking-wide sm:inline">Añadir al carrito</span>
+                                            <span className="select-none tracking-wide sm:hidden">Añadir</span>
+                                            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#132219] text-[#BCC90F] sm:size-9">
+                                                <CartIcon className="size-4 sm:size-5" />
                                             </span>
                                         </button>
-                                    </div>
-                                </div>
-                            </div>
+                                    </motion.div>
+                                </motion.div>
+                            </motion.div>
                         </motion.div>
                     )}
                 </AnimatePresence>
             </motion.div>
         </section>
+    );
+}
+
+/* ── Iconos ─────────────────────────────── */
+
+function CartIcon({ className }: { className?: string }) {
+    return (
+        <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+            <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.89-2-1.99-2z" />
+        </svg>
     );
 }

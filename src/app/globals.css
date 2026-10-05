@@ -8,6 +8,12 @@
   --color-sayni-darkGreen: #1B2A1E;
   --color-sayni-olive: #A1AC0C;
   --color-sayni-light: #F5F5F5;
+
+  /* Animaciones de entrada (ENTER_ANIM en lib/reveal.ts) */
+  --animate-enter-fade: enter-fade 0.7s ease-out both;
+  --animate-enter-up: enter-up 0.7s ease-out both;
+  --animate-enter-blur-up: enter-blur-up 0.8s ease-out both;
+  --animate-enter-zoom: enter-zoom 0.7s ease-out both;
 }
 
 :root {
@@ -39,4 +45,22 @@ html {
   display: flex;
   width: max-content;
   animation: marquee 25s linear infinite;
+}
+
+/* ── Entradas al cargar la página ─────────────────────── */
+
+@keyframes enter-fade {
+  from { opacity: 0; }
+}
+
+@keyframes enter-up {
+  from { opacity: 0; translate: 0 1.5rem; }
+}
+
+@keyframes enter-blur-up {
+  from { opacity: 0; translate: 0 1rem; filter: blur(8px); }
+}
+
+@keyframes enter-zoom {
+  from { opacity: 0; scale: 0.9; }
 }
