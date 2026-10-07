@@ -1,39 +1,35 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import Image, { getImageProps } from "next/image";
+import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence, type PanInfo, type Variants } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { ENTER_ANIM } from "@/lib/reveal";
 
 const HERO_DIR = "/assets/features/hero";
+const FRAME_DIR = "/assets/hero-bg-sequence";
 
 type HeroProduct = {
     key: string;
     name: string;
     cta: string;
     product: string;
-    bgDesktop: string;
-    bgMobile: string;
 };
 
+// Se coloca Geisha primero como producto inicial
 const PRODUCTS: readonly HeroProduct[] = [
-    {
-        key: "clasico",
-        name: "Sayni Clásico",
-        cta: "Pedir Clásico",
-        product: `${HERO_DIR}/classic_product.png`,
-        bgDesktop: `${HERO_DIR}/classic_desktop_background.png`,
-        bgMobile: `${HERO_DIR}/classic_mobile_background.png`,
-    },
     {
         key: "geisha",
         name: "Sayni Geisha",
         cta: "Pedir Geisha",
         product: `${HERO_DIR}/geisha_product.png`,
-        bgDesktop: `${HERO_DIR}/geisha_desktop_background.png`,
-        bgMobile: `${HERO_DIR}/geisha_mobile_background.png`,
+    },
+    {
+        key: "clasico",
+        name: "Sayni Clásico",
+        cta: "Pedir Clásico",
+        product: `${HERO_DIR}/classic_product.png`,
     },
 ];
 
@@ -43,7 +39,7 @@ const SWIPE_THRESHOLD = 80;
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 const EASE_IN = [0.55, 0, 1, 0.45] as const;
 
-/* ── Variantes ─────────────────────────────── */
+/* ── Variantes de Animación del Producto ─────────────────────────────── */
 
 const productVariants: Variants = {
     enter: (dir: number) => ({ x: dir > 0 ? "110%" : "-110%", opacity: 0, rotate: dir * 10 }),
@@ -54,11 +50,6 @@ const productVariants: Variants = {
         rotate: -dir * 10,
         transition: { duration: 0.7, ease: EASE_IN },
     }),
-};
-
-const backgroundVariants: Variants = {
-    active: { opacity: 1, scale: 1, transition: { duration: 1.2, ease: EASE_OUT } },
-    inactive: { opacity: 0, scale: 1.08, transition: { duration: 1.2, ease: EASE_OUT } },
 };
 
 const labelVariants: Variants = {
@@ -94,19 +85,9 @@ export default function NewHero() {
             id="inicio"
             className="relative flex h-svh w-full flex-col justify-center overflow-hidden bg-black md:flex-row md:items-center md:justify-end md:px-16"
         >
-            {/* ── CAPA 1: FONDOS ── */}
+            {/* ── CAPA 1: SECUENCIA DE IMÁGENES EN CANVAS (FONDO ÚNICO) ── */}
             <div className={cn("absolute inset-0 z-0", ENTER_ANIM.fade, "[animation-duration:1s]")}>
-                {PRODUCTS.map((p, i) => (
-                    <motion.div
-                        key={p.key}
-                        variants={backgroundVariants}
-                        initial={false}
-                        animate={i === index ? "active" : "inactive"}
-                        className="absolute inset-0"
-                    >
-                        <BackgroundPicture desktop={p.bgDesktop} mobile={p.bgMobile} priority={i === 0} />
-                    </motion.div>
-                ))}
+                <ImageSequenceBackground activeKey={current.key} />
             </div>
 
             <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-transparent to-black/30 md:bg-gradient-to-r md:from-black/40 md:via-transparent md:to-black/60" />
@@ -143,7 +124,7 @@ export default function NewHero() {
                         </motion.div>
                     </AnimatePresence>
 
-                    {/* Text Button superpuesto con fondo Blur & Gradient suave */}
+                    {/* Botón Deslizar Desktop */}
                     <button
                         type="button"
                         onClick={() => paginate(1)}
@@ -176,14 +157,14 @@ export default function NewHero() {
                         </motion.div>
 
                         <span className="font-urbanist text-sm sm:text-base font-bold tracking-widest uppercase text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-        Desliza
-    </span>
+                            Desliza
+                        </span>
                     </button>
 
                     <div className="pointer-events-none absolute inset-0 bg-black/45 md:hidden" />
                 </div>
 
-                {/* Botón Siguiente (solo móvil) */}
+                {/* Botón Siguiente Móvil */}
                 <div
                     className={cn(
                         "pointer-events-auto absolute bottom-8 left-1/2 -translate-x-1/2 md:hidden",
@@ -318,31 +299,114 @@ export default function NewHero() {
                     priority
                 />
             </div>
-
-            <div aria-hidden className="pointer-events-none absolute size-0 overflow-hidden opacity-0">
-                {PRODUCTS.map((p) => (
-                    <div key={p.key} className="relative size-px">
-                        <Image src={p.product} alt="" fill sizes={PRODUCT_SIZES} loading="eager" />
-                    </div>
-                ))}
-            </div>
         </section>
     );
 }
 
-function BackgroundPicture({ desktop, mobile, priority }: { desktop: string; mobile: string; priority: boolean }) {
-    const common = { alt: "", fill: true, sizes: "100vw", priority, loading: priority ? undefined : ("eager" as const) };
-    const {
-        props: { srcSet: desktopSrcSet },
-    } = getImageProps({ ...common, src: desktop });
-    const { props: mobileProps } = getImageProps({ ...common, src: mobile });
+/* ── COMPONENTE RENDERIZADOR DE LA SECUENCIA DE IMÁGENES ── */
+
+function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const imagesRef = useRef<HTMLImageElement[]>([]);
+
+    // Flag para ignorar el primer renderizado en el useEffect
+    const isFirstRender = useRef<boolean>(true);
+
+    // 1. CARGA INICIAL ÚNICA AL ENTRAR A LA PÁGINA (215 a 284)
+    const currentFrameRef = useRef<number>(215);
+    const targetFrameRef = useRef<number>(284);
+    const animationSpeedRef = useRef<number>(0.8);
+
+    // Precargar las 284 imágenes
+    useEffect(() => {
+        const loadedImages: HTMLImageElement[] = [];
+        for (let i = 1; i <= 284; i++) {
+            const img = new window.Image();
+            const frameIndex = String(i).padStart(4, "0");
+            img.src = `${FRAME_DIR}/frame_${frameIndex}.jpg`;
+            loadedImages.push(img);
+        }
+        imagesRef.current = loadedImages;
+    }, []);
+
+    // 2. CONTROL DE CAMBIOS DE PRODUCTO (SWITCHES)
+    useEffect(() => {
+        // Ignoramos la carga inicial para preservar la animación 215 -> 284
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        if (activeKey === "clasico") {
+            // De Geisha a Clásico: inicia en 30 y termina en 131
+            currentFrameRef.current = 30;
+            targetFrameRef.current = 131;
+            animationSpeedRef.current = 0.4;
+        } else if (activeKey === "geisha") {
+            // De Clásico a Geisha: inicia en 132 y termina en 284
+            currentFrameRef.current = 132;
+            targetFrameRef.current = 284;
+            animationSpeedRef.current = 0.4;
+        }
+    }, [activeKey]);
+
+    // 3. MOTOR DE ANIMACIÓN Y RENDERIZADO
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return;
+
+        let animationFrameId: number;
+
+        const render = () => {
+            const targetFrame = Math.floor(currentFrameRef.current);
+            const img = imagesRef.current[targetFrame - 1];
+
+            if (img && img.complete) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+
+                const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+                const x = (canvas.width / 2) - (img.width / 2) * scale;
+                const y = (canvas.height / 2) - (img.height / 2) * scale;
+
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+            }
+        };
+
+        const animate = () => {
+            const current = currentFrameRef.current;
+            const target = targetFrameRef.current;
+            const speed = animationSpeedRef.current;
+
+            if (Math.abs(current - target) > speed) {
+                if (current < target) {
+                    currentFrameRef.current += speed;
+                } else {
+                    currentFrameRef.current -= speed;
+                }
+            } else {
+                currentFrameRef.current = target;
+            }
+
+            render();
+            animationFrameId = requestAnimationFrame(animate);
+        };
+
+        animate();
+
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+        };
+    }, [activeKey]);
 
     return (
-        <picture>
-            <source media="(min-width: 768px)" srcSet={desktopSrcSet} />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img {...mobileProps} alt="" className="object-cover object-center" />
-        </picture>
+        <canvas
+            ref={canvasRef}
+            className="size-full object-cover pointer-events-none"
+        />
     );
 }
 
