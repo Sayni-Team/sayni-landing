@@ -89,7 +89,7 @@ export default function Header() {
     };
 
     const handleCheckout = () => {
-        const phoneNumber = "51991319377";
+        const phoneNumber = "51939273366";
 
         const itemsList = cartItems
             .map(

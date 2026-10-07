@@ -215,7 +215,7 @@ export default function OurCoffees() {
                                         </p>
 
                                         {/* Ficha técnica — siempre visible */}
-                                        <a href="/ficha-tecnica-geisha.pdf" download className="mt-2 inline-block text-xs text-[#BCC90F] underline underline-offset-4 transition-colors sm:text-sm">
+                                        <a href="/Sayni_Premium_Geisha_Ficha_Tecnica_EN-ES.pdf" download className="mt-2 inline-block text-xs text-[#BCC90F] underline underline-offset-4 transition-colors sm:text-sm">
                                             Descargar ficha técnica
                                         </a>
                                     </motion.div>
@@ -272,7 +272,7 @@ export default function OurCoffees() {
                                         </p>
 
                                         {/* Ficha técnica — siempre visible */}
-                                        <a href="/ficha-tecnica-geisha.pdf" download className="mt-2 inline-block text-xs text-[#BCC90F] underline underline-offset-4 transition-colors sm:text-sm">
+                                        <a href="/Sayni_Premium_Geisha_Ficha_Tecnica_EN-ES.pdf" download className="mt-2 inline-block text-xs text-[#BCC90F] underline underline-offset-4 transition-colors sm:text-sm">
                                             Descargar ficha técnica
                                         </a>
                                     </motion.div>
@@ -382,7 +382,7 @@ export default function OurCoffees() {
                                 <motion.div variants={fadeUp} className="flex flex-col items-center gap-4 pt-2 font-urbanist">
                                     <p className="max-w-[420px] text-xs font-light leading-relaxed text-white sm:text-sm">
                                         El detalle perfecto listo para regalar. Incluye tarjeta especial de 11x8 cm con el mensaje inspirador de Sayni.
-                                        <a href="/ficha-tecnica-clasico.pdf" download className="ml-2 inline-block text-[#BCC90F] underline underline-offset-4 transition-colors">
+                                        <a href="/Sayni_Clasico_Ficha_Tecnica.pdf" download className="ml-2 inline-block text-[#BCC90F] underline underline-offset-4 transition-colors">
                                             Descargar ficha técnica
                                         </a>
                                     </p>
@@ -438,7 +438,7 @@ export default function OurCoffees() {
                                         </p>
 
                                         {/* Ficha técnica — siempre visible */}
-                                        <a href="/ficha-tecnica-clasico.pdf" download className="mt-2 inline-block text-xs text-[#BCC90F] underline underline-offset-4 transition-colors sm:text-sm">
+                                        <a href="/Sayni_Clasico_Ficha_Tecnica.pdf" download className="mt-2 inline-block text-xs text-[#BCC90F] underline underline-offset-4 transition-colors sm:text-sm">
                                             Descargar ficha técnica
                                         </a>
                                     </motion.div>
