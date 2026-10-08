@@ -15,6 +15,7 @@ type HeroProduct = {
     name: string;
     cta: string;
     product: string;
+    bgMobile: string;
 };
 
 const PRODUCTS: readonly HeroProduct[] = [
@@ -23,12 +24,14 @@ const PRODUCTS: readonly HeroProduct[] = [
         name: "Sayni Geisha",
         cta: "Pedir Geisha",
         product: `${HERO_DIR}/geisha_product.png`,
+        bgMobile: `${HERO_DIR}/geisha_mobile_background.png`,
     },
     {
         key: "clasico",
         name: "Sayni Clásico",
         cta: "Pedir Clásico",
         product: `${HERO_DIR}/classic_product.png`,
+        bgMobile: `${HERO_DIR}/classic_mobile_background.png`,
     },
 ];
 
@@ -38,7 +41,6 @@ const SWIPE_THRESHOLD = 80;
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 const EASE_IN = [0.55, 0, 1, 0.45] as const;
 
-// Transición limpia de desplazamiento puro (sin rotación ni escala exagerada)
 const productVariants: Variants = {
     enter: (dir: number) => ({
         x: dir > 0 ? "120%" : "-120%",
@@ -56,6 +58,11 @@ const productVariants: Variants = {
     }),
 };
 
+const backgroundMobileVariants: Variants = {
+    active: { opacity: 1, scale: 1, transition: { duration: 0.8, ease: EASE_OUT } },
+    inactive: { opacity: 0, scale: 1.05, transition: { duration: 0.8, ease: EASE_OUT } },
+};
+
 const labelVariants: Variants = {
     enter: { opacity: 0, y: 12 },
     center: { opacity: 1, y: 0, transition: { duration: 0.4, ease: EASE_OUT } },
@@ -68,7 +75,11 @@ export default function Hero() {
     const current = PRODUCTS[index];
 
     const paginate = (dir: number) => {
-        if (isAnimating) return; // Bloquear cambio si la secuencia sigue corriendo
+        // En Mobile (ancho < 768px) no hay secuencia de canvas, no debemos bloquear el cambio
+        const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+
+        if (!isMobile && isAnimating) return; // Bloquear solo en Desktop mientras corre la secuencia
+
         setSlide(([i]) => [(i + dir + PRODUCTS.length) % PRODUCTS.length, dir]);
     };
 
@@ -93,12 +104,38 @@ export default function Hero() {
             id="inicio"
             className="relative flex h-svh w-full flex-col justify-center overflow-hidden bg-black md:flex-row md:items-center md:justify-end md:px-16"
         >
-            {/* ── CAPA 1: SECUENCIA DE IMÁGENES EN CANVAS (FONDO ÚNICO) ── */}
+            {/* ── CAPA 1: SECUENCIA EN DESKTOP / PNGS EN MOBILE ── */}
             <div className="absolute inset-0 z-0">
-                <ImageSequenceBackground
-                    activeKey={current.key}
-                    onAnimatingChange={setIsAnimating}
-                />
+                {/* Desktop: Secuencia de video renderizada en Canvas */}
+                <div className="hidden size-full md:block">
+                    <ImageSequenceBackground
+                        activeKey={current.key}
+                        onAnimatingChange={setIsAnimating}
+                    />
+                </div>
+
+                {/* Mobile: Fondos PNG Estáticos */}
+                <div className="relative size-full md:hidden">
+                    {PRODUCTS.map((p, i) => (
+                        <motion.div
+                            key={p.key}
+                            variants={backgroundMobileVariants}
+                            initial={false}
+                            animate={i === index ? "active" : "inactive"}
+                            className="absolute inset-0 size-full"
+                        >
+                            <Image
+                                src={p.bgMobile}
+                                alt=""
+                                fill
+                                sizes="100vw"
+                                priority={i === 0}
+                                quality={90}
+                                className="object-cover object-center"
+                            />
+                        </motion.div>
+                    ))}
+                </div>
             </div>
 
             <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-transparent to-black/30 md:bg-gradient-to-r md:from-black/40 md:via-transparent md:to-black/60" />
@@ -140,7 +177,7 @@ export default function Hero() {
                         </motion.div>
                     </AnimatePresence>
 
-                    {/* ── BOTÓN / ÁREA DESLIZAR DESKTOP (ANIMACIÓN EN TODO EL BOTÓN) ── */}
+                    {/* ── BOTÓN / ÁREA DESLIZAR DESKTOP ── */}
                     <motion.div
                         drag={isAnimating ? false : "x"}
                         dragConstraints={{ left: 0, right: 0 }}
@@ -162,7 +199,6 @@ export default function Hero() {
                             "[animation-delay:600ms]"
                         )}
                     >
-                        {/* Contenedor animado que envuelve tanto la mano como el texto */}
                         <motion.div
                             animate={isAnimating ? {} : { x: [-4, 8, -4] }}
                             transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
@@ -186,8 +222,8 @@ export default function Hero() {
                             </div>
 
                             <span className="font-urbanist text-sm sm:text-base font-bold tracking-widest uppercase text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-            Desliza
-        </span>
+                                Desliza
+                            </span>
                         </motion.div>
                     </motion.div>
 
@@ -205,27 +241,23 @@ export default function Hero() {
                     <button
                         type="button"
                         onClick={() => paginate(1)}
-                        disabled={isAnimating}
-                        className={cn(
-                            "group relative inline-flex items-center gap-3 rounded-[100px] bg-white/10 py-3 pl-8 pr-3 text-base font-bold text-white backdrop-blur-md transition-all duration-300 sm:text-lg border-t border-white/20 shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),_inset_0_-4px_8px_rgba(0,0,0,0.5),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]",
-                            isAnimating ? "opacity-50 cursor-not-allowed" : "hover:scale-[1.02] hover:bg-white/15 active:scale-[0.98]"
-                        )}
+                        className="group relative inline-flex items-center gap-3 rounded-[100px] bg-white/10 py-3 pl-8 pr-3 text-base font-bold text-white backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:bg-white/15 active:scale-[0.98] sm:text-lg border-t border-white/20 shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),_inset_0_-4px_8px_rgba(0,0,0,0.5),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]"
                     >
                         <span className="select-none font-urbanist tracking-wide">Siguiente</span>
                         <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-[scale] group-hover:scale-105">
-                            <svg
-                                className="size-5 transition-transform duration-300 group-hover:translate-x-0.5"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                aria-hidden="true"
-                            >
-                                <path d="m9 18 6-6-6-6" />
-                            </svg>
-                        </span>
+            <svg
+                className="size-5 transition-transform duration-300 group-hover:translate-x-0.5"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+            >
+                <path d="m9 18 6-6-6-6" />
+            </svg>
+        </span>
                     </button>
                 </div>
             </div>
@@ -338,9 +370,7 @@ export default function Hero() {
     );
 }
 
-/* ── COMPONENTE RENDERIZADOR DE LA SECUENCIA DE IMÁGENES ── */
-
-/* ── COMPONENTE RENDERIZADOR DE LA SECUENCIA DE IMÁGENES ── */
+/* ── COMPONENTE RENDERIZADOR DE LA SECUENCIA DE IMÁGENES DESKTOP ── */
 
 function ImageSequenceBackground({
                                      activeKey,
@@ -356,7 +386,7 @@ function ImageSequenceBackground({
 
     const currentFrameRef = useRef<number>(215);
     const targetFrameRef = useRef<number>(284);
-    const animationSpeedRef = useRef<number>(0.35);
+    const animationSpeedRef = useRef<number>(0.4);
 
     const previousActiveKeyRef = useRef<string>(activeKey);
 
@@ -394,11 +424,11 @@ function ImageSequenceBackground({
         if (activeKey === "clasico") {
             currentFrameRef.current = 30;
             targetFrameRef.current = 131;
-            animationSpeedRef.current = 0.35;
+            animationSpeedRef.current = 0.4;
         } else if (activeKey === "geisha") {
             currentFrameRef.current = 132;
             targetFrameRef.current = 265;
-            animationSpeedRef.current = 0.35;
+            animationSpeedRef.current = 0.4;
         }
     }, [activeKey, onAnimatingChange]);
 
@@ -456,17 +486,16 @@ function ImageSequenceBackground({
                 }
 
                 const distance = Math.abs(target - current);
-                const slowDownThreshold = 60; // Mantener la zona de frenado elegante
+                const slowDownThreshold = 60;
 
                 let currentSpeed = maxSpeed;
 
                 if (distance < slowDownThreshold) {
                     const factor = distance / slowDownThreshold;
-                    // ✅ Ajustamos el piso de velocidad a 0.12 para que sea suave pero sin atascar los últimos frames
                     currentSpeed = Math.max(maxSpeed * factor, 0.12);
                 }
 
-                const CLOSE_ENOUGH_THRESHOLD = 0.8; // Umbral de llegada limpia
+                const CLOSE_ENOUGH_THRESHOLD = 0.8;
 
                 if (distance > CLOSE_ENOUGH_THRESHOLD) {
                     if (current < target) {
@@ -475,11 +504,10 @@ function ImageSequenceBackground({
                         currentFrameRef.current -= currentSpeed;
                     }
                 } else {
-                    // Aterrizaje final y desbloqueo instantáneo
                     if (currentFrameRef.current !== target) {
                         currentFrameRef.current = target;
                         render();
-                        onAnimatingChange?.(false); // ✅ Desbloqueo inmediato
+                        onAnimatingChange?.(false);
                     }
                 }
             }
