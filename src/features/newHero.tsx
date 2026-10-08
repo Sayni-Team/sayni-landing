@@ -17,7 +17,6 @@ type HeroProduct = {
     product: string;
 };
 
-// Se coloca Geisha primero como producto inicial
 const PRODUCTS: readonly HeroProduct[] = [
     {
         key: "geisha",
@@ -38,8 +37,6 @@ const SWIPE_THRESHOLD = 80;
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 const EASE_IN = [0.55, 0, 1, 0.45] as const;
-
-/* ── Variantes de Animación del Producto ─────────────────────────────── */
 
 const productVariants: Variants = {
     enter: (dir: number) => ({ x: dir > 0 ? "110%" : "-110%", opacity: 0, rotate: dir * 10 }),
@@ -309,6 +306,8 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const imagesRef = useRef<HTMLImageElement[]>([]);
 
+    const [isCanvasReady, setIsCanvasReady] = useState(false);
+
     // Frame inicial visible al entrar
     const currentFrameRef = useRef<number>(215);
     const targetFrameRef = useRef<number>(284);
@@ -317,51 +316,32 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
     const previousActiveKeyRef = useRef<string>(activeKey);
 
     // ─────────────────────────────────────────────
-    // PRECARGA POR PRIORIDAD (0 PANTALLA NEGRA)
+    // PRECARGA POR PRIORIDAD
     // ─────────────────────────────────────────────
     useEffect(() => {
         const loadedImages: HTMLImageElement[] = new Array(284);
 
-        // Función aux para crear y asignar una imagen
-        const loadImage = (index: number, onFirstFrameLoad?: () => void) => {
+        const loadImage = (index: number) => {
             const img = new window.Image();
             const frameIndex = String(index).padStart(4, "0");
             img.src = `${FRAME_DIR}/frame_${frameIndex}.webp`;
-
-            if (onFirstFrameLoad) {
-                img.onload = onFirstFrameLoad;
-            }
-
             loadedImages[index - 1] = img;
+            return img;
         };
 
-        // 1. PRIMER RENDER INSTANTÁNEO: Cargar frame 215 con máxima prioridad
-        loadImage(215, () => {
-            // Renderizado forzado en cuanto descarga el primer frame
-            const canvas = canvasRef.current;
-            if (canvas) {
-                const ctx = canvas.getContext("2d");
-                const img = loadedImages[214];
-                if (ctx && img) {
-                    canvas.width = window.innerWidth;
-                    canvas.height = window.innerHeight;
-                    const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
-                    const x = canvas.width / 2 - (img.width / 2) * scale;
-                    const y = canvas.height / 2 - (img.height / 2) * scale;
-                    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-                }
+        // Cargar inmediatamente el frame 215 prioritario
+        const initialImg = loadImage(215);
+
+        initialImg.onload = () => {
+            // Cargar el resto de la fase 1 (216 a 284)
+            for (let i = 216; i <= 284; i++) {
+                loadImage(i);
             }
-        });
-
-        // 2. FASE 1: Cargar inmediatamente solo el rango prioritario (216 al 284)
-        for (let i = 216; i <= 284; i++) {
-            loadImage(i);
-        }
-
-        // 3. FASE 2: Cargar el resto de frames (1 al 214) en segundo plano
-        for (let i = 1; i <= 214; i++) {
-            loadImage(i);
-        }
+            // Cargar fase 2 en segundo plano (1 a 214)
+            for (let i = 1; i <= 214; i++) {
+                loadImage(i);
+            }
+        };
 
         imagesRef.current = loadedImages;
     }, []);
@@ -390,7 +370,7 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
     }, [activeKey]);
 
     // ─────────────────────────────────────────────
-    // MOTOR DE ANIMACIÓN
+    // MOTOR DE ANIMACIÓN CONTROLADO
     // ─────────────────────────────────────────────
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -411,7 +391,7 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
             const img = imagesRef.current[targetFrame - 1];
 
             if (!img || !img.complete || !img.naturalWidth) {
-                return;
+                return false;
             }
 
             const scale = Math.max(
@@ -424,27 +404,42 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+
+            return true;
         };
 
         resizeCanvas();
         window.addEventListener("resize", resizeCanvas);
+
+        let animationStarted = false;
 
         const animate = () => {
             const current = currentFrameRef.current;
             const target = targetFrameRef.current;
             const speed = animationSpeedRef.current;
 
-            if (Math.abs(current - target) > speed) {
-                if (current < target) {
-                    currentFrameRef.current += speed;
-                } else {
-                    currentFrameRef.current -= speed;
+            // Intentar renderizar el fotograma actual
+            const renderedSuccessfully = render();
+
+            if (renderedSuccessfully) {
+                // Si dibujó el primer frame con éxito, ocultamos el poster estático
+                if (!animationStarted) {
+                    animationStarted = true;
+                    setIsCanvasReady(true);
                 }
-            } else {
-                currentFrameRef.current = target;
+
+                // Solo avanzar fotogramas si el frame actual sí se dibujó
+                if (Math.abs(current - target) > speed) {
+                    if (current < target) {
+                        currentFrameRef.current += speed;
+                    } else {
+                        currentFrameRef.current -= speed;
+                    }
+                } else {
+                    currentFrameRef.current = target;
+                }
             }
 
-            render();
             animationFrameId = requestAnimationFrame(animate);
         };
 
@@ -457,10 +452,27 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
     }, [activeKey]);
 
     return (
-        <canvas
-            ref={canvasRef}
-            className="size-full object-cover pointer-events-none"
-        />
+        <div className="relative size-full">
+            {/* Poster estático inmediato para 0ms de pantalla negra */}
+            <Image
+                src={`${FRAME_DIR}/frame_0215.webp`}
+                alt=""
+                fill
+                priority
+                quality={90}
+                sizes="100vw"
+                className={cn(
+                    "object-cover transition-opacity duration-300 pointer-events-none",
+                    isCanvasReady ? "opacity-0" : "opacity-100"
+                )}
+            />
+
+            {/* Canvas de animación */}
+            <canvas
+                ref={canvasRef}
+                className="size-full object-cover pointer-events-none absolute inset-0"
+            />
+        </div>
     );
 }
 
