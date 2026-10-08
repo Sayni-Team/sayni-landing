@@ -420,8 +420,11 @@ export default function Header() {
 
 /* ── Piezas ─────────────────────────────── */
 
-// Contador: hace "pop" cada vez que cambia el número
+// Contador: hace "pop" cada vez que cambia el número.
+// Dibujado en SVG para que el número quede centrado sin depender de la fuente.
 function CartBadge({ count, className }: { count: number; className?: string }) {
+    const label = count > 9 ? "9+" : String(count);
+
     return (
         <AnimatePresence>
             {count > 0 && (
@@ -431,9 +434,22 @@ function CartBadge({ count, className }: { count: number; className?: string }) 
                     animate={{ scale: 1 }}
                     exit={{ scale: 0 }}
                     transition={{ type: "spring", stiffness: 500, damping: 18 }}
-                    className={`absolute flex size-4 items-center justify-center rounded-full bg-white text-[10px] font-bold text-sayni-black shadow-md ${className ?? ""}`}
+                    className={`absolute block size-[18px] drop-shadow-md ${className ?? ""}`}
                 >
-                    {count}
+                    <svg viewBox="0 0 18 18" className="size-full" aria-hidden>
+                        <circle cx="9" cy="9" r="9" fill="#ffffff" />
+                        <text
+                            x="9"
+                            y="9"
+                            textAnchor="middle"
+                            dominantBaseline="central"
+                            fontSize={label.length > 1 ? 8 : 10}
+                            fontWeight={700}
+                            fill="#121212"
+                        >
+                            {label}
+                        </text>
+                    </svg>
                 </motion.span>
             )}
         </AnimatePresence>
