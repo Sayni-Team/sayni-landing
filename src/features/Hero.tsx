@@ -140,46 +140,56 @@ export default function Hero() {
                         </motion.div>
                     </AnimatePresence>
 
-                    {/* Botón Deslizar Desktop */}
-                    <button
-                        type="button"
-                        onClick={() => paginate(1)}
-                        disabled={isAnimating}
+                    {/* ── BOTÓN / ÁREA DESLIZAR DESKTOP (ANIMACIÓN EN TODO EL BOTÓN) ── */}
+                    <motion.div
+                        drag={isAnimating ? false : "x"}
+                        dragConstraints={{ left: 0, right: 0 }}
+                        dragElastic={0.2}
+                        onDragEnd={(_: unknown, info: PanInfo) => {
+                            if (isAnimating) return;
+                            if (info.offset.x < -30) paginate(1);
+                            else if (info.offset.x > 30) paginate(-1);
+                        }}
+                        onClick={() => {
+                            if (!isAnimating) paginate(1);
+                        }}
                         className={cn(
-                            "pointer-events-auto absolute bottom-[12%] left-[53%] z-30 hidden items-center gap-3 rounded-full px-5 py-2 text-white transition-all duration-300 md:flex",
-                            "bg-gradient-to-r from-black/40 via-black/25 to-black/40 backdrop-blur-md border border-white/10 shadow-lg",
+                            "pointer-events-auto absolute bottom-[12%] left-[53%] z-30 hidden items-center gap-3 px-2 py-1 text-white md:flex select-none touch-none",
                             isAnimating
                                 ? "opacity-50 cursor-not-allowed"
-                                : "hover:scale-105 active:scale-95 cursor-pointer",
+                                : "cursor-grab active:cursor-grabbing hover:opacity-80 transition-opacity duration-300",
                             ENTER_ANIM.fade,
                             "[animation-delay:600ms]"
                         )}
                     >
+                        {/* Contenedor animado que envuelve tanto la mano como el texto */}
                         <motion.div
-                            animate={{ x: [-2, 6, -2] }}
+                            animate={isAnimating ? {} : { x: [-4, 8, -4] }}
                             transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                            className="text-[#BCC90F] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
+                            className="flex items-center gap-3"
                         >
-                            <svg
-                                className="size-6 sm:size-7"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2.2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
-                                <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6" />
-                                <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8" />
-                                <path d="M18 8a2 2 0 0 1 2 2v4a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.8-5.9-2.2L2 17" />
-                            </svg>
-                        </motion.div>
+                            <div className="text-[#BCC90F] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                                <svg
+                                    className="size-6 sm:size-7"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
+                                    <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6" />
+                                    <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8" />
+                                    <path d="M18 8a2 2 0 0 1 2 2v4a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.8-5.9-2.2L2 17" />
+                                </svg>
+                            </div>
 
-                        <span className="font-urbanist text-sm sm:text-base font-bold tracking-widest uppercase text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-                            Desliza
-                        </span>
-                    </button>
+                            <span className="font-urbanist text-sm sm:text-base font-bold tracking-widest uppercase text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+            Desliza
+        </span>
+                        </motion.div>
+                    </motion.div>
 
                     <div className="pointer-events-none absolute inset-0 bg-black/45 md:hidden" />
                 </div>
@@ -346,7 +356,7 @@ function ImageSequenceBackground({
 
     const currentFrameRef = useRef<number>(215);
     const targetFrameRef = useRef<number>(284);
-    const animationSpeedRef = useRef<number>(0.4);
+    const animationSpeedRef = useRef<number>(0.35);
 
     const previousActiveKeyRef = useRef<string>(activeKey);
 
@@ -384,11 +394,11 @@ function ImageSequenceBackground({
         if (activeKey === "clasico") {
             currentFrameRef.current = 30;
             targetFrameRef.current = 131;
-            animationSpeedRef.current = 0.4;
+            animationSpeedRef.current = 0.35;
         } else if (activeKey === "geisha") {
             currentFrameRef.current = 132;
             targetFrameRef.current = 265;
-            animationSpeedRef.current = 0.4;
+            animationSpeedRef.current = 0.35;
         }
     }, [activeKey, onAnimatingChange]);
 
