@@ -5,10 +5,10 @@ import AboutUs from "@/features/AboutUs";
 import OurCoffees from "@/features/OurCoffees";
 import TestimonialsSection from "@/features/Testimonials";
 import CtaSection from "@/features/CTA";
-import Hero from "@/features/Hero";
 import { SectionDivider } from "@/components/SectionDivider";
 import FAQSection from "@/features/FAQSection";
 import NewHero from "@/features/newHero";
+import Hero from "@/features/Hero";
 
 export default function Home() {
     // JSON-LD para Organización y Producto Principal
@@ -62,7 +62,7 @@ export default function Home() {
             <Header />
 
             <main className="flex-grow overflow-visible relative">
-                <NewHero />
+                <Hero />
                 <InfiniteMarquee />
                 <AboutUs />
                 <SectionDivider />
