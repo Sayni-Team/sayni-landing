@@ -12,17 +12,17 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
     {
         title: "Explora",
         links: [
-            { label: "Nuestros Cafés", href: "#cafes" },
-            { label: "Nuestra Historia", href: "#nosotros" },
-            { label: "Origen", href: "#origen" },
+            { label: "Inicio", href: "#inicio" },
+            { label: "Nosotros", href: "#nosotros" },
+            { label: "Cafés", href: "#cafes" },
         ],
     },
     {
         title: "Descubre",
         links: [
-            { label: "Sayni Geisha", href: "#sayni-geisha" },
-            { label: "Sayni Clásico", href: "#sayni-clasico" },
-            { label: "Comprar", href: "#comprar" },
+            { label: "Sayni Geisha", href: "#cafes" },
+            { label: "Sayni Clásico", href: "#cafes" },
+            { label: "Comprar", href: "#cafes" },
         ],
     },
     {
@@ -30,7 +30,6 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
         links: [
             { label: "Instagram", href: "https://instagram.com/sayni_peru", external: true },
             { label: "Facebook", href: "https://www.facebook.com/share/1Cf2MD3RBb/?mibextid=wwXIfr", external: true },
-            { label: "Contáctanos", href: "#contactanos" },
         ],
     },
 ];
@@ -69,7 +68,6 @@ const fade: Variants = {
     visible: { opacity: 1, transition: { duration: 0.8, ease: EASE } },
 };
 
-// Cada columna aparece y escalona sus enlaces
 const column: Variants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -84,13 +82,11 @@ const logoContainer: Variants = {
     visible: { transition: { staggerChildren: 0.1, delayChildren: 0.2 } },
 };
 
-// Cada letra cae con un pequeño rebote
 const letterDrop: Variants = {
     hidden: { opacity: 0, y: -40 },
     visible: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 260, damping: 14 } },
 };
 
-// Línea superior de la barra inferior: se dibuja desde el centro
 const drawFromCenter: Variants = {
     hidden: { scaleX: 0 },
     visible: { scaleX: 1, transition: { duration: 1, ease: EASE } },
@@ -101,9 +97,19 @@ export default function Footer() {
     const inView = useInView(footerRef, { once: true, amount: 0.15 });
     const state = inView ? "visible" : "hidden";
 
+    // Maneja la navegación forzada aunque la URL ya tenga el hash actual
+    const handleScroll = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, href: string) => {
+        e.preventDefault();
+        const id = href.replace("#", "");
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth" });
+            window.history.pushState(null, "", href);
+        }
+    };
+
     return (
         <footer ref={footerRef} className="w-full border-t border-white/10 bg-[#111111] px-6 pb-12 pt-16 font-sans text-white sm:px-12">
-            {/* Efecto "tic / temblor" sutil en cascada de las letras del logo */}
             <style jsx global>{`
                 @keyframes letterTic {
                     0%, 85%, 100% { transform: translate(0, 0) rotate(0deg); }
@@ -124,7 +130,6 @@ export default function Footer() {
             <motion.div variants={container} initial="hidden" animate={state} className="mx-auto flex max-w-6xl flex-col gap-16">
                 {/* BLOQUE SUPERIOR */}
                 <div className="grid grid-cols-1 items-start gap-12 text-center md:grid-cols-12 md:text-left">
-                    {/* Marca: el título entra desde la izquierda; el párrafo sube */}
                     <motion.div
                         variants={container}
                         className="mx-auto flex max-w-xs flex-col items-center gap-4 md:col-span-5 md:mx-0 md:items-start"
@@ -137,7 +142,7 @@ export default function Footer() {
                         </motion.p>
                     </motion.div>
 
-                    {/* Columnas: una tras otra, con sus enlaces en cascada */}
+                    {/* Columnas */}
                     <motion.div variants={container} className="grid grid-cols-1 gap-8 text-center sm:grid-cols-3 sm:text-left md:col-span-7">
                         {COLUMNS.map((col) => (
                             <motion.div key={col.title} variants={column} className="flex flex-col gap-3">
@@ -150,7 +155,11 @@ export default function Footer() {
                                                     {link.label}
                                                 </a>
                                             ) : (
-                                                <Link href={link.href} className={LINK_CLASS}>
+                                                <Link
+                                                    href={link.href}
+                                                    onClick={(e) => handleScroll(e, link.href)}
+                                                    className={LINK_CLASS}
+                                                >
                                                     {link.label}
                                                 </Link>
                                             )}
@@ -162,7 +171,7 @@ export default function Footer() {
                     </motion.div>
                 </div>
 
-                {/* BLOQUE CENTRAL: las letras caen una a una y luego siguen con su tic */}
+                {/* BLOQUE CENTRAL */}
                 <div className="flex items-center justify-center py-3.5">
                     <motion.svg
                         variants={logoContainer}
@@ -176,7 +185,6 @@ export default function Footer() {
                         className="h-auto w-full max-w-[210px] overflow-visible sm:max-w-[280px] md:max-w-[330px]"
                     >
                         {LOGO_LETTERS.map((d, i) => (
-                            // La entrada va en el <g>; el tic, en el <path> (los dos usan transform)
                             <motion.g key={i} variants={letterDrop} style={{ transformBox: "fill-box", transformOrigin: "center" }}>
                                 <path
                                     d={d}
@@ -189,7 +197,7 @@ export default function Footer() {
                     </motion.svg>
                 </div>
 
-                {/* BLOQUE INFERIOR: la línea se dibuja desde el centro; los textos aparecen */}
+                {/* BLOQUE INFERIOR */}
                 <div className="relative flex flex-col items-center justify-between gap-4 pt-8 text-center text-xs tracking-wider text-white/50 sm:flex-row sm:text-left">
                     <motion.span
                         variants={drawFromCenter}
