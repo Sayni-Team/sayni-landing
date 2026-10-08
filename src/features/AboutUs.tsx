@@ -82,40 +82,63 @@ export default function AboutUs() {
                             >
                                 De nuestra tierra a tu taza, creamos momentos para hacer una pausa, recargar el alma y continuar.
                             </p>
-                            <br />
-                            <br />
                         </div>
 
-                        {/* Instagram: encoge hasta su tamaño; el enlace conserva su hover */}
+                        {/* Redes Sociales: Instagram & Facebook */}
                         <div
                             className={cn(
-                                "relative z-21 mt-auto space-y-2 pt-4 sm:pt-6",
+                                "relative z-21 mt-auto space-y-3 pt-6 sm:pt-8",
                                 REVEAL.zoomOut,
                                 "delay-[750ms]"
                             )}
                         >
-                            <span className="block text-sm font-light text-gray-400">Conoce más</span>
+                            <span className="block text-sm font-light text-gray-400">Síguenos y conoce más</span>
 
-                            <a
-                                href="https://instagram.com/sayni_peru"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="group inline-flex items-center gap-2.5 text-lg font-medium text-sayni-lime transition-colors duration-300 hover:text-white sm:text-2xl"
-                            >
-                                <svg
-                                    className="size-6 fill-none stroke-current transition-[scale] duration-300 group-hover:scale-110"
-                                    viewBox="0 0 24 24"
-                                    strokeWidth="1.8"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    aria-hidden
+                            <div className="flex flex-wrap items-center justify-center gap-4 md:justify-start sm:gap-6">
+                                {/* Instagram */}
+                                <a
+                                    href="https://instagram.com/sayni_peru"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="group inline-flex items-center gap-2 text-base font-medium text-sayni-lime transition-colors duration-300 hover:text-white sm:text-xl"
                                 >
-                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-                                </svg>
-                                <span>@sayni_peru</span>
-                            </a>
+                                    <svg
+                                        className="size-5 fill-none stroke-current transition-transform duration-300 group-hover:scale-110 sm:size-6"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth="1.8"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        aria-hidden
+                                    >
+                                        <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                                        <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+                                        <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+                                    </svg>
+                                    <span>@sayni_peru</span>
+                                </a>
+
+                                <span className="hidden text-white/20 sm:inline">•</span>
+
+                                {/* Facebook */}
+                                <a
+                                    href="https://www.facebook.com/share/1Cf2MD3RBb/?mibextid=wwXIfr"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="group inline-flex items-center gap-2 text-base font-medium text-sayni-lime transition-colors duration-300 hover:text-white sm:text-xl"
+                                >
+                                    <svg
+                                        className="size-5 fill-none stroke-current transition-transform duration-300 group-hover:scale-110 sm:size-6"
+                                        viewBox="0 0 24 24"
+                                        strokeWidth="1.8"
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        aria-hidden
+                                    >
+                                        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
+                                    </svg>
+                                    <span>Facebook</span>
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
