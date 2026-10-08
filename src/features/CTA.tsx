@@ -45,6 +45,17 @@ const glowIn: Variants = {
     visible: { opacity: 1, scale: 1, transition: { duration: 1.6, ease: EASE, delay: 0.3 } },
 };
 
+// Función de navegación suave (agrega esto dentro de tu componente si aún no la tienes)
+const handleScroll = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, href: string) => {
+    e.preventDefault();
+    const id = href.replace("#", "");
+    const element = document.getElementById(id);
+    if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+        window.history.pushState(null, "", href);
+    }
+};
+
 export default function CtaSection() {
     return (
         <section className="relative flex w-full flex-col items-center justify-center overflow-hidden bg-sayni-black px-6 py-60 text-center text-white lg:py-65">
@@ -75,34 +86,33 @@ export default function CtaSection() {
                 {/* BOTÓN CTA: rebote de entrada; la flecha entra después */}
                 <motion.div variants={buttonPop} className="pt-2">
                     <Link
-                        href="https://wa.me/"
-                        target="_blank"
-                        rel="noopener noreferrer"
+                        href="#cafes"
+                        onClick={(e) => handleScroll(e, "#cafes")}
                         className="
-                            group relative inline-flex items-center gap-6 rounded-[100px] bg-[#BCC90F] py-1 pl-8 pr-3 text-base font-bold text-[#132219]
-                            transition-all duration-300 hover:scale-[1.01] active:scale-[0.98] sm:text-lg
-                            border-t border-white/40
-                            shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
-                        "
+            group relative inline-flex items-center gap-6 rounded-[100px] bg-[#BCC90F] py-1 pl-8 pr-3 text-base font-bold text-[#132219]
+            transition-all duration-300 hover:scale-[1.01] active:scale-[0.98] sm:text-lg
+            border-t border-white/40
+            shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]
+        "
                     >
-                        <span className="select-none pr-1 font-urbanist tracking-wide drop-shadow-[0_1px_1px_rgba(255,255,255,0.15)]">
-                            Obtén tu Sayni
-                        </span>
+        <span className="select-none pr-1 font-urbanist tracking-wide drop-shadow-[0_1px_1px_rgba(255,255,255,0.15)]">
+            Obtén tu Sayni
+        </span>
 
                         {/* Círculo oscuro: la flecha entra deslizándose y se mueve en hover */}
                         <span className="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#132219] text-[#BCC90F] shadow-[inset_0_-2px_4px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.15)]">
-                            <motion.span variants={arrowIn} className="flex">
-                                <svg
-                                    className="size-6 stroke-[2.5] transition-[translate] duration-300 group-hover:translate-x-0.5"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                    aria-hidden
-                                >
-                                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                                </svg>
-                            </motion.span>
-                        </span>
+            <motion.span variants={arrowIn} className="flex">
+                <svg
+                    className="size-6 stroke-[2.5] transition-[translate] duration-300 group-hover:translate-x-0.5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    aria-hidden
+                >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+            </motion.span>
+        </span>
                     </Link>
                 </motion.div>
             </motion.div>
