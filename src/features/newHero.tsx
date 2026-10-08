@@ -311,7 +311,7 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
     // Frame inicial visible al entrar
     const currentFrameRef = useRef<number>(215);
     const targetFrameRef = useRef<number>(284);
-    const animationSpeedRef = useRef<number>(0.4);
+    const animationSpeedRef = useRef<number>(0.4); // Velocidad máxima base
 
     const previousActiveKeyRef = useRef<string>(activeKey);
 
@@ -370,7 +370,7 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
     }, [activeKey]);
 
     // ─────────────────────────────────────────────
-    // MOTOR DE ANIMACIÓN CONTROLADO
+    // MOTOR DE ANIMACIÓN CONTROLADO CON EASE-OUT VISIBLE
     // ─────────────────────────────────────────────
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -416,24 +416,37 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
         const animate = () => {
             const current = currentFrameRef.current;
             const target = targetFrameRef.current;
-            const speed = animationSpeedRef.current;
+            const maxSpeed = animationSpeedRef.current; // ej. 0.6 o 0.8
 
-            // Intentar renderizar el fotograma actual
             const renderedSuccessfully = render();
 
             if (renderedSuccessfully) {
-                // Si dibujó el primer frame con éxito, ocultamos el poster estático
                 if (!animationStarted) {
                     animationStarted = true;
                     setIsCanvasReady(true);
                 }
 
-                // Solo avanzar fotogramas si el frame actual sí se dibujó
-                if (Math.abs(current - target) > speed) {
+                const distance = Math.abs(target - current);
+
+                // ── DESACELERACIÓN NOTABLE ──
+                // Amplitud del freno: empieza 35 cuadros antes del final
+                const slowDownThreshold = 70;
+
+                let currentSpeed = maxSpeed;
+
+                if (distance < slowDownThreshold) {
+                    // Curva de frenado más directa
+                    const factor = distance / slowDownThreshold;
+
+                    // Mínimo de 0.28 para garantizar que los cuadros sigan corriendo suavemente
+                    currentSpeed = Math.max(maxSpeed * factor, 0.015);
+                }
+
+                if (distance > currentSpeed) {
                     if (current < target) {
-                        currentFrameRef.current += speed;
+                        currentFrameRef.current += currentSpeed;
                     } else {
-                        currentFrameRef.current -= speed;
+                        currentFrameRef.current -= currentSpeed;
                     }
                 } else {
                     currentFrameRef.current = target;
