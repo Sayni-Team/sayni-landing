@@ -127,11 +127,8 @@ export default function AboutUs() {
                                     className="group inline-flex items-center gap-2 text-base font-medium text-sayni-lime transition-colors duration-300 hover:text-white sm:text-xl"
                                 >
                                     <svg
-                                        className="size-5 fill-none stroke-current transition-transform duration-300 group-hover:scale-110 sm:size-6"
+                                        className="size-5 fill-current transition-transform duration-300 group-hover:scale-110 sm:size-6"
                                         viewBox="0 0 24 24"
-                                        strokeWidth="1.8"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
                                         aria-hidden
                                     >
                                         <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
