@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { ENTER_ANIM } from "@/lib/reveal";
 
 const HERO_DIR = "/assets/features/hero";
-const FRAME_DIR = "/assets/hero-bg-sequence-optimized";
+const FRAME_DIR = "/assets/hero-bg-sequence";
 
 type HeroProduct = {
     key: string;
@@ -324,7 +324,7 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
         const loadImage = (index: number) => {
             const img = new window.Image();
             const frameIndex = String(index).padStart(4, "0");
-            img.src = `${FRAME_DIR}/frame_${frameIndex}.webp`;
+            img.src = `${FRAME_DIR}/frame_${frameIndex}.jpg`;
             loadedImages[index - 1] = img;
             return img;
         };
@@ -468,7 +468,7 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
         <div className="relative size-full">
             {/* Poster estático inmediato para 0ms de pantalla negra */}
             <Image
-                src={`${FRAME_DIR}/frame_0215.webp`}
+                src={`${FRAME_DIR}/frame_0215.jpg`}
                 alt=""
                 fill
                 priority
