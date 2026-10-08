@@ -29,7 +29,7 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
         title: "Síguenos",
         links: [
             { label: "Instagram", href: "https://instagram.com/sayni_peru", external: true },
-            { label: "Facebook", href: "https://facebook.com", external: true },
+            { label: "Facebook", href: "https://www.facebook.com/share/1Cf2MD3RBb/?mibextid=wwXIfr", external: true },
             { label: "TikTok", href: "https://tiktok.com", external: true },
             { label: "Contáctanos", href: "#contactanos" },
         ],
