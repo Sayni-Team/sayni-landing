@@ -358,7 +358,7 @@ export default function OurCoffees() {
                                 </motion.p>
 
                                 <motion.div variants={zoomIn} className="relative mx-auto h-64 w-full sm:h-80 md:h-[320px]">
-                                    <Image src="/assets/features/sayni-package.webp" alt="Pack Ocasión Especial Sayni" fill className="object-contain" />
+                                    <Image src="/assets/features/sayni-package-premium.webp" alt="Pack Ocasión Especial Sayni" fill className="object-contain" />
                                 </motion.div>
 
                                 {/* Contenido del pack: uno tras otro */}
