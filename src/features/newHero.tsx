@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 import { ENTER_ANIM } from "@/lib/reveal";
 
 const HERO_DIR = "/assets/features/hero";
-const FRAME_DIR = "/assets/hero-bg-sequence";
+const FRAME_DIR = "/assets/hero-bg-sequence-optimized";
 
 type HeroProduct = {
     key: string;
@@ -86,7 +86,7 @@ export default function NewHero() {
             className="relative flex h-svh w-full flex-col justify-center overflow-hidden bg-black md:flex-row md:items-center md:justify-end md:px-16"
         >
             {/* ── CAPA 1: SECUENCIA DE IMÁGENES EN CANVAS (FONDO ÚNICO) ── */}
-            <div className={cn("absolute inset-0 z-0", ENTER_ANIM.fade, "[animation-duration:1s]")}>
+            <div className="absolute inset-0 z-0">
                 <ImageSequenceBackground activeKey={current.key} />
             </div>
 
@@ -309,41 +309,55 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const imagesRef = useRef<HTMLImageElement[]>([]);
 
-    // Flag para ignorar el primer renderizado en el useEffect
-    const isFirstRender = useRef<boolean>(true);
-
-    // 1. CARGA INICIAL ÚNICA AL ENTRAR A LA PÁGINA (215 a 284)
+    // Frames iniciales de entrada
     const currentFrameRef = useRef<number>(215);
     const targetFrameRef = useRef<number>(284);
-    const animationSpeedRef = useRef<number>(0.8);
+    const animationSpeedRef = useRef<number>(0.4);
 
-    // Precargar las 284 imágenes
+    // Guarda el producto anterior para distinguir:
+    // - carga inicial
+    // - cambio real de producto
+    const previousActiveKeyRef = useRef<string>(activeKey);
+
+    // 1. PRECARGA DE LAS 284 IMÁGENES
     useEffect(() => {
         const loadedImages: HTMLImageElement[] = [];
+
         for (let i = 1; i <= 284; i++) {
             const img = new window.Image();
             const frameIndex = String(i).padStart(4, "0");
-            img.src = `${FRAME_DIR}/frame_${frameIndex}.jpg`;
+
+            img.src = `${FRAME_DIR}/frame_${frameIndex}.webp`;
             loadedImages.push(img);
         }
+
         imagesRef.current = loadedImages;
     }, []);
 
-    // 2. CONTROL DE CAMBIOS DE PRODUCTO (SWITCHES)
+    // 2. CONTROL DE CAMBIOS DE PRODUCTO
     useEffect(() => {
-        // Ignoramos la carga inicial para preservar la animación 215 -> 284
-        if (isFirstRender.current) {
-            isFirstRender.current = false;
+        // Si activeKey sigue siendo el mismo producto con el que
+        // se montó el componente, NO hacemos ninguna transición.
+        //
+        // Esto evita que la carga inicial de Geisha:
+        // 215 → 284
+        //
+        // sea reemplazada accidentalmente por:
+        // 132 → 284
+        if (activeKey === previousActiveKeyRef.current) {
             return;
         }
 
+        // A partir de aquí sí existe un cambio REAL de producto.
+        previousActiveKeyRef.current = activeKey;
+
         if (activeKey === "clasico") {
-            // De Geisha a Clásico: inicia en 30 y termina en 131
+            // Geisha → Clásico
             currentFrameRef.current = 30;
             targetFrameRef.current = 131;
             animationSpeedRef.current = 0.4;
         } else if (activeKey === "geisha") {
-            // De Clásico a Geisha: inicia en 132 y termina en 284
+            // Clásico → Geisha
             currentFrameRef.current = 132;
             targetFrameRef.current = 284;
             animationSpeedRef.current = 0.4;
@@ -354,6 +368,7 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
+
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
@@ -367,12 +382,33 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
 
-                const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
-                const x = (canvas.width / 2) - (img.width / 2) * scale;
-                const y = (canvas.height / 2) - (img.height / 2) * scale;
+                const scale = Math.max(
+                    canvas.width / img.width,
+                    canvas.height / img.height
+                );
 
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                const x =
+                    canvas.width / 2 -
+                    (img.width / 2) * scale;
+
+                const y =
+                    canvas.height / 2 -
+                    (img.height / 2) * scale;
+
+                ctx.clearRect(
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height
+                );
+
+                ctx.drawImage(
+                    img,
+                    x,
+                    y,
+                    img.width * scale,
+                    img.height * scale
+                );
             }
         };
 
