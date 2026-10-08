@@ -8,6 +8,9 @@ import { useCart } from "@/context/CartContext";
 
 const EASE = [0.215, 0.61, 0.355, 1] as const;
 
+// A partir de cuántos px de scroll aparece el carrito flotante (el header ya salió de la vista)
+const FLOATING_CART_THRESHOLD = 120;
+
 const NAV_LINKS = [
     { id: "inicio", label: "Inicio" },
     { id: "nosotros", label: "Nosotros" },
@@ -30,6 +33,13 @@ const dropIn: Variants = {
 const popIn: Variants = {
     hidden: { opacity: 0, scale: 0.6 },
     visible: { opacity: 1, scale: 1, transition: { type: "spring", stiffness: 260, damping: 16 } },
+};
+
+// Carrito flotante: baja con rebote al aparecer, encoge al irse
+const floatingCart: Variants = {
+    hidden: { opacity: 0, y: -24, scale: 0.8 },
+    visible: { opacity: 1, y: 0, scale: 1, transition: { type: "spring", stiffness: 300, damping: 20 } },
+    exit: { opacity: 0, scale: 0.6, transition: { duration: 0.2, ease: "easeIn" } },
 };
 
 // Menú móvil: los enlaces suben uno a uno al abrir
@@ -56,6 +66,7 @@ const cartItem: Variants = {
 
 export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [showFloatingCart, setShowFloatingCart] = useState(false);
     const {
         cartItems,
         updateQuantity,
@@ -65,6 +76,14 @@ export default function Header() {
         isCartOpen,
         setIsCartOpen,
     } = useCart();
+
+    // Mostrar el carrito flotante cuando el header sale de la vista
+    useEffect(() => {
+        const onScroll = () => setShowFloatingCart(window.scrollY > FLOATING_CART_THRESHOLD);
+        onScroll();
+        window.addEventListener("scroll", onScroll, { passive: true });
+        return () => window.removeEventListener("scroll", onScroll);
+    }, []);
 
     // Cerrar menú y carrito con Escape
     useEffect(() => {
@@ -208,6 +227,26 @@ export default function Header() {
                     </div>
                 </motion.div>
             </header>
+
+            {/* CARRITO FLOTANTE: aparece cuando el header sale de la vista */}
+            <AnimatePresence>
+                {showFloatingCart && (
+                    <motion.button
+                        key="floating-cart"
+                        type="button"
+                        variants={floatingCart}
+                        initial="hidden"
+                        animate="visible"
+                        exit="exit"
+                        onClick={() => setIsCartOpen(true)}
+                        aria-label={`Abrir carrito (${totalCartCount} productos)`}
+                        className="fixed right-6 top-6 z-50 flex size-12 cursor-pointer items-center justify-center rounded-full border border-white/10 bg-sayni-black/80 text-sayni-lime shadow-[0_10px_25px_rgba(0,0,0,0.45)] backdrop-blur-md transition-colors duration-300 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sayni-lime sm:right-12 sm:size-14"
+                    >
+                        <CartIcon className="size-6 sm:size-7" />
+                        <CartBadge count={totalCartCount} className="-right-0.5 -top-0.5" />
+                    </motion.button>
+                )}
+            </AnimatePresence>
 
             {/* MENÚ DESPLEGABLE MÓVIL Y TABLET (hasta lg) */}
             <div
