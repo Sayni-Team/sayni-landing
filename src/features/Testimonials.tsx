@@ -18,8 +18,12 @@ const galleryImages = [
 const marqueeImages = [...galleryImages, ...galleryImages];
 
 // Cita dividida en líneas para revelarlas una a una
-const QUOTE_LINES = ["Haz una pausa y", "recarga tu alma con la", "esencia que nace de nuestra tierra"];
-
+const QUOTE_LINES = [
+    "Haz una pausa y",
+    "recarga tu alma con la",
+    "esencia que nace de",
+    "nuestra tierra",
+];
 /* ── Variantes ─────────────────────────────── */
 
 // Fondo: único blur de la sección, con un leve zoom de cámara
@@ -91,7 +95,7 @@ export default function TestimonialsSection() {
                 <div className="absolute inset-0 bg-gradient-to-b from-[#0e0e0e]/80 via-transparent to-[#0e0e0e]/80" />
             </motion.div>
 
-            {/* CITA: línea por línea, comillas con rebote */}
+            {/* CITA: comillas laterales integradas en el flujo del texto */}
             <motion.div
                 variants={quoteContainer}
                 initial="hidden"
@@ -99,22 +103,41 @@ export default function TestimonialsSection() {
                 viewport={{ once: true, amount: 0.3 }}
                 className="relative z-10 mx-auto w-full max-w-5xl px-6 text-center font-clash"
             >
-                <blockquote className="mx-auto mb-3 max-w-[280px] font-clash text-2xl font-medium leading-tight tracking-wide text-white sm:mb-10 sm:max-w-[380px] sm:text-3xl lg:text-4xl">
-                    <motion.span variants={quoteMark} className="inline-block font-serif text-[#BCC90F]">
-                        “
-                    </motion.span>
+                <blockquote className="mx-auto mb-3 w-full max-w-[320px] text-center font-clash text-2xl font-medium leading-tight tracking-wide text-white sm:mb-10 sm:max-w-[420px] sm:text-3xl lg:text-4xl">
+                    <div className="flex flex-col items-center">
+                        {QUOTE_LINES.map((line, index) => {
+                            const isFirst = index === 0;
+                            const isLast = index === QUOTE_LINES.length - 1;
 
-                    {QUOTE_LINES.map((line) => (
-                        <span key={line} className="block overflow-hidden">
-                            <motion.span variants={lineUp} className="block">
-                                {line}
+                            return (
+                                <span key={line} className="block overflow-hidden">
+                    <motion.span variants={lineUp} className="inline-block whitespace-nowrap">
+                        {/* Comilla de apertura dentro de la primera línea */}
+                        {isFirst && (
+                            <motion.span
+                                variants={quoteMark}
+                                className="inline-block font-serif text-[#BCC90F] mr-1 align-baseline"
+                            >
+                                “
                             </motion.span>
-                        </span>
-                    ))}
+                        )}
 
-                    <motion.span variants={quoteMark} className="inline-block font-serif text-[#BCC90F]">
-                        ”
+                        {line}
+
+                        {/* Comilla de cierre dentro de la última línea */}
+                        {isLast && (
+                            <motion.span
+                                variants={quoteMark}
+                                className="inline-block font-serif text-[#BCC90F] ml-1 align-baseline"
+                            >
+                                ”
+                            </motion.span>
+                        )}
                     </motion.span>
+                </span>
+                            );
+                        })}
+                    </div>
                 </blockquote>
             </motion.div>
 
@@ -132,7 +155,6 @@ export default function TestimonialsSection() {
                     transition={{ ease: "linear", duration: 40, repeat: Infinity }}
                 >
                     {marqueeImages.map((img, idx) => (
-                        // Separación con padding (no gap): el -50% del bucle cuadra exacto
                         <motion.div
                             key={`${img.src}-${idx}`}
                             custom={idx}
