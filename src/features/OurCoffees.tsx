@@ -187,7 +187,7 @@ export default function OurCoffees() {
                                     className="relative col-span-1 flex h-full min-h-[200px] items-center justify-center py-2 sm:min-h-[400px] md:justify-center lg:col-span-6 lg:mr-2 lg:min-h-0 lg:justify-end lg:py-4"
                                 >
                                     <Image
-                                        src="/assets/features/geisha_package_250.webp"
+                                        src="/assets/features/geisha_package_250_.webp"
                                         alt="Sayni Geisha 250g"
                                         width={340}
                                         height={480}
@@ -236,7 +236,7 @@ export default function OurCoffees() {
                                     <motion.div variants={fadeUp} className="pt-0 lg:pt-1">
                                         <button
                                             type="button"
-                                            onClick={() => addToCart({ id: "geisha-250", title: "Sayni Geisha (Grano)", weight: "250g", price: 50.0, quantity: 1, image: "/assets/features/geisha_package_250.webp" })}
+                                            onClick={() => addToCart({ id: "geisha-250", title: "Sayni Geisha (Grano)", weight: "250g", price: 50.0, quantity: 1, image: "/assets/features/geisha_package_250_.webp" })}
                                             className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-1.5 pl-4 pr-2 text-xs font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] sm:gap-4 sm:py-2 sm:pl-6 sm:text-base"
                                         >
                                             <span className="hidden select-none tracking-wide sm:inline">Añadir al carrito</span>
@@ -403,19 +403,19 @@ export default function OurCoffees() {
                             {/* PACK X4 CLÁSICO */}
                             <motion.div
                                 variants={stagger(0.15)}
-                                className="relative grid grid-cols-2 items-center justify-center gap-2 pt-6 md:mx-auto md:max-w-xl md:gap-6 lg:max-w-none lg:grid-cols-12 lg:gap-0"
+                                className="relative grid grid-cols-2 items-stretch justify-center gap-2 pt-6 md:mx-auto md:max-w-xl md:gap-6 lg:max-w-none lg:grid-cols-12 lg:gap-0"
                             >
                                 {/* BOLSA — entra desde la izquierda */}
                                 <motion.div
                                     variants={slideFromLeft}
-                                    className="relative col-span-1 flex h-full min-h-[200px] items-center justify-center py-2 sm:min-h-[360px] md:justify-center lg:col-span-6 lg:mr-2 lg:min-h-0 lg:justify-end lg:py-4"
+                                    className="relative col-span-1 flex h-full min-h-[200px] items-center justify-center py-2 sm:min-h-[360px] md:justify-center lg:col-span-6 lg:min-h-0 lg:justify-end lg:py-4 lg:pr-6"
                                 >
                                     <Image
-                                        src="/assets/features/classic_package_250.webp"
+                                        src="/assets/features/classic_package_220.webp"
                                         alt="Pack x4 Sayni Clásico 220g"
                                         width={320}
                                         height={440}
-                                        className="max-h-[220px] w-auto object-contain transition-[scale] duration-500 hover:scale-105 sm:max-h-full"
+                                        className="h-full max-h-full w-auto object-contain transition-[scale] duration-500 hover:scale-105"
                                     />
                                 </motion.div>
 
@@ -459,14 +459,14 @@ export default function OurCoffees() {
                                     <motion.div variants={fadeUp} className="pt-0 lg:pt-2">
                                         <button
                                             type="button"
-                                            onClick={() => addToCart({ id: "pack-clasico-4x", title: "Pack x4 Sayni Clásico", weight: "4 Bolsas 220g", price: 89.9, quantity: 1, image: "/assets/features/classic_package_250.webp" })}
+                                            onClick={() => addToCart({ id: "pack-clasico-4x", title: "Pack x4 Sayni Clásico", weight: "4 Bolsas 220g", price: 89.9, quantity: 1, image: "/assets/features/classic_package_220.webp" })}
                                             className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-1.5 pl-4 pr-2 text-xs font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] sm:gap-4 sm:py-2.5 sm:pl-6 sm:text-base"
                                         >
                                             <span className="hidden select-none tracking-wide sm:inline">Añadir al carrito</span>
                                             <span className="select-none tracking-wide sm:hidden">Añadir</span>
                                             <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#132219] text-[#BCC90F] sm:size-9">
-                                                <CartIcon className="size-4 sm:size-5" />
-                                            </span>
+                    <CartIcon className="size-4 sm:size-5" />
+                </span>
                                         </button>
                                     </motion.div>
                                 </motion.div>
