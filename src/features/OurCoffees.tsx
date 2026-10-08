@@ -388,7 +388,7 @@ export default function OurCoffees() {
                                     </p>
                                     <button
                                         type="button"
-                                        onClick={() => addToCart({ id: "pack-regalo-clasico", title: "Pack Ocasión Especial", weight: "4 Bolsas 220g + Estuche + Tarjeta", price: 99.9, quantity: 1, image: "/assets/features/sayni-package.webp" })}
+                                        onClick={() => addToCart({ id: "pack-regalo-clasico", title: "Pack Ocasión Especial", weight: "4 Bolsas 220g + Estuche + Tarjeta", price: 99.9, quantity: 1, image: "/assets/features/sayni-package-premium.webp" })}
                                         className="group mt-2 inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-2.5 pl-5 pr-2 text-[11px] font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] sm:gap-4 sm:py-3 sm:pl-8 sm:pr-3 sm:text-lg"
                                     >
                                         <span className="select-none tracking-wide sm:hidden">Añadir por S/ 99.90</span>
