@@ -309,46 +309,71 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const imagesRef = useRef<HTMLImageElement[]>([]);
 
-    // Frames iniciales de entrada
+    // Frame inicial visible al entrar
     const currentFrameRef = useRef<number>(215);
     const targetFrameRef = useRef<number>(284);
     const animationSpeedRef = useRef<number>(0.4);
 
-    // Guarda el producto anterior para distinguir:
-    // - carga inicial
-    // - cambio real de producto
     const previousActiveKeyRef = useRef<string>(activeKey);
 
-    // 1. PRECARGA DE LAS 284 IMÁGENES
+    // ─────────────────────────────────────────────
+    // PRECARGA POR PRIORIDAD (0 PANTALLA NEGRA)
+    // ─────────────────────────────────────────────
     useEffect(() => {
-        const loadedImages: HTMLImageElement[] = [];
+        const loadedImages: HTMLImageElement[] = new Array(284);
 
-        for (let i = 1; i <= 284; i++) {
+        // Función aux para crear y asignar una imagen
+        const loadImage = (index: number, onFirstFrameLoad?: () => void) => {
             const img = new window.Image();
-            const frameIndex = String(i).padStart(4, "0");
-
+            const frameIndex = String(index).padStart(4, "0");
             img.src = `${FRAME_DIR}/frame_${frameIndex}.webp`;
-            loadedImages.push(img);
+
+            if (onFirstFrameLoad) {
+                img.onload = onFirstFrameLoad;
+            }
+
+            loadedImages[index - 1] = img;
+        };
+
+        // 1. PRIMER RENDER INSTANTÁNEO: Cargar frame 215 con máxima prioridad
+        loadImage(215, () => {
+            // Renderizado forzado en cuanto descarga el primer frame
+            const canvas = canvasRef.current;
+            if (canvas) {
+                const ctx = canvas.getContext("2d");
+                const img = loadedImages[214];
+                if (ctx && img) {
+                    canvas.width = window.innerWidth;
+                    canvas.height = window.innerHeight;
+                    const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
+                    const x = canvas.width / 2 - (img.width / 2) * scale;
+                    const y = canvas.height / 2 - (img.height / 2) * scale;
+                    ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
+                }
+            }
+        });
+
+        // 2. FASE 1: Cargar inmediatamente solo el rango prioritario (216 al 284)
+        for (let i = 216; i <= 284; i++) {
+            loadImage(i);
+        }
+
+        // 3. FASE 2: Cargar el resto de frames (1 al 214) en segundo plano
+        for (let i = 1; i <= 214; i++) {
+            loadImage(i);
         }
 
         imagesRef.current = loadedImages;
     }, []);
 
-    // 2. CONTROL DE CAMBIOS DE PRODUCTO
+    // ─────────────────────────────────────────────
+    // CAMBIO DE PRODUCTO
+    // ─────────────────────────────────────────────
     useEffect(() => {
-        // Si activeKey sigue siendo el mismo producto con el que
-        // se montó el componente, NO hacemos ninguna transición.
-        //
-        // Esto evita que la carga inicial de Geisha:
-        // 215 → 284
-        //
-        // sea reemplazada accidentalmente por:
-        // 132 → 284
         if (activeKey === previousActiveKeyRef.current) {
             return;
         }
 
-        // A partir de aquí sí existe un cambio REAL de producto.
         previousActiveKeyRef.current = activeKey;
 
         if (activeKey === "clasico") {
@@ -364,7 +389,9 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
         }
     }, [activeKey]);
 
-    // 3. MOTOR DE ANIMACIÓN Y RENDERIZADO
+    // ─────────────────────────────────────────────
+    // MOTOR DE ANIMACIÓN
+    // ─────────────────────────────────────────────
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
@@ -374,43 +401,33 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
 
         let animationFrameId: number;
 
+        const resizeCanvas = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        };
+
         const render = () => {
             const targetFrame = Math.floor(currentFrameRef.current);
             const img = imagesRef.current[targetFrame - 1];
 
-            if (img && img.complete) {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-
-                const scale = Math.max(
-                    canvas.width / img.width,
-                    canvas.height / img.height
-                );
-
-                const x =
-                    canvas.width / 2 -
-                    (img.width / 2) * scale;
-
-                const y =
-                    canvas.height / 2 -
-                    (img.height / 2) * scale;
-
-                ctx.clearRect(
-                    0,
-                    0,
-                    canvas.width,
-                    canvas.height
-                );
-
-                ctx.drawImage(
-                    img,
-                    x,
-                    y,
-                    img.width * scale,
-                    img.height * scale
-                );
+            if (!img || !img.complete || !img.naturalWidth) {
+                return;
             }
+
+            const scale = Math.max(
+                canvas.width / img.width,
+                canvas.height / img.height
+            );
+
+            const x = canvas.width / 2 - (img.width / 2) * scale;
+            const y = canvas.height / 2 - (img.height / 2) * scale;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
         };
+
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
 
         const animate = () => {
             const current = currentFrameRef.current;
@@ -435,6 +452,7 @@ function ImageSequenceBackground({ activeKey }: { activeKey: string }) {
 
         return () => {
             cancelAnimationFrame(animationFrameId);
+            window.removeEventListener("resize", resizeCanvas);
         };
     }, [activeKey]);
 
