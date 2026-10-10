@@ -75,11 +75,8 @@ export default function Hero() {
     const current = PRODUCTS[index];
 
     const paginate = (dir: number) => {
-        // En Mobile (ancho < 768px) no hay secuencia de canvas, no debemos bloquear el cambio
         const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-
-        if (!isMobile && isAnimating) return; // Bloquear solo en Desktop mientras corre la secuencia
-
+        if (!isMobile && isAnimating) return;
         setSlide(([i]) => [(i + dir + PRODUCTS.length) % PRODUCTS.length, dir]);
     };
 
@@ -104,9 +101,9 @@ export default function Hero() {
             id="inicio"
             className="relative flex h-svh w-full flex-col justify-center overflow-hidden bg-black md:flex-row md:items-center md:justify-end md:px-16"
         >
-            {/* ── CAPA 1: SECUENCIA EN DESKTOP / PNGS EN MOBILE ── */}
+            {/* ── CAPA 1: FONDO ── */}
             <div className="absolute inset-0 z-0">
-                {/* Desktop: Secuencia de video renderizada en Canvas */}
+                {/* Desktop: Secuencia canvas */}
                 <div className="hidden size-full md:block">
                     <ImageSequenceBackground
                         activeKey={current.key}
@@ -114,7 +111,7 @@ export default function Hero() {
                     />
                 </div>
 
-                {/* Mobile: Fondos PNG Estáticos */}
+                {/* Mobile: PNGs estáticos */}
                 <div className="relative size-full md:hidden">
                     {PRODUCTS.map((p, i) => (
                         <motion.div
@@ -138,9 +135,10 @@ export default function Hero() {
                 </div>
             </div>
 
+            {/* Gradiente */}
             <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-t from-black/60 via-transparent to-black/30 md:bg-gradient-to-r md:from-black/40 md:via-transparent md:to-black/60" />
 
-            {/* ── CAPA 2: ESCENARIO DEL PRODUCTO ── */}
+            {/* ── CAPA 2: PRODUCTO ── */}
             <div className="absolute inset-0 z-10 md:inset-y-0 md:left-0 md:right-auto md:w-2/5">
                 <div className="relative size-full">
                     <AnimatePresence mode="wait" initial={false} custom={direction}>
@@ -177,7 +175,7 @@ export default function Hero() {
                         </motion.div>
                     </AnimatePresence>
 
-                    {/* ── BOTÓN / ÁREA DESLIZAR DESKTOP ── */}
+                    {/* Botón deslizar desktop */}
                     <motion.div
                         drag={isAnimating ? false : "x"}
                         dragConstraints={{ left: 0, right: 0 }}
@@ -187,9 +185,7 @@ export default function Hero() {
                             if (info.offset.x < -30) paginate(1);
                             else if (info.offset.x > 30) paginate(-1);
                         }}
-                        onClick={() => {
-                            if (!isAnimating) paginate(1);
-                        }}
+                        onClick={() => { if (!isAnimating) paginate(1); }}
                         className={cn(
                             "pointer-events-auto absolute bottom-[12%] left-[53%] z-30 hidden items-center gap-3 px-2 py-1 text-white md:flex select-none touch-none",
                             isAnimating
@@ -205,22 +201,13 @@ export default function Hero() {
                             className="flex items-center gap-3"
                         >
                             <div className="text-[#BCC90F] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
-                                <svg
-                                    className="size-6 sm:size-7"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.2"
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                >
+                                <svg className="size-6 sm:size-7" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                                     <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0" />
                                     <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v6" />
                                     <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8" />
                                     <path d="M18 8a2 2 0 0 1 2 2v4a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.8-5.9-2.2L2 17" />
                                 </svg>
                             </div>
-
                             <span className="font-urbanist text-sm sm:text-base font-bold tracking-widest uppercase text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
                                 Desliza
                             </span>
@@ -229,57 +216,22 @@ export default function Hero() {
 
                     <div className="pointer-events-none absolute inset-0 bg-black/45 md:hidden" />
                 </div>
-
-                {/* Botón Siguiente Móvil */}
-                <div
-                    className={cn(
-                        "pointer-events-auto absolute bottom-8 left-1/2 -translate-x-1/2 md:hidden",
-                        ENTER_ANIM.fade,
-                        "[animation-delay:600ms]"
-                    )}
-                >
-                    <button
-                        type="button"
-                        onClick={() => paginate(1)}
-                        className="group relative inline-flex items-center gap-3 rounded-[100px] bg-white/10 py-3 pl-8 pr-3 text-base font-bold text-white backdrop-blur-md transition-all duration-300 hover:scale-[1.02] hover:bg-white/15 active:scale-[0.98] sm:text-lg border-t border-white/20 shadow-[inset_0_2px_4px_rgba(255,255,255,0.15),_inset_0_-4px_8px_rgba(0,0,0,0.5),_0_10px_20px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.2)]"
-                    >
-                        <span className="select-none font-urbanist tracking-wide">Siguiente</span>
-                        <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-white/10 text-white transition-[scale] group-hover:scale-105">
-            <svg
-                className="size-5 transition-transform duration-300 group-hover:translate-x-0.5"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-            >
-                <path d="m9 18 6-6-6-6" />
-            </svg>
-        </span>
-                    </button>
-                </div>
             </div>
 
             {/* ── CAPA 3: TEXTO + CTA ── */}
             <div className="relative z-20 flex w-full flex-col items-center justify-center px-6 pt-16 text-center md:w-3/5 md:px-4 md:pt-0">
-                <h1
-                    className={cn(
-                        "font-clash text-3xl font-semibold leading-none tracking-wide text-white drop-shadow-md sm:text-4xl md:text-[50px]",
-                        ENTER_ANIM.blurUp
-                    )}
-                >
+                <h1 className={cn(
+                    "font-clash text-3xl font-semibold leading-none tracking-wide text-white drop-shadow-md sm:text-4xl md:text-[50px]",
+                    ENTER_ANIM.blurUp
+                )}>
                     Una pausa que nace <br /> de nuestra tierra
                 </h1>
 
-                <p
-                    className={cn(
-                        "mt-4 max-w-md text-base font-light text-gray-200 drop-shadow md:text-lg",
-                        ENTER_ANIM.up,
-                        "[animation-delay:150ms]"
-                    )}
-                >
+                <p className={cn(
+                    "mt-4 max-w-md text-base font-light text-gray-200 drop-shadow md:text-lg",
+                    ENTER_ANIM.up,
+                    "[animation-delay:150ms]"
+                )}>
                     Café cultivado desde las alturas <br />{" "}
                     <span className="text-[#d4df37]">del Perú hasta tu taza.</span>
                 </p>
@@ -308,7 +260,6 @@ export default function Hero() {
                                 </motion.span>
                             </AnimatePresence>
                         </span>
-
                         <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-[#132219] text-[#BCC90F] shadow-[inset_0_-2px_4px_rgba(0,0,0,0.4),_0_2px_4px_rgba(0,0,0,0.15)] transition-[scale] group-hover:scale-105">
                             <CartIcon className="size-6 transition-[scale] group-hover:scale-110" />
                         </span>
@@ -333,11 +284,7 @@ export default function Hero() {
                             key={p.key}
                             type="button"
                             disabled={isAnimating}
-                            onClick={() => {
-                                if (!isAnimating) {
-                                    setSlide([i, i > index ? 1 : -1]);
-                                }
-                            }}
+                            onClick={() => { if (!isAnimating) setSlide([i, i > index ? 1 : -1]); }}
                             aria-label={`Ver ${p.name}`}
                             aria-current={i === index}
                             className={cn(
@@ -350,13 +297,37 @@ export default function Hero() {
                 </div>
             </div>
 
-            <div
-                className={cn(
-                    "pointer-events-none absolute -right-5 bottom-0 top-0 z-20 hidden h-full items-center justify-end overflow-hidden pr-2 md:flex",
-                    ENTER_ANIM.fade,
-                    "[animation-delay:500ms]"
-                )}
-            >
+            {/* ── FLECHAS MOBILE — z-30, fuera de CAPA 2 y después de CAPA 3 en el DOM ── */}
+            <div className="pointer-events-none absolute inset-0 z-30 flex items-center justify-between px-4 md:hidden">
+                <button
+                    type="button"
+                    onClick={() => paginate(-1)}
+                    aria-label="Producto anterior"
+                    className="pointer-events-auto flex size-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:bg-black/60 active:scale-90"
+                >
+                    <svg className="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="m15 18-6-6 6-6" />
+                    </svg>
+                </button>
+
+                <button
+                    type="button"
+                    onClick={() => paginate(1)}
+                    aria-label="Siguiente producto"
+                    className="pointer-events-auto flex size-11 shrink-0 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white shadow-lg backdrop-blur-md transition-all duration-300 hover:bg-black/60 active:scale-90"
+                >
+                    <svg className="size-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                        <path d="m9 18 6-6-6-6" />
+                    </svg>
+                </button>
+            </div>
+
+            {/* Marca de agua */}
+            <div className={cn(
+                "pointer-events-none absolute -right-5 bottom-0 top-0 z-20 hidden h-full items-center justify-end overflow-hidden pr-2 md:flex",
+                ENTER_ANIM.fade,
+                "[animation-delay:500ms]"
+            )}>
                 <Image
                     src="/assets/brand/sayni-vertical-brand.svg"
                     alt=""
@@ -370,8 +341,7 @@ export default function Hero() {
     );
 }
 
-/* ── COMPONENTE RENDERIZADOR DE LA SECUENCIA DE IMÁGENES DESKTOP ── */
-
+/* ── SECUENCIA DE IMÁGENES DESKTOP ── */
 function ImageSequenceBackground({
                                      activeKey,
                                      onAnimatingChange,
@@ -381,13 +351,11 @@ function ImageSequenceBackground({
 }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const imagesRef = useRef<HTMLImageElement[]>([]);
-
     const [isCanvasReady, setIsCanvasReady] = useState(false);
 
     const currentFrameRef = useRef<number>(215);
     const targetFrameRef = useRef<number>(284);
     const animationSpeedRef = useRef<number>(0.4);
-
     const previousActiveKeyRef = useRef<string>(activeKey);
 
     // Precarga
@@ -403,7 +371,6 @@ function ImageSequenceBackground({
         };
 
         const initialImg = loadImage(215);
-
         initialImg.onload = () => {
             for (let i = 216; i <= 265; i++) loadImage(i);
             for (let i = 1; i <= 214; i++) loadImage(i);
@@ -412,13 +379,10 @@ function ImageSequenceBackground({
         imagesRef.current = loadedImages;
     }, []);
 
-    // Cambio de clave activo
+    // Cambio de producto
     useEffect(() => {
         if (activeKey === previousActiveKeyRef.current) return;
-
         previousActiveKeyRef.current = activeKey;
-
-        // Bloqueamos interacción al iniciar
         onAnimatingChange?.(true);
 
         if (activeKey === "clasico") {
@@ -432,11 +396,10 @@ function ImageSequenceBackground({
         }
     }, [activeKey, onAnimatingChange]);
 
-    // Loop de render
+    // Motor de render — dependencias vacías, nunca se reinicia
     useEffect(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
-
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
@@ -450,20 +413,14 @@ function ImageSequenceBackground({
         const render = () => {
             const targetFrame = Math.floor(currentFrameRef.current);
             const img = imagesRef.current[targetFrame - 1];
-
             if (!img || !img.complete || !img.naturalWidth) return false;
 
-            const scale = Math.max(
-                canvas.width / img.width,
-                canvas.height / img.height
-            );
-
+            const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
             const x = canvas.width / 2 - (img.width / 2) * scale;
             const y = canvas.height / 2 - (img.height / 2) * scale;
 
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             ctx.drawImage(img, x, y, img.width * scale, img.height * scale);
-
             return true;
         };
 
@@ -487,7 +444,6 @@ function ImageSequenceBackground({
 
                 const distance = Math.abs(target - current);
                 const slowDownThreshold = 60;
-
                 let currentSpeed = maxSpeed;
 
                 if (distance < slowDownThreshold) {
@@ -495,14 +451,10 @@ function ImageSequenceBackground({
                     currentSpeed = Math.max(maxSpeed * factor, 0.12);
                 }
 
-                const CLOSE_ENOUGH_THRESHOLD = 0.8;
+                const CLOSE_ENOUGH = 0.8;
 
-                if (distance > CLOSE_ENOUGH_THRESHOLD) {
-                    if (current < target) {
-                        currentFrameRef.current += currentSpeed;
-                    } else {
-                        currentFrameRef.current -= currentSpeed;
-                    }
+                if (distance > CLOSE_ENOUGH) {
+                    currentFrameRef.current += current < target ? currentSpeed : -currentSpeed;
                 } else {
                     if (currentFrameRef.current !== target) {
                         currentFrameRef.current = target;
@@ -521,7 +473,7 @@ function ImageSequenceBackground({
             cancelAnimationFrame(animationFrameId);
             window.removeEventListener("resize", resizeCanvas);
         };
-    }, [activeKey, onAnimatingChange]);
+    }, []); // ← vacío: motor arranca una vez y corre siempre
 
     return (
         <div className="relative size-full">
