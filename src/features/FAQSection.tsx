@@ -86,7 +86,7 @@ export default function FAQSection() {
     return (
         <section
             ref={sectionRef}
-            className="flex items-center justify-center bg-sayni-black px-10 py-24 text-white sm:px-6 md:px-12"
+            className="flex items-center justify-center bg-sayni-black px-10 py-12 sm:py-24 text-white sm:px-6 md:px-12"
         >
             <motion.div variants={container} initial="hidden" animate={state} className="mx-auto w-full max-w-3xl">
                 {/* Encabezado */}

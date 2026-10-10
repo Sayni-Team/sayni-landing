@@ -58,7 +58,7 @@ const handleScroll = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, href: 
 
 export default function CtaSection() {
     return (
-        <section className="relative flex w-full flex-col items-center justify-center overflow-hidden bg-sayni-black px-6 py-60 text-center text-white lg:py-65">
+        <section className="relative flex w-full flex-col items-center justify-center overflow-hidden bg-sayni-black px-6 py-30 text-center text-white lg:py-65">
             <motion.div
                 variants={container}
                 initial="hidden"
@@ -66,11 +66,11 @@ export default function CtaSection() {
                 viewport={{ once: true, amount: 0.3 }}
                 className="relative z-10 mx-auto max-w-2xl space-y-8"
             >
-                {/* RESPLANDOR DE FONDO: crece detrás del botón */}
+                {/* RESPLANDOR DE FONDO: Sutil y concentrado en mobile */}
                 <motion.div
                     variants={glowIn}
                     aria-hidden
-                    className="pointer-events-none absolute left-1/2 top-1/2 -z-10 size-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#BCC90F]/10 blur-3xl"
+                    className="pointer-events-none absolute left-1/2 top-1/2 -z-10 size-[250px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#BCC90F]/10 blur-xl sm:size-[300px] sm:bg-[#BCC90F]/10 sm:blur-3xl lg:size-[420px]"
                 />
 
                 {/* TÍTULO: cada línea desde un lado */}

@@ -64,7 +64,7 @@ export default function AboutUs() {
                             {/* Primer párrafo: sube */}
                             <p
                                 className={cn(
-                                    "text-sm font-light leading-relaxed text-white sm:text-base lg:text-2xl",
+                                    "text-lg font-light leading-relaxed text-white sm:text-base lg:text-2xl",
                                     REVEAL.up,
                                     "delay-[400ms]"
                                 )}
@@ -75,7 +75,7 @@ export default function AboutUs() {
                             {/* Segundo párrafo: fade simple */}
                             <p
                                 className={cn(
-                                    "text-sm font-normal leading-relaxed text-sayni-lime sm:text-base lg:text-2xl",
+                                    "text-lg font-normal leading-relaxed text-sayni-lime sm:text-base lg:text-2xl",
                                     REVEAL.fade,
                                     "delay-[600ms] duration-1000"
                                 )}
@@ -92,15 +92,15 @@ export default function AboutUs() {
                                 "delay-[750ms]"
                             )}
                         >
-                            <span className="block text-sm font-light text-gray-400">Síguenos y conoce más</span>
+                            <span className="block text-lg font-light text-gray-400 mt-5">Síguenos y conoce más</span>
 
-                            <div className="flex flex-wrap items-center justify-center gap-4 md:justify-start sm:gap-6">
+                            <div className="flex flex-wrap items-center justify-center gap-4 md:justify-start mt-5 sm:gap-6">
                                 {/* Instagram */}
                                 <a
                                     href="https://instagram.com/sayni_peru"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="group inline-flex items-center gap-2 text-base font-medium text-sayni-lime transition-colors duration-300 hover:text-white sm:text-xl"
+                                    className="group inline-flex items-center gap-2 text-lg font-medium text-sayni-lime transition-colors duration-300 hover:text-white sm:text-xl"
                                 >
                                     <svg
                                         className="size-5 fill-none stroke-current transition-transform duration-300 group-hover:scale-110 sm:size-6"
@@ -124,7 +124,7 @@ export default function AboutUs() {
                                     href="https://www.facebook.com/share/1Cf2MD3RBb/?mibextid=wwXIfr"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="group inline-flex items-center gap-2 text-base font-medium text-sayni-lime transition-colors duration-300 hover:text-white sm:text-xl"
+                                    className="group inline-flex items-center gap-2 text-lg font-medium text-sayni-lime transition-colors duration-300 hover:text-white sm:text-xl"
                                 >
                                     <svg
                                         className="size-5 fill-current transition-transform duration-300 group-hover:scale-110 sm:size-6"

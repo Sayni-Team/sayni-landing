@@ -147,7 +147,7 @@ export default function OurCoffees() {
                             role="tab"
                             aria-selected={activeCategory === "especialidad"}
                             onClick={() => setActiveCategory("especialidad")}
-                            className={`relative z-10 flex cursor-pointer items-center justify-center rounded-full px-3 py-2 text-center text-sm font-bold transition-colors duration-300 sm:text-base ${activeCategory === "especialidad" ? "text-[#132219]" : "text-white/80 hover:text-white"}`}
+                            className={`relative z-10 flex cursor-pointer items-center justify-center rounded-full px-3 py-2 text-center text-md font-bold transition-colors duration-300 sm:text-base ${activeCategory === "especialidad" ? "text-[#132219]" : "text-white/80 hover:text-white"}`}
                         >
                             De especialidad
                         </button>
@@ -156,9 +156,9 @@ export default function OurCoffees() {
                             role="tab"
                             aria-selected={activeCategory === "comercial"}
                             onClick={() => setActiveCategory("comercial")}
-                            className={`relative z-10 flex cursor-pointer items-center justify-center rounded-full px-3 py-2 text-center text-sm font-bold transition-colors duration-300 sm:text-base ${activeCategory === "comercial" ? "text-[#132219]" : "text-white/80 hover:text-white"}`}
+                            className={`relative z-10 flex cursor-pointer items-center justify-center rounded-full px-3 py-2 text-center text-md font-bold transition-colors duration-300 sm:text-base ${activeCategory === "comercial" ? "text-[#132219]" : "text-white/80 hover:text-white"}`}
                         >
-                            Comercial
+                            Clásico
                         </button>
                     </motion.div>
                 </motion.div>
