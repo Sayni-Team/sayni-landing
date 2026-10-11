@@ -227,13 +227,19 @@ export default function Hero() {
                     Una pausa que nace <br /> de nuestra tierra
                 </h1>
 
-                <p className={cn(
-                    "mt-4 max-w-md text-base font-light text-gray-200 drop-shadow md:text-lg",
-                    ENTER_ANIM.up,
-                    "[animation-delay:150ms]"
-                )}>
+                <p
+                    className={cn(
+                        "mt-4 max-w-md text-base font-light text-white md:text-lg",
+                        // Sombra ultra fuerte: Contorno negro nítido + Halo de oscuridad profunda (100% opaco)
+                        "[text-shadow:_0_0_3px_#000,_0_2px_4px_#000,_0_4px_10px_#000,_0_8px_20px_#000]",
+                        ENTER_ANIM.up,
+                        "[animation-delay:150ms]"
+                    )}
+                >
                     Café cultivado desde las alturas <br />{" "}
-                    <span className="text-[#d4df37]">del Perú hasta tu taza.</span>
+                    <span className="font-semibold text-[#d4df37] [text-shadow:_0_0_3px_#000,_0_2px_6px_#000,_0_6px_14px_#000]">
+        del Perú hasta tu taza.
+    </span>
                 </p>
 
                 <div className={cn("mt-8 flex w-full flex-wrap items-center justify-center gap-4", ENTER_ANIM.up, "[animation-delay:300ms]")}>
