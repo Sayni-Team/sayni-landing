@@ -259,7 +259,7 @@ export default function OurCoffees() {
                                 {/* RESPLANDOR BRILLOSO CENTRAL (#BCC90F) */}
                                 <div
                                     aria-hidden="true"
-                                    className="pointer-events-none absolute left-1/2 top-1/2 -z-10 size-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#BCC90F]/5 blur-3xl sm:size-[380px] lg:size-[560px]"
+                                    className="pointer-events-none absolute left-1/2 top-1/2 -z-10 size-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#BCC90F]/10 blur-3xl sm:size-[380px] lg:size-[560px]"
                                 />
 
                                 {/* INFO — izquierda, por partes */}
