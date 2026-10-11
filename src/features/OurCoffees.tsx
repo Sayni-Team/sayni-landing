@@ -96,7 +96,7 @@ export default function OurCoffees() {
                 variants={ornamentIn}
                 initial="hidden"
                 animate={state}
-                className="pointer-events-none absolute -left-60 bottom-0 z-0 select-none sm:-left-78 lg:-left-124"
+                className="pointer-events-none absolute -left-60 bottom-50 z-0 select-none sm:-left-78 lg:-left-104"
             >
                 <Image
                     src="/assets/vector-ornamental-2.svg"
@@ -196,6 +196,8 @@ export default function OurCoffees() {
                                     />
                                 </motion.div>
 
+
+
                                 {/* INFO — derecha, por partes */}
                                 <motion.div
                                     variants={stagger(0.12)}
@@ -254,6 +256,12 @@ export default function OurCoffees() {
                                 variants={stagger(0.15)}
                                 className="relative grid grid-cols-2 items-center justify-center gap-2 md:mx-auto md:max-w-xl md:gap-6 lg:max-w-none lg:grid-cols-12 lg:gap-0"
                             >
+                                {/* RESPLANDOR BRILLOSO CENTRAL (#BCC90F) */}
+                                <div
+                                    aria-hidden="true"
+                                    className="pointer-events-none absolute left-1/2 top-1/2 -z-10 size-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#BCC90F]/5 blur-3xl sm:size-[380px] lg:size-[560px]"
+                                />
+
                                 {/* INFO — izquierda, por partes */}
                                 <motion.div
                                     variants={stagger(0.12)}
@@ -299,8 +307,8 @@ export default function OurCoffees() {
                                             <span className="hidden select-none tracking-wide sm:inline">Añadir al carrito</span>
                                             <span className="select-none tracking-wide sm:hidden">Añadir</span>
                                             <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#132219] text-[#BCC90F] sm:size-9">
-                                                <CartIcon className="size-4 sm:size-5" />
-                                            </span>
+                    <CartIcon className="size-4 sm:size-5" />
+                </span>
                                         </button>
                                     </motion.div>
                                 </motion.div>
