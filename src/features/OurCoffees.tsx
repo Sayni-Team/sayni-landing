@@ -359,7 +359,7 @@ export default function OurCoffees() {
                                             Blend{" "}
                                             <span className="ml-1 text-sm font-normal text-[#BCC90F] sm:text-lg">250g</span>
                                         </h3>
-                                        <p className="mt-1 text-lg font-bold text-[#BCC90F] sm:text-2xl lg:mt-2">S/ 33.00</p>
+                                        <p className="mt-1 text-lg font-bold text-[#BCC90F] sm:text-2xl lg:mt-2">S/ 30.00</p>
 
                                         {/* Descripción — solo desktop */}
                                         <p className="mt-3 hidden max-w-[340px] text-sm font-light leading-relaxed text-white sm:text-base lg:block">
@@ -367,7 +367,7 @@ export default function OurCoffees() {
                                         </p>
 
                                         {/* Ficha técnica — siempre visible */}
-                                        <a href="/Sayni_Clasico_Ficha_Tecnica.pdf" download className="mt-2 inline-block text-xs text-[#BCC90F] underline underline-offset-4 transition-colors sm:text-sm">
+                                        <a href="/Sayni_Blend_Especialidad_Ficha_Tecnica.pdf" download className="mt-2 inline-block text-xs text-[#BCC90F] underline underline-offset-4 transition-colors sm:text-sm">
                                             Descargar ficha técnica
                                         </a>
                                     </motion.div>
@@ -388,7 +388,7 @@ export default function OurCoffees() {
                                     <motion.div variants={fadeUp} className="pt-0 lg:pt-1">
                                         <button
                                             type="button"
-                                            onClick={() => addToCart({ id: "blend-250", title: "Sayni Blend (Molido)", weight: "250g", price: 33.0, quantity: 1, image: "/assets/features/products/blend_package_250.webp" })}
+                                            onClick={() => addToCart({ id: "blend-250", title: "Sayni Blend (Molido)", weight: "250g", price: 30.0, quantity: 1, image: "/assets/features/products/blend_package_250.webp" })}
                                             className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-1.5 pl-4 pr-2 text-xs font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] sm:gap-4 sm:py-2 sm:pl-6 sm:text-base"
                                         >
                                             <span className="hidden select-none tracking-wide sm:inline">Añadir al carrito</span>
