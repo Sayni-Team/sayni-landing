@@ -359,7 +359,7 @@ export default function Header() {
                                             type="button"
                                             onClick={() => updateQuantity(item.id, -1)}
                                             aria-label={`Quitar una unidad de ${item.title}`}
-                                            className="flex size-5 items-center justify-center text-gray-300 hover:text-white"
+                                            className="flex size-5 items-center cursor-pointer justify-center text-gray-300 hover:text-white"
                                         >
                                             -
                                         </button>
@@ -368,7 +368,7 @@ export default function Header() {
                                             type="button"
                                             onClick={() => updateQuantity(item.id, 1)}
                                             aria-label={`Añadir una unidad de ${item.title}`}
-                                            className="flex size-5 items-center justify-center text-gray-300 hover:text-white"
+                                            className="flex size-5 items-center cursor-pointer justify-center text-gray-300 hover:text-white"
                                         >
                                             +
                                         </button>
@@ -377,7 +377,7 @@ export default function Header() {
                                         type="button"
                                         onClick={() => removeFromCart(item.id)}
                                         aria-label={`Eliminar ${item.title} del carrito`}
-                                        className="p-1 text-gray-400 transition-colors hover:text-red-400"
+                                        className="p-1 text-gray-400 cursor-pointer transition-colors hover:text-red-400"
                                     >
                                         <svg className="size-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
