@@ -1,0 +1,112 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+//
+// Todos los importes en CÉNTIMOS (Int): S/ 50.00 = 5000
+
+generator client {
+  // Generador clásico: el cliente se importa desde "@prisma/client"
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")          // conexión con pooling (la usa la web)
+  directUrl = env("DATABASE_URL_UNPOOLED") // conexión directa (la usan las migraciones)
+}
+
+/* ── Estados ─────────────────────────────── */
+
+enum ProductStatus {
+  ACTIVE       // a la venta
+  COMING_SOON  // visible pero no se puede comprar (Blend)
+  HIDDEN       // no se muestra (Geisha 500g)
+}
+
+enum OrderStatus {
+  PENDING    // creado, esperando el pago
+  PAID       // Mercado Pago confirmó el pago
+  SHIPPED    // enviado
+  DELIVERED  // entregado
+  CANCELLED  // cancelado o pago rechazado
+}
+
+/* ── Productos ───────────────────────────── */
+
+model Product {
+  id         String        @id // slug: "geisha-250", "pack-regalo-clasico"
+  name       String
+  image      String
+  price      Int           // precio unitario en céntimos
+  stock      Int           @default(0)
+  status     ProductStatus @default(ACTIVE)
+  variants   String[]      // ej. ["grano", "molido"]; vacío si no tiene
+  sortOrder  Int           @default(0)
+  priceTiers PriceTier[]
+  orderItems OrderItem[]
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+}
+
+// Precio por cantidad dentro de un ciclo (promociones tipo "3 por S/ 145").
+// La cantidad se cuenta sumando todas las variantes del producto (grano + molido).
+model PriceTier {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  quantity  Int     // 1, 2, 3…
+  price     Int     // precio total de esa cantidad, en céntimos
+
+  @@unique([productId, quantity])
+}
+
+/* ── Envíos ──────────────────────────────── */
+
+// Distritos de Lima con tarifa. Provincia no va aquí: se cotiza por WhatsApp.
+model ShippingZone {
+  id        String  @id @default(cuid())
+  district  String  @unique
+  price     Int     // costo de envío en céntimos (IGV incluido)
+  active    Boolean @default(true)
+  sortOrder Int     @default(0)
+  orders    Order[]
+}
+
+/* ── Pedidos ─────────────────────────────── */
+
+model Order {
+  id             String       @id @default(cuid())
+  number         Int          @unique @default(autoincrement()) // número de pedido visible: #1024
+  status         OrderStatus  @default(PENDING)
+
+  customerName   String
+  email          String
+  phone          String
+  address        String
+  reference      String?
+  shippingZoneId String
+  shippingZone   ShippingZone @relation(fields: [shippingZoneId], references: [id])
+
+  subtotal       Int          // productos, en céntimos
+  shipping       Int          // envío, en céntimos
+  total          Int          // subtotal + envío
+
+  mpPreferenceId String?
+  mpPaymentId    String?      @unique // evita procesar dos veces el mismo pago
+  paidAt         DateTime?
+
+  items          OrderItem[]
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model OrderItem {
+  id          String  @id @default(cuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+  productName String  // copia del nombre al momento de la compra
+  variant     String? // "grano" | "molido"
+  quantity    Int
+  lineTotal   Int     // parte del total del producto que corresponde a esta línea, en céntimos
+}
