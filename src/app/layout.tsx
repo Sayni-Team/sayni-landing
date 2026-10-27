@@ -3,6 +3,7 @@ import { Urbanist } from "next/font/google";
 import localFont from "next/font/local";
 import { CartProvider } from "@/context/CartContext";
 import "./globals.css";
+import { getStoreProducts } from "@/lib/products";
 
 const urbanist = Urbanist({
     subsets: ["latin"],
@@ -101,15 +102,16 @@ export const metadata: Metadata = {
     },
 };
 
-export default function RootLayout({
-                                       children,
-                                   }: Readonly<{
-    children: React.ReactNode;
-}>) {
+export const revalidate = 60;
+
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+    const catalog = await getStoreProducts();
+
     return (
-        <html lang="es" className={`${urbanist.variable} ${clashGrotesk.variable}`}>
-        <body className="bg-sayni-black text-sayni-light font-sans antialiased selection:bg-sayni-lime selection:text-sayni-black">
-        <CartProvider>{children}</CartProvider>
+        <html lang="es">
+        <body>
+        <CartProvider catalog={catalog}>{children}</CartProvider>
         </body>
         </html>
     );

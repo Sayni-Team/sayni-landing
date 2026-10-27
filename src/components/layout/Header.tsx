@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { useCart } from "@/context/CartContext";
+import { formatPEN } from "@/lib/pricing";
 
 const EASE = [0.215, 0.61, 0.355, 1] as const;
 
@@ -68,11 +69,13 @@ export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showFloatingCart, setShowFloatingCart] = useState(false);
     const {
-        cartItems,
+        items,
         updateQuantity,
         removeFromCart,
         totalCartCount,
-        totalPrice,
+        subtotal,
+        discount,
+        total,
         isCartOpen,
         setIsCartOpen,
     } = useCart();
@@ -110,22 +113,20 @@ export default function Header() {
     const handleCheckout = () => {
         const phoneNumber = "51939273366";
 
-        const itemsList = cartItems
-            .map(
-                (item) =>
-                    `• ${item.quantity}x *${item.title}* (${item.weight}) - S/ ${(item.price * item.quantity).toFixed(2)}`
-            )
+        const itemsList = items
+            .map((item) => `• ${item.quantity}x *${item.title}* — ${formatPEN(item.unitPrice)} c/u`)
             .join("\n");
 
-        const message = `¡Hola Sayni! ☕ Deseo realizar el siguiente pedido:\n\n${itemsList}\n\n*Total:* S/ ${totalPrice.toFixed(2)}`;
+        const promoLine = discount > 0 ? `\n*Descuento por promoción:* -${formatPEN(discount)}` : "";
+        const message = `¡Hola Sayni! ☕ Deseo realizar el siguiente pedido:\n\n${itemsList}\n${promoLine}\n*Total:* ${formatPEN(total)}`;
 
         const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
         window.open(whatsappUrl, "_blank");
     };
 
-    const sortedItems = cartItems
+    const sortedItems = items
         .slice()
-        .sort((a, b) => (a.id === "pack-regalo-clasico" ? -1 : b.id === "pack-regalo-clasico" ? 1 : 0));
+        .sort((a, b) => (a.productId === "pack-regalo-clasico" ? -1 : b.productId === "pack-regalo-clasico" ? 1 : 0));
 
     return (
         <>
@@ -321,7 +322,7 @@ export default function Header() {
                     [&::-webkit-scrollbar-thumb]:bg-[#BCC90F]/60
                     hover:[&::-webkit-scrollbar-thumb]:bg-[#BCC90F]"
                 >
-                    {cartItems.length === 0 ? (
+                    {items.length === 0 ? (
                         <div className="flex h-full flex-col items-center justify-center gap-3 text-center text-gray-400">
                             <svg className="size-12 stroke-current opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden>
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
@@ -351,8 +352,9 @@ export default function Header() {
                                     </div>
                                     <div className="flex-1">
                                         <h4 className="text-base font-bold leading-tight text-white">{item.title}</h4>
-                                        <p className="text-xs text-[#BCC90F]">{item.weight}</p>
-                                        <p className="mt-1 text-sm font-semibold text-gray-200">S/ {item.price.toFixed(2)}</p>
+                                        <p className="mt-1 text-sm font-semibold text-gray-200">
+                                            {formatPEN(item.unitPrice)} <span className="text-xs font-normal text-gray-400">c/u</span>
+                                        </p>
                                     </div>
                                     <div className="flex items-center gap-2 rounded-full border border-white/10 bg-[#132219] px-2 py-1">
                                         <button
@@ -390,12 +392,27 @@ export default function Header() {
                 </div>
 
                 {/* Footer Carrito */}
-                {cartItems.length > 0 && (
+                {items.length > 0 && (
                     <div className="space-y-4 border-t border-white/10 bg-[#0d1711] p-6 font-urbanist">
-                        <div className="flex items-center justify-between text-gray-300">
-                            <span>Total</span>
-                            <span className="text-xl font-bold text-white">S/ {totalPrice.toFixed(2)}</span>
+                        <div className="space-y-1.5">
+                            {discount > 0 && (
+                                <>
+                                    <div className="flex items-center justify-between text-sm text-gray-400">
+                                        <span>Subtotal</span>
+                                        <span>{formatPEN(subtotal)}</span>
+                                    </div>
+                                    <div className="flex items-center justify-between text-sm text-[#BCC90F]">
+                                        <span>Promoción aplicada</span>
+                                        <span>-{formatPEN(discount)}</span>
+                                    </div>
+                                </>
+                            )}
+                            <div className="flex items-center justify-between text-gray-300">
+                                <span>Total</span>
+                                <span className="text-xl font-bold text-white">{formatPEN(total)}</span>
+                            </div>
                         </div>
+
                         <button
                             type="button"
                             onClick={handleCheckout}

@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence, useInView, type Variants } from "framer-motion";
 import { useCart } from "@/context/CartContext";
+import { formatPEN, priceForQuantity } from "@/lib/pricing";
 
 type CategoryType = "especialidad" | "comercial";
 
@@ -78,13 +79,21 @@ const tabContent: Variants = {
 
 export default function OurCoffees() {
     const [activeCategory, setActiveCategory] = useState<CategoryType>("especialidad");
-    const { addToCart } = useCart();
 
     // Un solo "en vista" para todo: la sección y cada pestaña nueva animan desde aquí
     const sectionRef = useRef<HTMLElement>(null);
     const inView = useInView(sectionRef, { once: true, amount: 0.1 });
     const state = inView ? "visible" : "hidden";
+    const { addToCart, getProduct, remainingStock } = useCart();
     const [geishaGrind, setGeishaGrind] = useState<"grano" | "molido">("grano");
+    const [geishaQty, setGeishaQty] = useState(1);
+
+    const priceOf = (productId: string) => formatPEN(getProduct(productId)?.price ?? 0);
+
+    const geisha = getProduct("geisha-250");
+    const geishaTotal = geisha ? priceForQuantity(geishaQty, geisha.price, geisha.tiers) : 0;
+    const geishaMax = Math.max(1, remainingStock("geisha-250"));
+
 
     return (
         <section
@@ -208,7 +217,17 @@ export default function OurCoffees() {
                                             Geisha{" "}
                                             <span className="ml-1 text-sm font-normal text-[#BCC90F] sm:text-lg">250g</span>
                                         </h3>
-                                        <p className="mt-1 text-lg font-bold text-[#BCC90F] sm:text-2xl lg:mt-2">S/ 50.00</p>
+
+                                        {/* Precio: cambia con la cantidad (promoción en ciclos de 3) */}
+                                        <p className="mt-1 text-lg font-bold text-[#BCC90F] sm:text-2xl lg:mt-2">
+                                            {formatPEN(geishaTotal)}
+                                            {geishaQty > 1 && (
+                                                <span className="ml-2 text-xs font-normal text-white/60 sm:text-sm">por {geishaQty} bolsas</span>
+                                            )}
+                                        </p>
+                                        <p className="mt-1 text-[11px] font-medium text-white/70 sm:text-xs">
+                                            Promo: 3 bolsas por S/ 145 (combinando grano y molido)
+                                        </p>
 
                                         {/* Descripción — solo desktop */}
                                         <p className="mt-3 hidden max-w-[340px] text-sm font-light leading-relaxed text-white sm:text-base lg:block">
@@ -233,13 +252,13 @@ export default function OurCoffees() {
                                         </div>
                                     </motion.div>
 
-                                    {/* Presentación + botón */}
-                                    <motion.div variants={fadeUp} className="flex flex-col items-start gap-3 pt-0 lg:pt-1">
+                                    {/* Presentación + cantidad + botón */}
+                                    <motion.div variants={fadeUp} className="flex w-full flex-col items-start gap-3 pt-0 sm:w-auto lg:pt-1">
                                         {/* Selector Grano / Molido: tarjetas con icono (distinto del switch de la sección) */}
                                         <div className="flex w-full flex-col gap-1.5 sm:w-auto">
-                                            <span id="geisha-grind-label" className="text-[10px] font-medium uppercase tracking-wider text-white/60 sm:text-xs">
-                                                Elige tu presentación
-                                            </span>
+                            <span id="geisha-grind-label" className="text-[10px] font-medium uppercase tracking-wider text-white/60 sm:text-xs">
+                                Elige tu presentación
+                            </span>
                                             {/* Móvil: dos columnas iguales que ocupan el ancho disponible. sm+: tamaño natural */}
                                             <div role="radiogroup" aria-labelledby="geisha-grind-label" className="grid w-full grid-cols-2 gap-1.5 sm:flex sm:w-auto sm:gap-2">
                                                 {(["grano", "molido"] as const).map((option) => {
@@ -269,127 +288,150 @@ export default function OurCoffees() {
                                             </div>
                                         </div>
 
-                                        {/* Añade la presentación elegida */}
-                                        <button
-                                            type="button"
-                                            onClick={() =>
-                                                addToCart({
-                                                    id: `geisha-250-${geishaGrind}`,
-                                                    title: geishaGrind === "grano" ? "Sayni Geisha (Grano)" : "Sayni Geisha (Molido)",
-                                                    weight: "250g",
-                                                    price: 50.0,
-                                                    quantity: 1,
-                                                    image: "/assets/features/products/geisha_package_250.webp",
-                                                })
-                                            }
-                                            className="inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-1.5 pl-4 pr-2 text-xs font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] sm:gap-4 sm:py-2 sm:pl-6 sm:text-base"
-                                        >
-                                            <span className="hidden select-none tracking-wide sm:inline">Añadir al carrito</span>
-                                            <span className="select-none tracking-wide sm:hidden">Añadir</span>
-                                            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#132219] text-[#BCC90F] sm:size-9">
-                    <CartIcon className="size-4 sm:size-5" />
-                </span>
-                                        </button>
+                                        {/* Cantidad + añadir */}
+                                        <div className="flex items-center gap-2">
+                                            <div className="flex items-center rounded-full border border-white/15 bg-[#132219]">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setGeishaQty((q) => Math.max(1, q - 1))}
+                                                    disabled={geishaQty <= 1}
+                                                    aria-label="Quitar una bolsa"
+                                                    className="grid size-8 cursor-pointer place-items-center text-lg text-white/80 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30 sm:size-9"
+                                                >
+                                                    −
+                                                </button>
+                                                <span aria-live="polite" className="w-6 text-center text-sm font-bold text-white">
+                                    {geishaQty}
+                                </span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setGeishaQty((q) => Math.min(geishaMax, q + 1))}
+                                                    disabled={geishaQty >= geishaMax}
+                                                    aria-label="Añadir una bolsa"
+                                                    className="grid size-8 cursor-pointer place-items-center text-lg text-white/80 transition-colors hover:text-white disabled:cursor-not-allowed disabled:opacity-30 sm:size-9"
+                                                >
+                                                    +
+                                                </button>
+                                            </div>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    addToCart({ productId: "geisha-250", variant: geishaGrind, quantity: geishaQty });
+                                                    setGeishaQty(1);
+                                                }}
+                                                disabled={remainingStock("geisha-250") === 0}
+                                                className="inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-1.5 pl-4 pr-2 text-xs font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:gap-4 sm:py-2 sm:pl-6 sm:text-base"
+                                            >
+                                <span className="select-none tracking-wide">
+                                    {remainingStock("geisha-250") === 0 ? "Agotado" : "Añadir"}
+                                </span>
+                                                <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#132219] text-[#BCC90F] sm:size-9">
+                                    <CartIcon className="size-4 sm:size-5" />
+                                </span>
+                                            </button>
+                                        </div>
                                     </motion.div>
                                 </motion.div>
                             </motion.div>
 
                             {/* ─────────────────────────────────────────────────────────────
-                                GEISHA 500g — OCULTO HASTA NUEVO AVISO
-                                (ticket alto para B2C). Para volver a mostrarlo, quitar este comentario.
-                                ─────────────────────────────────────────────────────────────
+                GEISHA 500g — OCULTO HASTA NUEVO AVISO
+                (ticket alto para B2C). Para volver a mostrarlo, quitar este comentario
+                y adaptar su botón a: addToCart({ productId: "geisha-500" })
+                ─────────────────────────────────────────────────────────────
 
-                            <motion.div
-                                variants={stagger(0.15)}
-                                className="relative grid grid-cols-2 items-center justify-center gap-2 md:mx-auto md:max-w-xl md:gap-6 lg:max-w-none lg:grid-cols-12 lg:gap-0"
-                            >
-                                // RESPLANDOR BRILLOSO CENTRAL (#BCC90F)
-                                <div
-                                    aria-hidden="true"
-                                    className="pointer-events-none absolute left-1/2 top-1/2 -z-10 size-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#BCC90F]/8 sm:bg-[#BCC90F]/2 blur-3xl sm:size-[380px] lg:size-[560px]"
-                                />
+            <motion.div
+                variants={stagger(0.15)}
+                className="relative grid grid-cols-2 items-center justify-center gap-2 md:mx-auto md:max-w-xl md:gap-6 lg:max-w-none lg:grid-cols-12 lg:gap-0"
+            >
+                // RESPLANDOR BRILLOSO CENTRAL (#BCC90F)
+                <div
+                    aria-hidden="true"
+                    className="pointer-events-none absolute left-1/2 top-1/2 -z-10 size-[280px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#BCC90F]/8 sm:bg-[#BCC90F]/2 blur-3xl sm:size-[380px] lg:size-[560px]"
+                />
 
-                                // INFO — izquierda, por partes
-                                <motion.div
-                                    variants={stagger(0.12)}
-                                    className="col-span-1 flex flex-col items-end justify-center gap-3 py-2 text-right font-urbanist md:pr-2 lg:col-span-6 lg:gap-5 lg:py-4 lg:pr-8"
-                                >
-                                    <motion.div variants={fadeUp} className="flex flex-col items-end">
-                                        <h3 className="font-heading text-2xl font-bold tracking-wide text-white sm:text-4xl lg:text-5xl">
-                                            Sayni <br />
-                                            <span className="mr-1 text-sm font-normal text-[#BCC90F] sm:text-lg">500g</span> Geisha
-                                        </h3>
-                                        <p className="mt-1 text-lg font-bold text-[#BCC90F] sm:text-2xl lg:mt-2">S/ 95.00</p>
+                // INFO — izquierda, por partes
+                <motion.div
+                    variants={stagger(0.12)}
+                    className="col-span-1 flex flex-col items-end justify-center gap-3 py-2 text-right font-urbanist md:pr-2 lg:col-span-6 lg:gap-5 lg:py-4 lg:pr-8"
+                >
+                    <motion.div variants={fadeUp} className="flex flex-col items-end">
+                        <h3 className="font-heading text-2xl font-bold tracking-wide text-white sm:text-4xl lg:text-5xl">
+                            Sayni <br />
+                            <span className="mr-1 text-sm font-normal text-[#BCC90F] sm:text-lg">500g</span> Geisha
+                        </h3>
+                        <p className="mt-1 text-lg font-bold text-[#BCC90F] sm:text-2xl lg:mt-2">S/ 95.00</p>
 
-                                        // Descripción — solo desktop
-                                        <p className="mt-3 hidden max-w-[340px] text-sm font-light leading-relaxed text-white sm:text-base lg:block">
-                                            Geisha de altura en presentación de 500g (solo en grano entero), 87 puntos SCA certificados por Q-Grader. Cultivado a +2,000 msnm en Inkawasi, Cusco. Lavado y de tueste medio.
-                                        </p>
+                        // Descripción — solo desktop
+                        <p className="mt-3 hidden max-w-[340px] text-sm font-light leading-relaxed text-white sm:text-base lg:block">
+                            Geisha de altura en presentación de 500g (solo en grano entero), 87 puntos SCA certificados por Q-Grader. Cultivado a +2,000 msnm en Inkawasi, Cusco. Lavado y de tueste medio.
+                        </p>
 
-                                        // Ficha técnica — siempre visible
-                                        <a href="/Sayni_Premium_Geisha_Ficha_Tecnica_EN-ES.pdf" download className="mt-2 inline-block text-xs text-[#BCC90F] underline underline-offset-4 transition-colors sm:text-sm">
-                                            Descargar ficha técnica
-                                        </a>
-                                    </motion.div>
+                        // Ficha técnica — siempre visible
+                        <a href="/Sayni_Premium_Geisha_Ficha_Tecnica_EN-ES.pdf" download className="mt-2 inline-block text-xs text-[#BCC90F] underline underline-offset-4 transition-colors sm:text-sm">
+                            Descargar ficha técnica
+                        </a>
+                    </motion.div>
 
-                                    // Imagen grano — solo desktop: crece y su línea se dibuja
-                                    <motion.div variants={zoomIn} className="relative hidden w-full max-w-[200px] sm:max-w-[240px] lg:block">
-                                        <motion.span
-                                            variants={drawLine}
-                                            style={{ originX: 0 }}
-                                            className="pointer-events-none absolute left-full top-1/2 -z-10 hidden h-px w-16 -translate-y-1/2 bg-[#BCC90F] lg:block lg:w-20"
-                                        />
-                                        <div className="relative z-10 aspect-[16/9] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#132219] shadow-lg">
-                                            <Image src="/assets/features/geisha-grain.webp" alt="Sayni Geisha Detalle" fill className="object-cover" />
-                                        </div>
-                                    </motion.div>
+                    // Imagen grano — solo desktop: crece y su línea se dibuja
+                    <motion.div variants={zoomIn} className="relative hidden w-full max-w-[200px] sm:max-w-[240px] lg:block">
+                        <motion.span
+                            variants={drawLine}
+                            style={{ originX: 0 }}
+                            className="pointer-events-none absolute left-full top-1/2 -z-10 hidden h-px w-16 -translate-y-1/2 bg-[#BCC90F] lg:block lg:w-20"
+                        />
+                        <div className="relative z-10 aspect-[16/9] w-full overflow-hidden rounded-2xl border border-white/10 bg-[#132219] shadow-lg">
+                            <Image src="/assets/features/geisha-grain.webp" alt="Sayni Geisha Detalle" fill className="object-cover" />
+                        </div>
+                    </motion.div>
 
-                                    // Botón — alineado a la derecha
-                                    <motion.div variants={fadeUp} className="self-end pt-0 lg:pt-1">
-                                        <button
-                                            type="button"
-                                            onClick={() => addToCart({ id: "geisha-500", title: "Sayni Geisha (Grano)", weight: "500g", price: 95.0, quantity: 1, image: "/assets/features/products/geisha_package_500_.webp" })}
-                                            className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-1.5 pl-4 pr-2 text-xs font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] sm:gap-4 sm:py-2 sm:pl-6 sm:text-base"
-                                        >
-                                            <span className="hidden select-none tracking-wide sm:inline">Añadir al carrito</span>
-                                            <span className="select-none tracking-wide sm:hidden">Añadir</span>
-                                            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#132219] text-[#BCC90F] sm:size-9">
-                                                <CartIcon className="size-4 sm:size-5" />
-                                            </span>
-                                        </button>
-                                    </motion.div>
-                                </motion.div>
+                    // Botón — alineado a la derecha
+                    <motion.div variants={fadeUp} className="self-end pt-0 lg:pt-1">
+                        <button
+                            type="button"
+                            onClick={() => addToCart({ productId: "geisha-500" })}
+                            className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-1.5 pl-4 pr-2 text-xs font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] sm:gap-4 sm:py-2 sm:pl-6 sm:text-base"
+                        >
+                            <span className="hidden select-none tracking-wide sm:inline">Añadir al carrito</span>
+                            <span className="select-none tracking-wide sm:hidden">Añadir</span>
+                            <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#132219] text-[#BCC90F] sm:size-9">
+                                <CartIcon className="size-4 sm:size-5" />
+                            </span>
+                        </button>
+                    </motion.div>
+                </motion.div>
 
-                                // BOLSA 500g — entra desde la derecha
-                                <motion.div
-                                    variants={slideFromRight}
-                                    className="col-span-1 flex h-full min-h-[240px] items-center justify-center py-2 sm:min-h-[400px] md:justify-center lg:col-span-6 lg:min-h-0 lg:justify-start lg:py-4 lg:pl-4"
-                                >
-                                    <Image
-                                        src="/assets/features/products/geisha_package_500_.webp"
-                                        alt="Sayni Geisha 500g"
-                                        width={340}
-                                        height={480}
-                                        className="max-h-[260px] w-auto scale-110 object-contain transition-[scale] duration-500 hover:scale-103 sm:max-h-full sm:scale-100"
-                                    />
-                                </motion.div>
-                            </motion.div>
+                // BOLSA 500g — entra desde la derecha
+                <motion.div
+                    variants={slideFromRight}
+                    className="col-span-1 flex h-full min-h-[240px] items-center justify-center py-2 sm:min-h-[400px] md:justify-center lg:col-span-6 lg:min-h-0 lg:justify-start lg:py-4 lg:pl-4"
+                >
+                    <Image
+                        src="/assets/features/products/geisha_package_500_.webp"
+                        alt="Sayni Geisha 500g"
+                        width={340}
+                        height={480}
+                        className="max-h-[260px] w-auto scale-110 object-contain transition-[scale] duration-500 hover:scale-103 sm:max-h-full sm:scale-100"
+                    />
+                </motion.div>
+            </motion.div>
 
-                            FIN GEISHA 500g ─────────────────────────────────────────────── */}
+            FIN GEISHA 500g ─────────────────────────────────────────────── */}
 
                             {/* ITEM 3: BLEND 250g — bolsa DERECHA — PRÓXIMAMENTE (empaque en desarrollo) */}
                             <div className="relative">
                                 {/* Etiqueta "Próximamente": centrada sobre el producto, fuera del bloque atenuado */}
                                 <div className="pointer-events-none absolute inset-0 z-10 flex items-center justify-center">
                                     <motion.div variants={zoomIn} className="relative flex flex-col items-center gap-2">
-                                        <span className="inline-flex items-center gap-2.5 whitespace-nowrap rounded-full border-t border-white/40 bg-[#BCC90F] px-6 py-3 text-sm font-bold uppercase leading-none tracking-[0.15em] text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] sm:px-8 sm:py-4 sm:text-lg">
-                                            {/* Reloj */}
-                                            <svg viewBox="0 0 24 24" fill="none" className="size-4 shrink-0 sm:size-5" aria-hidden>
-                                                <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2.2" />
-                                                <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                                            </svg>
-                                            Próximamente
-                                        </span>
+                        <span className="inline-flex items-center gap-2.5 whitespace-nowrap rounded-full border-t border-white/40 bg-[#BCC90F] px-6 py-3 text-sm font-bold uppercase leading-none tracking-[0.15em] text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] sm:px-8 sm:py-4 sm:text-lg">
+                            {/* Reloj */}
+                            <svg viewBox="0 0 24 24" fill="none" className="size-4 shrink-0 sm:size-5" aria-hidden>
+                                <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2.2" />
+                                <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                            Próximamente
+                        </span>
                                     </motion.div>
                                 </div>
 
@@ -410,7 +452,7 @@ export default function OurCoffees() {
                                                 Sayni <br />
                                                 <span className="mr-1 text-sm font-normal text-[#BCC90F] sm:text-lg">250g</span> Blend
                                             </h3>
-                                            <p className="mt-1 text-lg font-bold text-[#BCC90F] sm:text-2xl lg:mt-2">S/ 30.00</p>
+                                            <p className="mt-1 text-lg font-bold text-[#BCC90F] sm:text-2xl lg:mt-2">{priceOf("blend-250")}</p>
 
                                             {/* Descripción — solo desktop */}
                                             <p className="mt-3 hidden max-w-[340px] text-sm font-light leading-relaxed text-white sm:text-base lg:block">
@@ -445,8 +487,8 @@ export default function OurCoffees() {
                                             >
                                                 <span className="select-none tracking-wide">Próximamente</span>
                                                 <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#132219] text-[#BCC90F] sm:size-9">
-                        <CartIcon className="size-4 sm:size-5" />
-                    </span>
+                                    <CartIcon className="size-4 sm:size-5" />
+                                </span>
                                             </button>
                                         </motion.div>
                                     </motion.div>
@@ -502,7 +544,7 @@ export default function OurCoffees() {
                                 </motion.h3>
 
                                 <motion.p variants={fadeUp} className="text-3xl font-bold text-[#BCC90F]">
-                                    S/ 79.90
+                                    {priceOf("pack-regalo-clasico")}
                                 </motion.p>
 
                                 <motion.div variants={zoomIn} className="relative mx-auto h-64 w-full sm:h-80 md:h-[320px]">
@@ -541,14 +583,21 @@ export default function OurCoffees() {
                                     </p>
                                     <button
                                         type="button"
-                                        onClick={() => addToCart({ id: "pack-regalo-clasico", title: "Pack Ocasión Especial", weight: "2 Bolsas 220g + Prensa francesa 350 ml + Caja premium + Tarjeta", price: 79.9, quantity: 1, image: "/assets/features/products/sayni-package-premium.webp" })}
-                                        className="group mt-2 inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-2.5 pl-5 pr-2 text-[11px] font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] sm:gap-4 sm:py-3 sm:pl-8 sm:pr-3 sm:text-lg"
+                                        onClick={() => addToCart({ productId: "pack-regalo-clasico" })}
+                                        disabled={remainingStock("pack-regalo-clasico") === 0}
+                                        className="group mt-2 inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-2.5 pl-5 pr-2 text-[11px] font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:gap-4 sm:py-3 sm:pl-8 sm:pr-3 sm:text-lg"
                                     >
-                                        <span className="select-none tracking-wide sm:hidden">Añadir por S/ 79.90</span>
-                                        <span className="hidden select-none tracking-wide sm:inline">Añadir al carrito — S/ 79.90</span>
+                                        {remainingStock("pack-regalo-clasico") === 0 ? (
+                                            <span className="select-none tracking-wide">Agotado</span>
+                                        ) : (
+                                            <>
+                                                <span className="select-none tracking-wide sm:hidden">Añadir por {priceOf("pack-regalo-clasico")}</span>
+                                                <span className="hidden select-none tracking-wide sm:inline">Añadir al carrito — {priceOf("pack-regalo-clasico")}</span>
+                                            </>
+                                        )}
                                         <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-[#132219] text-[#BCC90F] sm:size-10">
-                <CartIcon className="size-4 sm:size-5" />
-            </span>
+                            <CartIcon className="size-4 sm:size-5" />
+                        </span>
                                     </button>
                                 </motion.div>
                             </motion.div>
@@ -583,7 +632,7 @@ export default function OurCoffees() {
                                             Clásico + Prensa{" "}
                                             <span className="ml-1 text-sm font-normal text-[#BCC90F] sm:text-lg">(2 x 220g)</span>
                                         </h3>
-                                        <p className="mt-1 text-lg font-bold text-[#BCC90F] sm:text-2xl lg:mt-2">S/ 69.90</p>
+                                        <p className="mt-1 text-lg font-bold text-[#BCC90F] sm:text-2xl lg:mt-2">{priceOf("pack-clasico-prensa")}</p>
 
                                         {/* Descripción — solo desktop */}
                                         <p className="mt-3 hidden max-w-[340px] text-sm font-light leading-relaxed text-white sm:text-base lg:block">
@@ -612,14 +661,21 @@ export default function OurCoffees() {
                                     <motion.div variants={fadeUp} className="pt-0 lg:pt-2">
                                         <button
                                             type="button"
-                                            onClick={() => addToCart({ id: "pack-clasico-prensa", title: "Pack Sayni Clásico + Prensa", weight: "2 Bolsas 220g + Prensa francesa 350 ml", price: 69.9, quantity: 1, image: "/assets/features/products/classic_package_220.webp" })}
-                                            className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-1.5 pl-4 pr-2 text-xs font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] sm:gap-4 sm:py-2.5 sm:pl-6 sm:text-base"
+                                            onClick={() => addToCart({ productId: "pack-clasico-prensa" })}
+                                            disabled={remainingStock("pack-clasico-prensa") === 0}
+                                            className="mt-3 inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-1.5 pl-4 pr-2 text-xs font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:gap-4 sm:py-2.5 sm:pl-6 sm:text-base"
                                         >
-                                            <span className="hidden select-none tracking-wide sm:inline">Añadir al carrito</span>
-                                            <span className="select-none tracking-wide sm:hidden">Añadir</span>
+                                            {remainingStock("pack-clasico-prensa") === 0 ? (
+                                                <span className="select-none tracking-wide">Agotado</span>
+                                            ) : (
+                                                <>
+                                                    <span className="hidden select-none tracking-wide sm:inline">Añadir al carrito</span>
+                                                    <span className="select-none tracking-wide sm:hidden">Añadir</span>
+                                                </>
+                                            )}
                                             <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#132219] text-[#BCC90F] sm:size-9">
-                    <CartIcon className="size-4 sm:size-5" />
-                </span>
+                                <CartIcon className="size-4 sm:size-5" />
+                            </span>
                                         </button>
                                     </motion.div>
                                 </motion.div>

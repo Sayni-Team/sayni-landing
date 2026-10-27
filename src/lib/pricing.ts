@@ -1,14 +1,13 @@
-// src/lib/pricing.ts
-// Precios en CÉNTIMOS (S/ 50.00 = 5000) para evitar errores de decimales.
+// Cálculo de precios con promociones por cantidad.
+// Importes en CÉNTIMOS (S/ 50.00 = 5000). Se usa en cliente y servidor.
 
 export type PriceTier = { quantity: number; price: number };
 
 /**
- * Precio total de `quantity` unidades.
+ * Precio total de `quantity` unidades de un producto.
  * Sin tramos: precio unitario × cantidad.
- * Con tramos (1, 2, 3…): se cobra por ciclos del tramo mayor.
- *   Geisha: tramos {1: 5000, 2: 9500, 3: 14500}
- *   → 4 bolsas = 14500 + 5000 = 19500 (S/ 195)
+ * Con tramos: se cobra por ciclos del tramo mayor.
+ *   Geisha {1: 5000, 2: 9500, 3: 14500} → 4 bolsas = 14500 + 5000 = 19500
  */
 export function priceForQuantity(quantity: number, unitPrice: number, tiers: readonly PriceTier[] = []): number {
     if (quantity <= 0) return 0;
