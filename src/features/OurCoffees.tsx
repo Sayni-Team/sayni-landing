@@ -237,9 +237,9 @@ export default function OurCoffees() {
                                     <motion.div variants={fadeUp} className="flex flex-col items-start gap-3 pt-0 lg:pt-1">
                                         {/* Selector Grano / Molido: tarjetas con icono (distinto del switch de la sección) */}
                                         <div className="flex w-full flex-col gap-1.5 sm:w-auto">
-    <span id="geisha-grind-label" className="text-[10px] font-medium uppercase tracking-wider text-white/60 sm:text-xs">
-        Elige tu presentación
-    </span>
+                                            <span id="geisha-grind-label" className="text-[10px] font-medium uppercase tracking-wider text-white/60 sm:text-xs">
+                                                Elige tu presentación
+                                            </span>
                                             {/* Móvil: dos columnas iguales que ocupan el ancho disponible. sm+: tamaño natural */}
                                             <div role="radiogroup" aria-labelledby="geisha-grind-label" className="grid w-full grid-cols-2 gap-1.5 sm:flex sm:w-auto sm:gap-2">
                                                 {(["grano", "molido"] as const).map((option) => {
