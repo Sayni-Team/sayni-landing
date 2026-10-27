@@ -142,7 +142,7 @@ export const CartProvider = ({ catalog, children }: { catalog: StoreProduct[]; c
         );
     };
 
-    const clearCart = () => setLines([]);
+    const clearCart = useCallback(() => setLines([]), []);
 
     // Líneas con datos del catálogo
     const items = useMemo<CartItemView[]>(
