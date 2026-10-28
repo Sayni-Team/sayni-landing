@@ -2,11 +2,11 @@
 // PLACEHOLDER: reemplazar con los datos reales del cliente antes de publicar.
 export const BUSINESS = {
     tradeName: "Sayni Café",
-    legalName: "RAZÓN SOCIAL S.A.C.", // PLACEHOLDER
-    ruc: "20XXXXXXXXX", // PLACEHOLDER
-    address: "DIRECCIÓN FISCAL, DISTRITO, LIMA", // PLACEHOLDER
+    legalName: "INDUSTRIAS JMURGA E.I.R.L.",
+    ruc: "20612884537",
+    address: "Calle Allende Mz. Z Lote 11, Villa Victoria, Surquillo, Lima",
     website: "www.sayniperu.com",
-    contactEmail: "Jhonnatan.murga@sayniperu.com", // PLACEHOLDER: correo de atención al cliente
+    contactEmail: "Jhonnatan.murga@sayniperu.com",
     whatsapp: "+51 939 273 366",
 };
 
