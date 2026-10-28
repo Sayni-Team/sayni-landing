@@ -3,6 +3,7 @@ import type { OrderStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { formatPEN } from "@/lib/pricing";
 import { STATUS_LABEL, STATUS_STYLE, formatDate } from "@/lib/order-status";
+import ExportForm from "./ExportForm";
 
 type Props = { searchParams: Promise<{ estado?: string }> };
 
@@ -38,6 +39,10 @@ export default async function OrdersPage({ searchParams }: Props) {
     return (
         <div>
             <h1 className="font-heading text-2xl font-bold">Pedidos</h1>
+
+            <div className="mt-6">
+                <ExportForm />
+            </div>
 
             {/* Filtros */}
             <nav className="mt-6 flex flex-wrap gap-2">

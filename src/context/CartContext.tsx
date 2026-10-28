@@ -32,7 +32,8 @@ interface CartContextType {
     updateQuantity: (id: string, delta: number) => void;
     clearCart: () => void;
     getProduct: (productId: string) => StoreProduct | undefined;
-    remainingStock: (productId: string) => number;
+    /** Unidades que aún se pueden añadir (de una presentación, o de todo el producto si no se indica) */
+    remainingStock: (productId: string, variant?: string) => number;
     totalCartCount: number;
     subtotal: number; // precio normal, sin promociones (céntimos)
     discount: number; // ahorro por promociones (céntimos)
@@ -45,9 +46,15 @@ interface CartContextType {
 // v2: el formato cambió (antes guardaba precios). Los carritos antiguos se descartan.
 const LOCAL_STORAGE_KEY = "sayni_cart_v2";
 
-const VARIANT_LABEL: Record<string, string> = { grano: "Grano", molido: "Molido" };
-
 const lineId = (productId: string, variant?: string) => (variant ? `${productId}-${variant}` : productId);
+
+/** Stock de una presentación, o del producto si no tiene presentaciones */
+const stockOf = (product: StoreProduct, variant?: string) =>
+    product.variants.length > 0 ? product.variants.find((v) => v.key === variant)?.stock ?? 0 : product.stock;
+
+/** ¿La línea corresponde a una presentación válida del producto? */
+const isValidVariant = (product: StoreProduct, variant?: string) =>
+    product.variants.length > 0 ? product.variants.some((v) => v.key === variant) : !variant;
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
@@ -60,13 +67,18 @@ export const CartProvider = ({ catalog, children }: { catalog: StoreProduct[]; c
 
     const getProduct = useCallback((productId: string) => productsById.get(productId), [productsById]);
 
-    // Cargar el carrito guardado, descartando productos que ya no se venden
+    // Cargar el carrito guardado, descartando productos o presentaciones que ya no se venden
     useEffect(() => {
         try {
             const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
             if (stored) {
                 const parsed: CartLine[] = JSON.parse(stored);
-                setLines(parsed.filter((l) => productsById.get(l.productId)?.status === "ACTIVE" && l.quantity > 0));
+                setLines(
+                    parsed.filter((l) => {
+                        const product = productsById.get(l.productId);
+                        return product?.status === "ACTIVE" && isValidVariant(product, l.variant) && l.quantity > 0;
+                    })
+                );
             }
             localStorage.removeItem("sayni_cart"); // formato antiguo
         } catch (error) {
@@ -85,29 +97,39 @@ export const CartProvider = ({ catalog, children }: { catalog: StoreProduct[]; c
         }
     }, [lines, isInitialized]);
 
-    // Unidades de un producto en el carrito, sumando todas sus presentaciones
+    // Unidades de una presentación concreta en el carrito
     const quantityInCart = useCallback(
-        (productId: string, from: CartLine[] = lines) =>
-            from.filter((l) => l.productId === productId).reduce((acc, l) => acc + l.quantity, 0),
+        (productId: string, variant: string | undefined, from: CartLine[] = lines) =>
+            from
+                .filter((l) => l.productId === productId && l.variant === variant)
+                .reduce((acc, l) => acc + l.quantity, 0),
         [lines]
     );
 
     const remainingStock = useCallback(
-        (productId: string) => {
+        (productId: string, variant?: string) => {
             const product = productsById.get(productId);
             if (!product || product.status !== "ACTIVE") return 0;
-            return Math.max(0, product.stock - quantityInCart(productId));
+
+            // Sin presentación indicada en un producto que las tiene: lo que queda entre todas
+            if (product.variants.length > 0 && variant === undefined) {
+                return product.variants.reduce(
+                    (acc, v) => acc + Math.max(0, v.stock - quantityInCart(productId, v.key)),
+                    0
+                );
+            }
+            return Math.max(0, stockOf(product, variant) - quantityInCart(productId, variant));
         },
         [productsById, quantityInCart]
     );
 
     const addToCart = ({ productId, variant, quantity = 1 }: AddToCartInput) => {
         const product = productsById.get(productId);
-        if (!product || product.status !== "ACTIVE") return;
+        if (!product || product.status !== "ACTIVE" || !isValidVariant(product, variant)) return;
 
         setLines((prev) => {
-            // No superar el stock (todas las presentaciones comparten stock)
-            const available = product.stock - quantityInCart(productId, prev);
+            // No superar el stock de esa presentación
+            const available = stockOf(product, variant) - quantityInCart(productId, variant, prev);
             const toAdd = Math.min(quantity, available);
             if (toAdd <= 0) return prev;
 
@@ -132,7 +154,9 @@ export const CartProvider = ({ catalog, children }: { catalog: StoreProduct[]; c
                     if (l.id !== id) return l;
                     if (delta > 0) {
                         const product = productsById.get(l.productId);
-                        const available = (product?.stock ?? 0) - quantityInCart(l.productId, prev);
+                        const available = product
+                            ? stockOf(product, l.variant) - quantityInCart(l.productId, l.variant, prev)
+                            : 0;
                         if (available <= 0) return l; // sin stock: no sube
                     }
                     const quantity = l.quantity + delta;
@@ -150,10 +174,11 @@ export const CartProvider = ({ catalog, children }: { catalog: StoreProduct[]; c
             lines.flatMap((l) => {
                 const product = productsById.get(l.productId);
                 if (!product) return [];
+                const label = product.variants.find((v) => v.key === l.variant)?.label;
                 return [
                     {
                         ...l,
-                        title: l.variant ? `${product.name} (${VARIANT_LABEL[l.variant] ?? l.variant})` : product.name,
+                        title: label ? `${product.name} (${label})` : product.name,
                         image: product.image,
                         unitPrice: product.price,
                     },

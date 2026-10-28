@@ -10,8 +10,6 @@ export type CreateOrderResult =
     | { ok: true; checkoutUrl: string }
     | { ok: false; error: string; fieldErrors?: Partial<Record<CheckoutField, string>> };
 
-const VARIANT_LABEL: Record<string, string> = { grano: "Grano", molido: "Molido" };
-
 /** Reparte el total de un producto entre sus líneas (grano / molido) según la cantidad. */
 function allocate(total: number, quantities: number[]): number[] {
     const sum = quantities.reduce((a, b) => a + b, 0);
@@ -36,11 +34,11 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
     }
     const data = parsed.data;
 
-    // 2. Productos reales de la base de datos (precios, stock, estado, promociones)
+    // 2. Productos reales de la base de datos (precios, stock, estado, promociones, presentaciones)
     const productIds = [...new Set(data.items.map((i) => i.productId))];
     const products = await prisma.product.findMany({
         where: { id: { in: productIds } },
-        include: { priceTiers: true },
+        include: { priceTiers: true, variants: { where: { active: true } } },
     });
     const productsById = new Map(products.map((p) => [p.id, p]));
 
@@ -50,13 +48,15 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
             return { ok: false, error: "Uno de los productos ya no está disponible. Revisa tu carrito." };
         }
         const validVariant =
-            product.variants.length > 0 ? item.variant !== undefined && product.variants.includes(item.variant) : !item.variant;
+            product.variants.length > 0
+                ? product.variants.some((v) => v.key === item.variant)
+                : !item.variant;
         if (!validVariant) {
             return { ok: false, error: `Presentación no válida para ${product.name}.` };
         }
     }
 
-    // 3. Stock y precio por producto (grano + molido se suman para la promoción)
+    // 3. Stock (por presentación) y precio (por producto: grano + molido se suman para la promoción)
     const linesByProduct = new Map<string, typeof data.items>();
     for (const item of data.items) {
         linesByProduct.set(item.productId, [...(linesByProduct.get(item.productId) ?? []), item]);
@@ -74,7 +74,18 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
         const product = productsById.get(productId)!;
         const quantity = lines.reduce((acc, l) => acc + l.quantity, 0);
 
-        if (quantity > product.stock) {
+        if (product.variants.length > 0) {
+            // Cada presentación con su propio stock
+            for (const variant of product.variants) {
+                const requested = lines.filter((l) => l.variant === variant.key).reduce((acc, l) => acc + l.quantity, 0);
+                if (requested > variant.stock) {
+                    return {
+                        ok: false,
+                        error: `Solo quedan ${variant.stock} unidades de ${product.name} (${variant.label}).`,
+                    };
+                }
+            }
+        } else if (quantity > product.stock) {
             return { ok: false, error: `Solo quedan ${product.stock} unidades de ${product.name}.` };
         }
 
@@ -86,9 +97,10 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
         const lineTotals = allocate(productTotal, lines.map((l) => l.quantity));
 
         lines.forEach((line, i) => {
+            const label = product.variants.find((v) => v.key === line.variant)?.label;
             orderItems.push({
                 productId,
-                productName: line.variant ? `${product.name} (${VARIANT_LABEL[line.variant] ?? line.variant})` : product.name,
+                productName: label ? `${product.name} (${label})` : product.name,
                 variant: line.variant ?? null,
                 quantity: line.quantity,
                 lineTotal: lineTotals[i],
@@ -166,11 +178,7 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
 
         return { ok: true, checkoutUrl: preference.init_point! };
     } catch (error) {
-        const token = process.env.MP_ACCESS_TOKEN;
-
-        // Diagnóstico: con qué datos se intentó crear el pago (el token, solo parcial)
-        console.error("Error creando preferencia de Mercado Pago");
-
+        console.error("Error creando preferencia de Mercado Pago", error);
         return { ok: false, error: "No pudimos iniciar el pago. Inténtalo de nuevo en unos minutos." };
     }
 }

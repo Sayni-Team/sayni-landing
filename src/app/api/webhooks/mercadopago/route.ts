@@ -57,11 +57,19 @@ export async function POST(req: Request) {
 
                 // Descontar stock del pedido
                 const items = await tx.orderItem.findMany({ where: { orderId } });
+                // Descontar stock: de la presentación si la tiene, si no del producto
                 for (const item of items) {
-                    await tx.product.update({
-                        where: { id: item.productId },
-                        data: { stock: { decrement: item.quantity } },
-                    });
+                    if (item.variant) {
+                        await tx.productVariant.update({
+                            where: { productId_key: { productId: item.productId, key: item.variant } },
+                            data: { stock: { decrement: item.quantity } },
+                        });
+                    } else {
+                        await tx.product.update({
+                            where: { id: item.productId },
+                            data: { stock: { decrement: item.quantity } },
+                        });
+                    }
                 }
                 return true;
             });

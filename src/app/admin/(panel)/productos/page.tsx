@@ -4,7 +4,10 @@ import ProductRow from "./ProductRow";
 export default async function ProductsPage() {
     const products = await prisma.product.findMany({
         orderBy: { sortOrder: "asc" },
-        include: { priceTiers: { orderBy: { quantity: "asc" } } },
+        include: {
+            priceTiers: { orderBy: { quantity: "asc" } },
+            variants: { orderBy: { sortOrder: "asc" } },
+        },
     });
 
     return (
@@ -26,6 +29,7 @@ export default async function ProductsPage() {
                             stock: p.stock,
                             status: p.status,
                             tiers: p.priceTiers.map((t) => ({ quantity: t.quantity, price: t.price })),
+                            variants: p.variants.map((v) => ({ key: v.key, label: v.label, stock: v.stock })),
                         }}
                     />
                 ))}

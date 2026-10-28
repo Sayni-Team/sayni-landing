@@ -6,19 +6,28 @@ const prisma = new PrismaClient();
 
 /* ── Productos ─────────────────────────────── */
 
+type SeedVariant = { key: string; label: string; stock: number };
+
 type SeedProduct = {
     id: string;
     name: string;
     image: string;
     price: number; // céntimos
-    stock: number;
+    stock: number; // solo productos sin presentaciones
     status: ProductStatus;
-    variants: string[];
+    variants: SeedVariant[];
     sortOrder: number;
     tiers: { quantity: number; price: number }[];
 };
 
 const INITIAL_STOCK = 100;
+const INITIAL_VARIANT_STOCK = 50;
+
+// Grano y molido, cada uno con su stock
+const GRIND_VARIANTS: SeedVariant[] = [
+    { key: "grano", label: "Grano", stock: INITIAL_VARIANT_STOCK },
+    { key: "molido", label: "Molido", stock: INITIAL_VARIANT_STOCK },
+];
 
 const PRODUCTS: SeedProduct[] = [
     {
@@ -26,9 +35,9 @@ const PRODUCTS: SeedProduct[] = [
         name: "Sayni Geisha 250g",
         image: "/assets/features/products/geisha_package_250.webp",
         price: 5000,
-        stock: INITIAL_STOCK,
+        stock: 0, // con presentaciones: el stock va en cada una
         status: ProductStatus.ACTIVE,
-        variants: ["grano", "molido"],
+        variants: GRIND_VARIANTS,
         sortOrder: 1,
         // Promoción en ciclos de 3 (grano y molido se suman)
         tiers: [
@@ -42,9 +51,9 @@ const PRODUCTS: SeedProduct[] = [
         name: "Sayni Blend 250g",
         image: "/assets/features/products/blend_package_250.webp",
         price: 3000,
-        stock: INITIAL_STOCK,
+        stock: 0,
         status: ProductStatus.COMING_SOON,
-        variants: ["grano", "molido"],
+        variants: GRIND_VARIANTS,
         sortOrder: 2,
         tiers: [], // PENDIENTE: tramos de su promoción, cuando se definan
     },
@@ -112,7 +121,7 @@ const ZONES_BY_PRICE: Record<number, string[]> = {
 /* ── Ejecución ─────────────────────────────── */
 
 async function seedProducts() {
-    for (const { tiers, ...product } of PRODUCTS) {
+    for (const { tiers, variants, ...product } of PRODUCTS) {
         // El stock no se pisa en actualizaciones: así el seed no borra ventas reales
         const { stock, ...withoutStock } = product;
 
@@ -121,6 +130,15 @@ async function seedProducts() {
             update: withoutStock,
             create: { ...withoutStock, stock },
         });
+
+        // Presentaciones: el stock solo se pone al crearlas
+        for (const [i, v] of variants.entries()) {
+            await prisma.productVariant.upsert({
+                where: { productId_key: { productId: product.id, key: v.key } },
+                update: { label: v.label, sortOrder: i },
+                create: { productId: product.id, key: v.key, label: v.label, stock: v.stock, sortOrder: i },
+            });
+        }
 
         // Tramos de precio: se reemplazan enteros
         await prisma.priceTier.deleteMany({ where: { productId: product.id } });

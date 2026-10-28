@@ -31,10 +31,17 @@ export async function updateOrderStatus(orderId: string, next: OrderStatus) {
 
         if (restoresStock) {
             for (const item of order.items) {
-                await tx.product.update({
-                    where: { id: item.productId },
-                    data: { stock: { increment: item.quantity } },
-                });
+                if (item.variant) {
+                    await tx.productVariant.update({
+                        where: { productId_key: { productId: item.productId, key: item.variant } },
+                        data: { stock: { increment: item.quantity } },
+                    });
+                } else {
+                    await tx.product.update({
+                        where: { id: item.productId },
+                        data: { stock: { increment: item.quantity } },
+                    });
+                }
             }
         }
     });

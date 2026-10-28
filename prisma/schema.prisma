@@ -37,9 +37,9 @@ model Product {
   name       String
   image      String
   price      Int           // precio unitario en céntimos
-  stock      Int           @default(0)
+  stock      Int           @default(0) // solo para productos SIN presentaciones
   status     ProductStatus @default(ACTIVE)
-  variants   String[]      // ej. ["grano", "molido"]; vacío si no tiene
+  variants   ProductVariant[] // presentaciones (grano / molido), cada una con su stock
   sortOrder  Int           @default(0)
   priceTiers PriceTier[]
   orderItems OrderItem[]
@@ -57,6 +57,21 @@ model PriceTier {
   price     Int     // precio total de esa cantidad, en céntimos
 
   @@unique([productId, quantity])
+}
+
+// Presentación de un producto (grano / molido) con su propio stock.
+// La promoción se calcula sumando todas las presentaciones; el stock, por separado.
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  key       String  // "grano" | "molido" (es lo que se guarda en OrderItem.variant)
+  label     String  // "Grano" | "Molido"
+  stock     Int     @default(0)
+  active    Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  @@unique([productId, key])
 }
 
 /* ── Envíos ──────────────────────────────── */

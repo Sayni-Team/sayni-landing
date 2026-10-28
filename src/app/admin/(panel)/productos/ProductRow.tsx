@@ -12,6 +12,7 @@ type Product = {
     stock: number;
     status: "ACTIVE" | "COMING_SOON" | "HIDDEN";
     tiers: { quantity: number; price: number }[];
+    variants: { key: string; label: string; stock: number }[];
 };
 
 const INPUT =
@@ -37,6 +38,8 @@ export default function ProductRow({ product }: { product: Product }) {
         return () => clearTimeout(t);
     }, [state]);
 
+    const hasVariants = product.variants.length > 0;
+
     return (
         <form action={action} className="rounded-2xl border border-white/10 bg-[#132219] p-5">
             <input type="hidden" name="id" value={product.id} />
@@ -48,11 +51,13 @@ export default function ProductRow({ product }: { product: Product }) {
                 <h2 className="font-semibold">{product.name}</h2>
             </div>
 
-            <div className="mt-5 grid gap-4 sm:grid-cols-[1fr_120px_170px]">
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
                 {/* Precio: único, o por cantidad si tiene promoción */}
                 {product.tiers.length > 0 ? (
-                    <fieldset>
-                        <legend className="mb-1.5 text-xs text-white/60">Precio por cantidad (promoción en ciclos)</legend>
+                    <fieldset className="sm:col-span-2">
+                        <legend className="mb-1.5 text-xs text-white/60">
+                            Precio por cantidad (promoción en ciclos; {hasVariants ? "las presentaciones se suman" : "por unidades"})
+                        </legend>
                         <div className="grid grid-cols-3 gap-2">
                             {product.tiers.map((t) => (
                                 <label key={t.quantity} className="block">
@@ -69,10 +74,25 @@ export default function ProductRow({ product }: { product: Product }) {
                     </label>
                 )}
 
-                <label className="block">
-                    <span className="mb-1.5 block text-xs text-white/60">Stock</span>
-                    <input name="stock" type="number" step="1" min="0" defaultValue={product.stock} className={INPUT} />
-                </label>
+                {/* Stock: por presentación, o uno solo */}
+                {hasVariants ? (
+                    <fieldset>
+                        <legend className="mb-1.5 text-xs text-white/60">Stock por presentación</legend>
+                        <div className="grid grid-cols-2 gap-2">
+                            {product.variants.map((v) => (
+                                <label key={v.key} className="block">
+                                    <span className="mb-1 block text-[11px] text-white/45">{v.label}</span>
+                                    <input name={`stock_${v.key}`} type="number" step="1" min="0" defaultValue={v.stock} className={INPUT} />
+                                </label>
+                            ))}
+                        </div>
+                    </fieldset>
+                ) : (
+                    <label className="block">
+                        <span className="mb-1.5 block text-xs text-white/60">Stock</span>
+                        <input name="stock" type="number" step="1" min="0" defaultValue={product.stock} className={INPUT} />
+                    </label>
+                )}
 
                 <label className="block">
                     <span className="mb-1.5 block text-xs text-white/60">Estado</span>

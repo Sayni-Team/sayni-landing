@@ -38,3 +38,15 @@ export const formatDate = (date: Date) =>
         timeStyle: "short",
         timeZone: "America/Lima",
     }).format(date);
+
+/* ── Exportación ─────────────────────────── */
+
+// Qué pedidos incluir en la exportación
+export const EXPORT_FILTERS: Record<string, { label: string; statuses: OrderStatus[] }> = {
+    ventas: { label: "Ventas (pagados, enviados y entregados)", statuses: ["PAID", "SHIPPED", "DELIVERED"] },
+    "por-enviar": { label: "Solo por enviar", statuses: ["PAID"] },
+    todos: { label: "Todos (incluye pendientes y cancelados)", statuses: ["PENDING", "PAID", "SHIPPED", "DELIVERED", "CANCELLED"] },
+};
+
+/** Fecha de hoy en Lima, en formato YYYY-MM-DD */
+export const limaToday = () => new Intl.DateTimeFormat("en-CA", { timeZone: "America/Lima" }).format(new Date());
