@@ -110,3 +110,32 @@ model OrderItem {
   quantity    Int
   lineTotal   Int     // parte del total del producto que corresponde a esta línea, en céntimos
 }
+
+/* ── Panel de administración ─────────────── */
+
+model AdminUser {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  name         String?
+  passwordHash String         // Argon2id: nunca se guarda la contraseña
+  createdAt    DateTime       @default(now())
+  sessions     AdminSession[]
+}
+
+model AdminSession {
+  id        String    @id // hash SHA-256 del token de la cookie (el token nunca se guarda)
+  userId    String
+  user      AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// Intentos fallidos de login, para bloquear ataques de fuerza bruta
+model LoginAttempt {
+  key         String    @id // "email:correo@x.com" o "ip:1.2.3.4"
+  failures    Int       @default(0)
+  windowStart DateTime  @default(now())
+  lockedUntil DateTime?
+}

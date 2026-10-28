@@ -169,16 +169,7 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
         const token = process.env.MP_ACCESS_TOKEN;
 
         // Diagnóstico: con qué datos se intentó crear el pago (el token, solo parcial)
-        console.error("Error creando preferencia de Mercado Pago", {
-            tokenPrefix: token ? token.slice(0, 15) : "(VACÍO)",
-            tokenSuffix: token ? token.slice(-6) : "(VACÍO)",
-            tokenLength: token?.length ?? 0,
-            tokenHasSpaces: token ? /\s/.test(token) : false,
-            vercelEnv: process.env.VERCEL_ENV, // "production" | "preview" | "development"
-            branch: process.env.VERCEL_GIT_COMMIT_REF, // rama desplegada
-            siteUrl: SITE_URL,
-            error: JSON.stringify(error, Object.getOwnPropertyNames(error)),
-        });
+        console.error("Error creando preferencia de Mercado Pago");
 
         return { ok: false, error: "No pudimos iniciar el pago. Inténtalo de nuevo en unos minutos." };
     }
