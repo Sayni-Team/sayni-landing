@@ -16,6 +16,9 @@ const FILTERS: { key: string; label: string; status?: OrderStatus }[] = [
     { key: "todos", label: "Todos" },
 ];
 
+// Cada celda es un enlace al detalle: así toda la fila es clicable
+const CELL_LINK = "block px-4 py-3";
+
 export default async function OrdersPage({ searchParams }: Props) {
     const { estado = "por-enviar" } = await searchParams;
     const filter = FILTERS.find((f) => f.key === estado) ?? FILTERS[0];
@@ -75,27 +78,47 @@ export default async function OrdersPage({ searchParams }: Props) {
                         </tr>
                         </thead>
                         <tbody className="divide-y divide-white/5">
-                        {orders.map((o) => (
-                            <tr key={o.id} className="transition-colors hover:bg-white/[0.03]">
-                                <td className="px-4 py-3 font-semibold">
-                                    <Link href={`/admin/pedidos/${o.id}`} className="text-[#BCC90F] hover:underline">
-                                        #{o.number}
-                                    </Link>
-                                </td>
-                                <td className="px-4 py-3 text-white/70">{formatDate(o.createdAt)}</td>
-                                <td className="px-4 py-3">
-                                    <span className="block">{o.customerName}</span>
-                                    <span className="text-xs text-white/50">{o._count.items} producto(s)</span>
-                                </td>
-                                <td className="px-4 py-3 text-white/70">{o.shippingZone.district}</td>
-                                <td className="px-4 py-3 text-right font-semibold">{formatPEN(o.total)}</td>
-                                <td className="px-4 py-3">
-                                        <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLE[o.status]}`}>
-                                            {STATUS_LABEL[o.status]}
-                                        </span>
-                                </td>
-                            </tr>
-                        ))}
+                        {orders.map((o) => {
+                            const href = `/admin/pedidos/${o.id}`;
+                            return (
+                                <tr key={o.id} className="group cursor-pointer transition-colors hover:bg-white/[0.04]">
+                                    {/* Único enlace accesible por teclado; los demás solo amplían el área clicable */}
+                                    <td className="p-0 font-semibold">
+                                        <Link href={href} className={`${CELL_LINK} text-[#BCC90F] group-hover:underline`}>
+                                            #{o.number}
+                                        </Link>
+                                    </td>
+                                    <td className="p-0 text-white/70">
+                                        <Link href={href} tabIndex={-1} aria-hidden className={CELL_LINK}>
+                                            {formatDate(o.createdAt)}
+                                        </Link>
+                                    </td>
+                                    <td className="p-0">
+                                        <Link href={href} tabIndex={-1} aria-hidden className={CELL_LINK}>
+                                            <span className="block">{o.customerName}</span>
+                                            <span className="text-xs text-white/50">{o._count.items} producto(s)</span>
+                                        </Link>
+                                    </td>
+                                    <td className="p-0 text-white/70">
+                                        <Link href={href} tabIndex={-1} aria-hidden className={CELL_LINK}>
+                                            {o.shippingZone.district}
+                                        </Link>
+                                    </td>
+                                    <td className="p-0 text-right font-semibold">
+                                        <Link href={href} tabIndex={-1} aria-hidden className={CELL_LINK}>
+                                            {formatPEN(o.total)}
+                                        </Link>
+                                    </td>
+                                    <td className="p-0">
+                                        <Link href={href} tabIndex={-1} aria-hidden className={CELL_LINK}>
+                                                <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${STATUS_STYLE[o.status]}`}>
+                                                    {STATUS_LABEL[o.status]}
+                                                </span>
+                                        </Link>
+                                    </td>
+                                </tr>
+                            );
+                        })}
                         </tbody>
                     </table>
                 </div>

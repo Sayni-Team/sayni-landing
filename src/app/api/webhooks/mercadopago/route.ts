@@ -1,8 +1,9 @@
 import crypto from "node:crypto";
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
 import { Payment } from "mercadopago";
 import { prisma } from "@/lib/prisma";
 import { mp } from "@/lib/mercadopago";
+import { sendOrderPaidEmails } from "@/lib/email";
 
 /** Verifica que el aviso viene de Mercado Pago (cabecera x-signature). */
 function isValidSignature(req: Request, dataId: string): boolean {
@@ -46,13 +47,13 @@ export async function POST(req: Request) {
         const orderId = payment.external_reference;
 
         if (payment.status === "approved" && orderId) {
-            await prisma.$transaction(async (tx) => {
+            const paidNow = await prisma.$transaction(async (tx) => {
                 // Idempotente: solo pasa a PAID si seguía PENDING (Mercado Pago puede avisar varias veces)
                 const updated = await tx.order.updateMany({
                     where: { id: orderId, status: "PENDING" },
                     data: { status: "PAID", mpPaymentId: String(payment.id), paidAt: new Date() },
                 });
-                if (updated.count === 0) return;
+                if (updated.count === 0) return false;
 
                 // Descontar stock del pedido
                 const items = await tx.orderItem.findMany({ where: { orderId } });
@@ -62,8 +63,18 @@ export async function POST(req: Request) {
                         data: { stock: { decrement: item.quantity } },
                     });
                 }
+                return true;
             });
-            // Aquí irán los correos de confirmación (paso 6)
+
+            // Correos solo la primera vez que el pedido pasa a pagado.
+            // after(): se envían después de responder a Mercado Pago, sin hacerle esperar.
+            if (paidNow) {
+                after(() =>
+                    sendOrderPaidEmails(orderId).catch((error) =>
+                        console.error("Error enviando correos del pedido", error)
+                    )
+                );
+            }
         }
 
         return NextResponse.json({ received: true });
