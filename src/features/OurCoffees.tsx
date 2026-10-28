@@ -619,7 +619,7 @@ export default function OurCoffees() {
                                     className="relative col-span-1 flex h-full min-h-[200px] items-center justify-center py-2 sm:min-h-[360px] md:justify-center lg:col-span-6 lg:min-h-0 lg:justify-end lg:py-4 lg:pr-6"
                                 >
                                     <Image
-                                        src="/assets/features/products/classic_package_220.webp"
+                                        src="/assets/features/products/classic_bag_220.webp"
                                         alt="Pack Sayni Clásico: 2 bolsas y prensa francesa en bolsa de papel"
                                         width={320}
                                         height={440}
