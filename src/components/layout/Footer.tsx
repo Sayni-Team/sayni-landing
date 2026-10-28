@@ -26,6 +26,15 @@ const COLUMNS: { title: string; links: FooterLink[] }[] = [
         ],
     },
     {
+        title: "Ayuda",
+        links: [
+            { label: "Envíos", href: "/politica-de-envios" },
+            { label: "Cambios y devoluciones", href: "/cambios-y-devoluciones" },
+            { label: "Términos y condiciones", href: "/terminos-y-condiciones" },
+            { label: "Privacidad", href: "/politica-de-privacidad" },
+        ],
+    },
+    {
         title: "Síguenos",
         links: [
             { label: "Instagram", href: "https://instagram.com/sayni_peru", external: true },
@@ -132,7 +141,7 @@ export default function Footer() {
                 <div className="grid grid-cols-1 items-start gap-12 text-center md:grid-cols-12 md:text-left">
                     <motion.div
                         variants={container}
-                        className="mx-auto flex max-w-xs flex-col items-center gap-4 md:col-span-5 md:mx-0 md:items-start"
+                        className="mx-auto flex max-w-xs flex-col items-center gap-4 md:col-span-4 md:mx-0 md:items-start"
                     >
                         <motion.h3 variants={fromLeft} className="font-clash text-2xl font-semibold leading-tight text-[#BCC90F] sm:text-3xl">
                             Una pausa que nace de nuestra tierra
@@ -142,8 +151,8 @@ export default function Footer() {
                         </motion.p>
                     </motion.div>
 
-                    {/* Columnas */}
-                    <motion.div variants={container} className="grid grid-cols-1 gap-8 text-center sm:grid-cols-3 sm:text-left md:col-span-7">
+                    {/* Columnas: 2 por fila en móvil, 4 desde sm */}
+                    <motion.div variants={container} className="grid grid-cols-2 gap-x-6 gap-y-10 text-center sm:grid-cols-4 sm:text-left md:col-span-8">
                         {COLUMNS.map((col) => (
                             <motion.div key={col.title} variants={column} className="flex flex-col gap-3">
                                 <span className="text-sm font-normal uppercase tracking-wider text-white/50">{col.title}</span>
@@ -154,12 +163,13 @@ export default function Footer() {
                                                 <a href={link.href} target="_blank" rel="noopener noreferrer" className={LINK_CLASS}>
                                                     {link.label}
                                                 </a>
+                                            ) : link.href.startsWith("#") ? (
+                                                <Link href={link.href} onClick={(e) => handleScroll(e, link.href)} className={LINK_CLASS}>
+                                                    {link.label}
+                                                </Link>
                                             ) : (
-                                                <Link
-                                                    href={link.href}
-                                                    onClick={(e) => handleScroll(e, link.href)}
-                                                    className={LINK_CLASS}
-                                                >
+                                                // Páginas propias (legales): navegación normal
+                                                <Link href={link.href} className={LINK_CLASS}>
                                                     {link.label}
                                                 </Link>
                                             )}
@@ -197,19 +207,46 @@ export default function Footer() {
                     </motion.svg>
                 </div>
 
-                {/* BLOQUE INFERIOR */}
-                <div className="relative flex flex-col items-center justify-between gap-4 pt-8 text-center text-xs tracking-wider text-white/50 sm:flex-row sm:text-left">
+                {/* BLOQUE INFERIOR: copyright · Libro de Reclamaciones · país */}
+                <div className="relative flex flex-col items-center justify-between gap-5 pt-8 text-center text-xs tracking-wider text-white/50 sm:flex-row sm:text-left">
                     <motion.span
                         variants={drawFromCenter}
                         aria-hidden
                         className="absolute inset-x-0 top-0 h-px bg-white/10"
                     />
                     <motion.p variants={fade}>© 2026 SAYNI · TODOS LOS DERECHOS RESERVADOS</motion.p>
+
+                    {/* Libro de Reclamaciones: visible y diferenciado (exigido por Indecopi) */}
+                    <motion.div variants={fade}>
+                        <Link
+                            href="/libro-de-reclamaciones"
+                            className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-semibold normal-case tracking-normal text-white/80 transition-colors hover:border-[#BCC90F] hover:text-[#BCC90F]"
+                        >
+                            <BookIcon className="size-4 shrink-0" />
+                            Libro de Reclamaciones
+                        </Link>
+                    </motion.div>
+
                     <motion.p variants={fade} className="font-semibold text-white/70">
                         PERÚ
                     </motion.p>
                 </div>
             </motion.div>
         </footer>
+    );
+}
+
+/* Libro abierto */
+function BookIcon({ className }: { className?: string }) {
+    return (
+        <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden>
+            <path
+                d="M12 6.5C10.3 5.2 7.9 4.5 4.5 4.5v13c3.4 0 5.8.7 7.5 2 1.7-1.3 4.1-2 7.5-2v-13c-3.4 0-5.8.7-7.5 2Zm0 0v13"
+                stroke="currentColor"
+                strokeWidth="1.7"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </svg>
     );
 }

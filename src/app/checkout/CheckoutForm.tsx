@@ -215,6 +215,18 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
                 >
                     {isPending ? "Procesando…" : isProvince ? "Coordinar por WhatsApp" : "Continuar al pago"}
                 </button>
+
+                <p className="text-center text-xs leading-relaxed text-white/50">
+                    Al continuar aceptas nuestros{" "}
+                    <Link href="/terminos-y-condiciones" target="_blank" className="text-white/70 underline underline-offset-2 hover:text-[#BCC90F]">
+                        Términos y condiciones
+                    </Link>{" "}
+                    y la{" "}
+                    <Link href="/politica-de-privacidad" target="_blank" className="text-white/70 underline underline-offset-2 hover:text-[#BCC90F]">
+                        Política de privacidad
+                    </Link>
+                    .
+                </p>
             </aside>
         </form>
     );

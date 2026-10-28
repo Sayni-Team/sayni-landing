@@ -154,3 +154,50 @@ model LoginAttempt {
   windowStart DateTime  @default(now())
   lockedUntil DateTime?
 }
+
+/* ── Libro de reclamaciones ──────────────── */
+
+enum ComplaintKind {
+  RECLAMO // disconformidad con el producto o servicio
+  QUEJA   // malestar con la atención, sin relación con el producto o servicio
+}
+
+enum ComplaintStatus {
+  PENDING   // pendiente de respuesta
+  RESPONDED // respondido
+}
+
+model Complaint {
+  id              String          @id @default(cuid())
+  number          Int             @unique @default(autoincrement()) // número correlativo de la hoja
+  createdAt       DateTime        @default(now())
+  dueAt           DateTime        // fecha límite de respuesta
+
+  // Consumidor
+  consumerName    String
+  docType         String          // DNI | CE | PASAPORTE
+  docNumber       String
+  address         String
+  phone           String
+  email           String
+  isMinor         Boolean         @default(false)
+  guardianName    String?         // padre, madre o apoderado si es menor de edad
+
+  // Bien contratado
+  goodType        String          // PRODUCTO | SERVICIO
+  goodDescription String
+  amount          Int?            // monto reclamado, en céntimos
+  orderNumber     Int?            // n° de pedido, si lo indica
+
+  // Reclamo o queja
+  kind            ComplaintKind
+  detail          String
+  request         String          // lo que solicita el consumidor
+
+  // Respuesta del proveedor
+  status          ComplaintStatus @default(PENDING)
+  response        String?
+  respondedAt     DateTime?
+
+  @@index([status, dueAt])
+}

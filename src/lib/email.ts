@@ -3,6 +3,8 @@ import { Resend } from "resend";
 import { prisma } from "@/lib/prisma";
 import { formatPEN } from "@/lib/pricing";
 import { SITE_URL } from "@/lib/mercadopago";
+import { BUSINESS, complaintCode } from "@/lib/business";
+
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -178,4 +180,121 @@ export async function sendOrderPaidEmails(orderId: string) {
             console.error(`Resend rechazó un correo del pedido #${order.number}`, result.value.error);
         }
     }
+}
+
+const limaDate = (date: Date) =>
+    new Intl.DateTimeFormat("es-PE", { dateStyle: "long", timeStyle: "short", timeZone: "America/Lima" }).format(date);
+
+const DOC_LABEL: Record<string, string> = { DNI: "DNI", CE: "Carné de extranjería", PASAPORTE: "Pasaporte" };
+
+async function getComplaint(id: string) {
+    return prisma.complaint.findUnique({ where: { id } });
+}
+type ComplaintForEmail = NonNullable<Awaited<ReturnType<typeof getComplaint>>>;
+
+/** La hoja completa, tal como la registró el consumidor */
+function complaintSheet(c: ComplaintForEmail) {
+    const row = (label: string, value: string) => `
+        <tr>
+            <td style="padding:6px 0; font-size:13px; color:#666; width:170px; vertical-align:top;">${label}</td>
+            <td style="padding:6px 0; font-size:13px;">${value}</td>
+        </tr>`;
+
+    return `
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%">
+        ${row("Hoja N°", `<strong>${complaintCode(c.number)}</strong>`)}
+        ${row("Fecha", limaDate(c.createdAt))}
+        ${row("Proveedor", `${esc(BUSINESS.legalName)} · RUC ${esc(BUSINESS.ruc)}<br />${esc(BUSINESS.address)}`)}
+        <tr><td colspan="2" style="padding:10px 0 4px; font-weight:bold; font-size:14px;">Consumidor</td></tr>
+        ${row("Nombre", esc(c.consumerName))}
+        ${row("Documento", `${DOC_LABEL[c.docType] ?? c.docType} ${esc(c.docNumber)}`)}
+        ${row("Domicilio", esc(c.address))}
+        ${row("Teléfono / correo", `${esc(c.phone)} · ${esc(c.email)}`)}
+        ${c.isMinor ? row("Padre, madre o apoderado", esc(c.guardianName ?? "")) : ""}
+        <tr><td colspan="2" style="padding:10px 0 4px; font-weight:bold; font-size:14px;">Bien contratado</td></tr>
+        ${row("Tipo", c.goodType === "PRODUCTO" ? "Producto" : "Servicio")}
+        ${row("Descripción", esc(c.goodDescription))}
+        ${c.amount !== null ? row("Monto reclamado", formatPEN(c.amount)) : ""}
+        ${c.orderNumber !== null ? row("N° de pedido", `#${c.orderNumber}`) : ""}
+        <tr><td colspan="2" style="padding:10px 0 4px; font-weight:bold; font-size:14px;">${c.kind === "RECLAMO" ? "Reclamo" : "Queja"}</td></tr>
+        ${row("Detalle", esc(c.detail).replace(/\n/g, "<br />"))}
+        ${row("Pedido del consumidor", esc(c.request).replace(/\n/g, "<br />"))}
+    </table>`;
+}
+
+/** Constancia al consumidor + aviso al negocio */
+export async function sendComplaintEmails(complaintId: string) {
+    const c = await getComplaint(complaintId);
+    if (!c) return;
+
+    const code = complaintCode(c.number);
+    const results = await Promise.allSettled([
+        resend.emails.send(
+            {
+                from: FROM,
+                to: c.email,
+                replyTo: REPLY_TO,
+                subject: `Constancia de tu hoja de reclamación N° ${code} — Sayni`,
+                html: layout(
+                    `Hoja de reclamación N° ${code}`,
+                    `<p style="margin:0 0 16px; font-size:14px; line-height:1.6;">
+                        Registramos tu ${c.kind === "RECLAMO" ? "reclamo" : "queja"}. Esta es tu constancia.
+                        Te responderemos a este correo en un plazo máximo de 15 días hábiles.
+                    </p>
+                    ${complaintSheet(c)}`
+                ),
+            },
+            { idempotencyKey: `complaint-customer/${c.id}` }
+        ),
+        NOTIFY_TO
+            ? resend.emails.send(
+                {
+                    from: FROM,
+                    to: NOTIFY_TO,
+                    replyTo: c.email,
+                    subject: `Nuevo ${c.kind === "RECLAMO" ? "reclamo" : "queja"} N° ${code} — responder antes del ${new Intl.DateTimeFormat("es-PE", { dateStyle: "medium", timeZone: "America/Lima" }).format(c.dueAt)}`,
+                    html: layout(
+                        `Nuevo ${c.kind === "RECLAMO" ? "reclamo" : "queja"} N° ${code}`,
+                        `${complaintSheet(c)}
+                          <a href="${SITE_URL}/admin/reclamos/${c.id}" style="display:inline-block; margin-top:16px; padding:12px 24px; background:${LIME}; color:${DARK}; font-size:14px; font-weight:bold; text-decoration:none; border-radius:999px;">
+                              Responder en el panel
+                          </a>`
+                    ),
+                },
+                { idempotencyKey: `complaint-admin/${c.id}` }
+            )
+            : Promise.resolve(null),
+    ]);
+
+    for (const r of results) {
+        if (r.status === "rejected") console.error(`Error enviando correo del reclamo ${code}`, r.reason);
+        else if (r.value?.error) console.error(`Resend rechazó un correo del reclamo ${code}`, r.value.error);
+    }
+}
+
+/** Respuesta del proveedor al consumidor */
+export async function sendComplaintResponseEmail(complaintId: string) {
+    const c = await getComplaint(complaintId);
+    if (!c || !c.response) return;
+
+    const code = complaintCode(c.number);
+    const { error } = await resend.emails.send(
+        {
+            from: FROM,
+            to: c.email,
+            replyTo: REPLY_TO,
+            subject: `Respuesta a tu hoja de reclamación N° ${code} — Sayni`,
+            html: layout(
+                `Respuesta a tu hoja N° ${code}`,
+                `<div style="padding:16px; background:#f6f7ef; border-radius:12px; font-size:14px; line-height:1.6;">
+                    ${esc(c.response).replace(/\n/g, "<br />")}
+                </div>
+                <p style="margin:16px 0 0; font-size:12px; color:#666;">
+                    ${esc(BUSINESS.legalName)} · RUC ${esc(BUSINESS.ruc)}
+                </p>`
+            ),
+        },
+        { idempotencyKey: `complaint-response/${c.id}` }
+    );
+    if (error) console.error(`Resend rechazó la respuesta del reclamo ${code}`, error);
 }
