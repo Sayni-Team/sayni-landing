@@ -109,8 +109,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     const catalog = await getStoreProducts();
 
     return (
-        <html lang="es">
-        <body>
+        // Las variables de las fuentes tienen que estar en <html> para que el CSS las encuentre
+        <html lang="es" className={`${urbanist.variable} ${clashGrotesk.variable}`}>
+        <body className="font-urbanist antialiased">
         <CartProvider catalog={catalog}>{children}</CartProvider>
         </body>
         </html>

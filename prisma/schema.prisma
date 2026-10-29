@@ -37,9 +37,9 @@ model Product {
   name       String
   image      String
   price      Int           // precio unitario en céntimos
-  stock      Int           @default(0)
+  stock      Int           @default(0) // solo para productos SIN presentaciones
   status     ProductStatus @default(ACTIVE)
-  variants   String[]      // ej. ["grano", "molido"]; vacío si no tiene
+  variants   ProductVariant[] // presentaciones (grano / molido), cada una con su stock
   sortOrder  Int           @default(0)
   priceTiers PriceTier[]
   orderItems OrderItem[]
@@ -57,6 +57,21 @@ model PriceTier {
   price     Int     // precio total de esa cantidad, en céntimos
 
   @@unique([productId, quantity])
+}
+
+// Presentación de un producto (grano / molido) con su propio stock.
+// La promoción se calcula sumando todas las presentaciones; el stock, por separado.
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  key       String  // "grano" | "molido" (es lo que se guarda en OrderItem.variant)
+  label     String  // "Grano" | "Molido"
+  stock     Int     @default(0)
+  active    Boolean @default(true)
+  sortOrder Int     @default(0)
+
+  @@unique([productId, key])
 }
 
 /* ── Envíos ──────────────────────────────── */
@@ -109,4 +124,80 @@ model OrderItem {
   variant     String? // "grano" | "molido"
   quantity    Int
   lineTotal   Int     // parte del total del producto que corresponde a esta línea, en céntimos
+}
+
+/* ── Panel de administración ─────────────── */
+
+model AdminUser {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  name         String?
+  passwordHash String         // Argon2id: nunca se guarda la contraseña
+  createdAt    DateTime       @default(now())
+  sessions     AdminSession[]
+}
+
+model AdminSession {
+  id        String    @id // hash SHA-256 del token de la cookie (el token nunca se guarda)
+  userId    String
+  user      AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
+}
+
+// Intentos fallidos de login, para bloquear ataques de fuerza bruta
+model LoginAttempt {
+  key         String    @id // "email:correo@x.com" o "ip:1.2.3.4"
+  failures    Int       @default(0)
+  windowStart DateTime  @default(now())
+  lockedUntil DateTime?
+}
+
+/* ── Libro de reclamaciones ──────────────── */
+
+enum ComplaintKind {
+  RECLAMO // disconformidad con el producto o servicio
+  QUEJA   // malestar con la atención, sin relación con el producto o servicio
+}
+
+enum ComplaintStatus {
+  PENDING   // pendiente de respuesta
+  RESPONDED // respondido
+}
+
+model Complaint {
+  id              String          @id @default(cuid())
+  number          Int             @unique @default(autoincrement()) // número correlativo de la hoja
+  createdAt       DateTime        @default(now())
+  dueAt           DateTime        // fecha límite de respuesta
+
+  // Consumidor
+  consumerName    String
+  docType         String          // DNI | CE | PASAPORTE
+  docNumber       String
+  address         String
+  phone           String
+  email           String
+  isMinor         Boolean         @default(false)
+  guardianName    String?         // padre, madre o apoderado si es menor de edad
+
+  // Bien contratado
+  goodType        String          // PRODUCTO | SERVICIO
+  goodDescription String
+  amount          Int?            // monto reclamado, en céntimos
+  orderNumber     Int?            // n° de pedido, si lo indica
+
+  // Reclamo o queja
+  kind            ComplaintKind
+  detail          String
+  request         String          // lo que solicita el consumidor
+
+  // Respuesta del proveedor
+  status          ComplaintStatus @default(PENDING)
+  response        String?
+  respondedAt     DateTime?
+
+  @@index([status, dueAt])
 }

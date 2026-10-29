@@ -92,7 +92,8 @@ export default function OurCoffees() {
 
     const geisha = getProduct("geisha-250");
     const geishaTotal = geisha ? priceForQuantity(geishaQty, geisha.price, geisha.tiers) : 0;
-    const geishaMax = Math.max(1, remainingStock("geisha-250"));
+    const geishaRemaining = remainingStock("geisha-250", geishaGrind);
+    const geishaMax = Math.max(1, geishaRemaining);
 
 
     return (
@@ -201,7 +202,7 @@ export default function OurCoffees() {
                                         alt="Sayni Geisha 250g"
                                         width={340}
                                         height={480}
-                                        className="max-h-[220px] w-auto object-contain transition-[scale] duration-500 hover:scale-105 sm:max-h-full"
+                                        className="h-auto w-full object-contain transition-[scale] duration-500 hover:scale-105 sm:max-h-full sm:w-auto"
                                         priority
                                     />
                                 </motion.div>
@@ -256,41 +257,48 @@ export default function OurCoffees() {
                                     <motion.div variants={fadeUp} className="flex w-full flex-col items-start gap-3 pt-0 sm:w-auto lg:pt-1">
                                         {/* Selector Grano / Molido: tarjetas con icono (distinto del switch de la sección) */}
                                         <div className="flex w-full flex-col gap-1.5 sm:w-auto">
-                            <span id="geisha-grind-label" className="text-[10px] font-medium uppercase tracking-wider text-white/60 sm:text-xs">
-                                Elige tu presentación
-                            </span>
+                                            <span id="geisha-grind-label" className="text-[10px] font-medium uppercase tracking-wider text-white/60 sm:text-xs">
+                                                Elige tu presentación
+                                            </span>
                                             {/* Móvil: dos columnas iguales que ocupan el ancho disponible. sm+: tamaño natural */}
                                             <div role="radiogroup" aria-labelledby="geisha-grind-label" className="grid w-full grid-cols-2 gap-1.5 sm:flex sm:w-auto sm:gap-2">
                                                 {(["grano", "molido"] as const).map((option) => {
                                                     const selected = geishaGrind === option;
+                                                    const soldOut = remainingStock("geisha-250", option) === 0;
                                                     return (
                                                         <button
                                                             key={option}
                                                             type="button"
                                                             role="radio"
                                                             aria-checked={selected}
-                                                            onClick={() => setGeishaGrind(option)}
+                                                            onClick={() => {
+                                                                setGeishaGrind(option);
+                                                                setGeishaQty(1); // cada presentación tiene su propio stock
+                                                            }}
                                                             className={`flex min-w-0 cursor-pointer items-center justify-center gap-1 rounded-lg border px-1.5 py-1.5 text-[11px] font-semibold transition-colors duration-200 sm:justify-start sm:gap-2 sm:rounded-xl sm:px-4 sm:py-2 sm:text-sm ${
                                                                 selected
                                                                     ? "border-[#BCC90F] bg-[#BCC90F]/10 text-white"
                                                                     : "border-white/15 text-white/60 hover:border-white/35 hover:text-white"
-                                                            }`}
+                                                            } ${soldOut ? "opacity-50" : ""}`}
                                                         >
                                                             {option === "grano" ? (
                                                                 <BeanIcon className={`size-3.5 shrink-0 sm:size-5 ${selected ? "text-[#BCC90F]" : ""}`} />
                                                             ) : (
                                                                 <GroundIcon className={`size-3.5 shrink-0 sm:size-5 ${selected ? "text-[#BCC90F]" : ""}`} />
                                                             )}
-                                                            <span className="truncate">{option === "grano" ? "Grano" : "Molido"}</span>
+                                                            <span className="truncate">
+                            {option === "grano" ? "Grano" : "Molido"}
+                                                                {soldOut && <span className="ml-1 text-[10px] font-normal">(agotado)</span>}
+                        </span>
                                                         </button>
                                                     );
                                                 })}
                                             </div>
                                         </div>
 
-                                        {/* Cantidad + añadir */}
-                                        <div className="flex items-center gap-2">
-                                            <div className="flex items-center rounded-full border border-white/15 bg-[#132219]">
+                                        {/* Cantidad + añadir: apilados en móvil, en fila desde sm */}
+                                        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+                                            <div className="flex w-full items-center justify-between rounded-full border border-white/15 bg-[#132219] sm:w-auto sm:justify-start">
                                                 <button
                                                     type="button"
                                                     onClick={() => setGeishaQty((q) => Math.max(1, q - 1))}
@@ -301,8 +309,8 @@ export default function OurCoffees() {
                                                     −
                                                 </button>
                                                 <span aria-live="polite" className="w-6 text-center text-sm font-bold text-white">
-                                    {geishaQty}
-                                </span>
+            {geishaQty}
+        </span>
                                                 <button
                                                     type="button"
                                                     onClick={() => setGeishaQty((q) => Math.min(geishaMax, q + 1))}
@@ -320,15 +328,13 @@ export default function OurCoffees() {
                                                     addToCart({ productId: "geisha-250", variant: geishaGrind, quantity: geishaQty });
                                                     setGeishaQty(1);
                                                 }}
-                                                disabled={remainingStock("geisha-250") === 0}
-                                                className="inline-flex cursor-pointer items-center gap-2 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-1.5 pl-4 pr-2 text-xs font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:gap-4 sm:py-2 sm:pl-6 sm:text-base"
+                                                disabled={geishaRemaining === 0}
+                                                className="inline-flex w-full cursor-pointer items-center justify-center gap-3 rounded-[100px] border-t border-white/40 bg-[#BCC90F] py-1.5 pl-5 pr-2 text-sm font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto sm:justify-start sm:gap-4 sm:py-2 sm:pl-6 sm:text-base"
                                             >
-                                <span className="select-none tracking-wide">
-                                    {remainingStock("geisha-250") === 0 ? "Agotado" : "Añadir"}
-                                </span>
+                                                <span className="select-none tracking-wide">{geishaRemaining === 0 ? "Agotado" : "Añadir"}</span>
                                                 <span className="flex size-7 shrink-0 items-center justify-center rounded-full bg-[#132219] text-[#BCC90F] sm:size-9">
-                                    <CartIcon className="size-4 sm:size-5" />
-                                </span>
+            <CartIcon className="size-4 sm:size-5" />
+        </span>
                                             </button>
                                         </div>
                                     </motion.div>
@@ -613,7 +619,7 @@ export default function OurCoffees() {
                                     className="relative col-span-1 flex h-full min-h-[200px] items-center justify-center py-2 sm:min-h-[360px] md:justify-center lg:col-span-6 lg:min-h-0 lg:justify-end lg:py-4 lg:pr-6"
                                 >
                                     <Image
-                                        src="/assets/features/products/classic_package_220.webp"
+                                        src="/assets/features/products/classic_bag_220.webp"
                                         alt="Pack Sayni Clásico: 2 bolsas y prensa francesa en bolsa de papel"
                                         width={320}
                                         height={440}

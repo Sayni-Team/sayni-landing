@@ -110,20 +110,6 @@ export default function Header() {
         }
     };
 
-    const handleCheckout = () => {
-        const phoneNumber = "51939273366";
-
-        const itemsList = items
-            .map((item) => `• ${item.quantity}x *${item.title}* — ${formatPEN(item.unitPrice)} c/u`)
-            .join("\n");
-
-        const promoLine = discount > 0 ? `\n*Descuento por promoción:* -${formatPEN(discount)}` : "";
-        const message = `¡Hola Sayni! ☕ Deseo realizar el siguiente pedido:\n\n${itemsList}\n${promoLine}\n*Total:* ${formatPEN(total)}`;
-
-        const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-        window.open(whatsappUrl, "_blank");
-    };
-
     const sortedItems = items
         .slice()
         .sort((a, b) => (a.productId === "pack-regalo-clasico" ? -1 : b.productId === "pack-regalo-clasico" ? 1 : 0));
@@ -413,21 +399,21 @@ export default function Header() {
                             </div>
                         </div>
 
-                        <button
-                            type="button"
-                            onClick={handleCheckout}
+                        <Link
+                            href="/checkout"
+                            onClick={() => setIsCartOpen(false)}
                             className="
-                                inline-flex w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-[#BCC90F] px-6 py-3.5 text-base font-bold text-[#132219]
-                                transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]
-                                border-t border-white/40
-                                shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]
-                            "
+        inline-flex w-full cursor-pointer items-center justify-center gap-3 rounded-full bg-[#BCC90F] px-6 py-3.5 text-base font-bold text-[#132219]
+        transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]
+        border-t border-white/40
+        shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)]
+    "
                         >
-                            <span>Finalizar Pedido por WhatsApp</span>
+                            <span>Continuar con el pedido</span>
                             <svg className="size-5" viewBox="0 0 24 24" fill="none" aria-hidden>
                                 <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
-                        </button>
+                        </Link>
                     </div>
                 )}
             </aside>
