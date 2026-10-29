@@ -640,6 +640,11 @@ export default function OurCoffees() {
                                         </h3>
                                         <p className="mt-1 text-lg font-bold text-[#BCC90F] sm:text-2xl lg:mt-2">{priceOf("pack-clasico-prensa")}</p>
 
+                                        {/* Contenido del pack — solo móvil y tablet */}
+                                        <p className="mt-2 text-xs font-medium leading-snug text-white/80 sm:text-sm lg:hidden">
+                                            Incluye <span className="font-bold text-white">2 bolsas</span> de 220g + prensa francesa de 350 ml
+                                        </p>
+
                                         {/* Descripción — solo desktop */}
                                         <p className="mt-3 hidden max-w-[340px] text-sm font-light leading-relaxed text-white sm:text-base lg:block">
                                             2 bolsas de Sayni Clásico 220g y una prensa francesa de 350 ml, en bolsa de papel Sayni (sin caja ni tarjeta). Ideal para el consumo diario en casa o en la oficina. Blend 100% cusqueño de tueste oscuro con sabor intenso.
