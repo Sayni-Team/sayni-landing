@@ -7,6 +7,7 @@ import { useCart } from "@/context/CartContext";
 import { formatPEN } from "@/lib/pricing";
 import { checkoutSchema, type CheckoutField } from "@/lib/checkout-schema";
 import { createOrder } from "./actions";
+import { estimatedDeliveryDate, formatDeliveryDate } from "@/lib/delivery";
 
 type Zone = { id: string; district: string; price: number };
 
@@ -201,6 +202,18 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
                         <span className="text-xl font-bold text-white">{formatPEN(total + (isProvince ? 0 : shipping))}</span>
                     </div>
                 </div>
+
+                {/* Entrega estimada: solo para Lima (provincia se coordina por WhatsApp) */}
+                {zone && !isProvince && (
+                    <p className="flex items-center gap-2 rounded-xl bg-[#BCC90F]/10 px-3 py-2.5 text-sm text-white/80">
+                        <svg viewBox="0 0 24 24" fill="none" className="size-4 shrink-0 text-[#BCC90F]" aria-hidden>
+                            <path d="M3 7h11v9H3zM14 10h4l3 3v3h-7M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm10 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+                        </svg>
+                        <span>
+    Fecha estimada de entrega: <strong className="text-white">hasta el {formatDeliveryDate(estimatedDeliveryDate(new Date()))}</strong>
+</span>
+                    </p>
+                )}
 
                 {serverError && (
                     <p role="alert" className="rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-300">

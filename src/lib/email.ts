@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPEN } from "@/lib/pricing";
 import { SITE_URL } from "@/lib/mercadopago";
 import { BUSINESS, complaintCode } from "@/lib/business";
+import { estimatedDeliveryDate, formatDeliveryDate } from "@/lib/delivery";
 
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -109,10 +110,13 @@ function customerEmail(order: OrderForEmail) {
     return layout(
         `¡Gracias por tu compra, ${firstName}!`,
         `
-        <p style="margin:0 0 16px; font-size:14px; line-height:1.6;">
+                <p style="margin:0 0 16px; font-size:14px; line-height:1.6;">
             Recibimos tu pago y ya estamos preparando tu pedido <strong>#${order.number}</strong>.
-            Te avisaremos cuando salga a reparto.
         </p>
+        <div style="margin:0 0 20px; padding:14px 16px; background:#f6f7ef; border-left:4px solid ${LIME}; border-radius:8px; font-size:14px;">
+                        <span style="color:#666;">Fecha estimada de entrega:</span><br />
+            <strong>Hasta el ${formatDeliveryDate(estimatedDeliveryDate(order.paidAt ?? order.createdAt))}</strong>
+        </div>
         ${itemsTable(order)}
         ${addressBlock(order)}
         <p style="margin:24px 0 0; font-size:13px; line-height:1.6; color:#666;">
@@ -129,6 +133,9 @@ function adminEmail(order: OrderForEmail) {
         <p style="margin:0 0 16px; font-size:14px; line-height:1.6;">
             <strong>${esc(order.customerName)}</strong><br />
             ${esc(order.phone)} · ${esc(order.email)}
+        </p>
+        <p style="margin:0 0 16px; font-size:14px;">
+                        <strong>Fecha límite de entrega: ${formatDeliveryDate(estimatedDeliveryDate(order.paidAt ?? order.createdAt))}</strong>
         </p>
         ${addressBlock(order)}
         ${itemsTable(order)}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatPEN } from "@/lib/pricing";
 import ClearCartOnSuccess from "./ClearCartOnSuccess";
+import { estimatedDeliveryDate, formatDeliveryDate } from "@/lib/delivery";
 
 export const metadata = { title: "Estado de tu pedido | Sayni", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -18,7 +19,10 @@ export default async function ResultPage({ searchParams }: Props) {
     const { status, external_reference } = await searchParams;
 
     const order = external_reference
-        ? await prisma.order.findUnique({ where: { id: external_reference }, select: { number: true, total: true } })
+        ? await prisma.order.findUnique({
+            where: { id: external_reference },
+            select: { number: true, total: true, paidAt: true, createdAt: true },
+        })
         : null;
 
     const kind = status === "approved" ? "approved" : status === "pending" || status === "in_process" ? "pending" : "rejected";
@@ -36,6 +40,16 @@ export default async function ResultPage({ searchParams }: Props) {
                     </p>
                 )}
                 <p className="mt-3 text-sm text-white/70">{message.text}</p>
+
+                {/* paidAt puede tardar unos segundos (llega por el webhook): si aún no está, se usa la fecha del pedido */}
+                {kind === "approved" && order && (
+                    <div className="mt-6 rounded-2xl border border-[#BCC90F]/30 bg-[#BCC90F]/10 px-4 py-3 text-sm">
+                        <span className="block text-white/60">Fecha estimada de entrega</span>
+                        <span className="font-semibold text-white">
+    Hasta el {formatDeliveryDate(estimatedDeliveryDate(order.paidAt ?? order.createdAt))}
+</span>
+                    </div>
+                )}
 
                 <Link
                     href={kind === "rejected" ? "/checkout" : "/"}

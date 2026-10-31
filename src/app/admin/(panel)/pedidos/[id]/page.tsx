@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPEN } from "@/lib/pricing";
 import { STATUS_LABEL, STATUS_STYLE, TRANSITIONS, formatDate } from "@/lib/order-status";
 import { updateOrderStatus } from "../actions";
+import { estimatedDeliveryDate, formatDeliveryDate } from "@/lib/delivery";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -63,6 +64,11 @@ export default async function OrderDetailPage({ params }: Props) {
                     <p className="mt-3 font-semibold">{order.shippingZone.district}</p>
                     <p className="mt-1 text-sm text-white/80">{order.address}</p>
                     {order.reference && <p className="mt-1 text-sm text-white/60">Ref.: {order.reference}</p>}
+                    {order.paidAt && order.status === "PAID" && (
+                        <p className="mt-3 text-sm font-semibold text-[#BCC90F]">
+                            Fecha límite de entrega: {formatDeliveryDate(estimatedDeliveryDate(order.paidAt))}
+                        </p>
+                    )}
                 </section>
             </div>
 
