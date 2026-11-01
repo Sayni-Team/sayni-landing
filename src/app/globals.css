@@ -14,6 +14,7 @@
   --animate-enter-up: enter-up 0.7s ease-out both;
   --animate-enter-blur-up: enter-blur-up 0.8s ease-out both;
   --animate-enter-zoom: enter-zoom 0.7s ease-out both;
+  --animate-cw-marquee: cw-marquee 40s linear infinite;
 }
 
 :root {
@@ -63,4 +64,10 @@ html {
 
 @keyframes enter-zoom {
   from { opacity: 0; scale: 0.9; }
+}
+
+/* Marquee del banner Cyber Wow: se desplaza la mitad (el contenido está duplicado) */
+@keyframes cw-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
 }

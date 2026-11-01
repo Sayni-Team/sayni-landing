@@ -9,6 +9,7 @@ import { SectionDivider } from "@/components/SectionDivider";
 import FAQSection from "@/features/FAQSection";
 import NewHero from "@/features/newHero";
 import Hero from "@/features/Hero";
+import CyberWowBanner from "../../public/assets/features/CyberWowBanner";
 
 export default function Home() {
     // JSON-LD para Organización y Producto Principal
@@ -64,6 +65,7 @@ export default function Home() {
             <main className="flex-grow overflow-visible relative">
                 <Hero />
                 <InfiniteMarquee />
+                <CyberWowBanner/>
                 <AboutUs />
                 <SectionDivider />
                 <OurCoffees />

@@ -43,7 +43,7 @@ export default async function ShippingPolicyPage() {
 
             <h2>3. Plazos de entrega</h2>
             <p>
-                Los pedidos se entregan en un plazo de <Pending>1 a 3 días hábiles</Pending> desde la confirmación del pago, en el horario de <Pending>lunes a sábado, de 9:00 a 18:00</Pending>. Los plazos pueden extenderse en fechas de alta demanda o por causas ajenas a nuestro control.
+                Los pedidos se entregan en un plazo máximo de <strong>3 días hábiles</strong> desde la confirmación del pago, en el horario de <Pending>lunes a sábado, de 9:00 a 18:00</Pending>. Los plazos pueden extenderse en fechas de alta demanda o por causas ajenas a nuestro control.
             </p>
 
             <h2>4. Coordinación de la entrega</h2>
