@@ -7,9 +7,11 @@ import TestimonialsSection from "@/features/Testimonials";
 import CtaSection from "@/features/CTA";
 import { SectionDivider } from "@/components/SectionDivider";
 import FAQSection from "@/features/FAQSection";
-import NewHero from "@/features/newHero";
 import Hero from "@/features/Hero";
 import CyberWowBanner from "../../public/assets/features/CyberWowBanner";
+import CyberWowTopBar from "@/features/CyberWowTopBar";
+
+const SITE_URL = "https://www.sayniperu.com";
 
 export default function Home() {
     // JSON-LD para Organización y Producto Principal
@@ -18,25 +20,28 @@ export default function Home() {
         "@graph": [
             {
                 "@type": "Organization",
-                "@id": "https://sayni.pe/#organization",
+                "@id": `${SITE_URL}/#organization`,
                 "name": "Sayni Café",
-                "url": "https://sayni.pe",
-                "logo": "https://sayni.pe/assets/brand/logo.webp",
+                "url": SITE_URL,
+                "logo": `${SITE_URL}/assets/brand/logo.webp`,
                 "description": "Productores de café de especialidad peruano originario de Cusco.",
-                "sameAs": [],
+                "sameAs": [
+                    "https://instagram.com/sayni_peru",
+                    "https://www.facebook.com/share/1Cf2MD3RBb/?mibextid=wwXIfr",
+                ],
             },
             {
                 "@type": "WebSite",
-                "@id": "https://sayni.pe/#website",
-                "url": "https://sayni.pe",
+                "@id": `${SITE_URL}/#website`,
+                "url": SITE_URL,
                 "name": "Sayni",
-                "publisher": { "@id": "https://sayni.pe/#organization" },
+                "publisher": { "@id": `${SITE_URL}/#organization` },
                 "inLanguage": "es-PE",
             },
             {
                 "@type": "Product",
                 "name": "Café de Especialidad Sayni - Cusco 87 SCA",
-                "image": "https://sayni.pe/assets/brand/logo.webp",
+                "image": `${SITE_URL}/assets/brand/logo.webp`,
                 "description": "Café peruano de especialidad producido en Cusco a más de 1800 msnm con puntuación de 87 puntos SCA.",
                 "brand": {
                     "@type": "Brand",
@@ -45,7 +50,8 @@ export default function Home() {
                 "offers": {
                     "@type": "AggregateOffer",
                     "priceCurrency": "PEN",
-                    "price": "35.00",
+                    "lowPrice": "50.00",
+                    "highPrice": "79.90",
                     "availability": "https://schema.org/InStock",
                 },
             },
@@ -60,19 +66,26 @@ export default function Home() {
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
 
-            <Header />
+            {/* Franja de campaña: arriba del todo, antes del header */}
+            <CyberWowTopBar />
 
-            <main className="flex-grow overflow-visible relative">
-                <Hero />
-                <InfiniteMarquee />
-                <CyberWowBanner/>
-                <AboutUs />
-                <SectionDivider />
-                <OurCoffees />
-                <TestimonialsSection />
-                <FAQSection />
-                <CtaSection />
-            </main>
+            {/* El header es absoluto: este contenedor hace que empiece debajo de la franja, sobre el Hero */}
+            <div className="relative flex flex-grow flex-col">
+                <Header />
+
+                <main className="flex-grow overflow-visible relative">
+                    <Hero />
+                    {/* Banner de campaña: justo después del Hero */}
+                    <CyberWowBanner />
+                    <InfiniteMarquee />
+                    <AboutUs />
+                    <SectionDivider />
+                    <OurCoffees />
+                    <TestimonialsSection />
+                    <FAQSection />
+                    <CtaSection />
+                </main>
+            </div>
 
             <Footer />
         </div>
