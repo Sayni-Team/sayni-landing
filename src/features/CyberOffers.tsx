@@ -55,7 +55,7 @@ const OFFERS: readonly Offer[] = [
 const formatPEN = (cents: number) => `S/ ${(cents / 100).toFixed(2)}`;
 
 const BUTTON =
-    "block w-full rounded-full bg-sayni-lime py-2.5 text-center font-extrabold text-sayni-black transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50";
+    "block w-full rounded-full bg-sayni-lime py-2 text-center text-sm sm:py-2.5 sm:text-base font-extrabold text-sayni-black transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50";
 
 export default function CyberOffers() {
     const { addToCart, getProduct, remainingStock } = useCart();
@@ -83,7 +83,8 @@ export default function CyberOffers() {
                     </h2>
                 </div>
 
-                <ul className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-5 sm:overflow-visible sm:px-0">
+                {/* Celular: filas compactas (las 3 ofertas a la vista). Desde sm: tarjetas en 3 columnas */}
+                <ul className="flex flex-col gap-3 sm:grid sm:grid-cols-3 sm:gap-5">
                     {offers.map((offer) => {
                         const product = getProduct(offer.productId);
                         const price = product?.price ?? 0;
@@ -92,37 +93,37 @@ export default function CyberOffers() {
                         return (
                             <li
                                 key={offer.productId}
-                                className="flex w-[78%] shrink-0 snap-center flex-col overflow-hidden rounded-2xl bg-white text-sayni-black shadow-lg sm:w-auto"
+                                className="flex flex-row overflow-hidden rounded-2xl bg-white text-sayni-black shadow-lg sm:flex-col"
                             >
-                                <div className="relative aspect-[4/3] w-full bg-white sm:aspect-square">
+                                <div className="relative w-28 shrink-0 bg-white sm:aspect-square sm:w-full">
                                     <Image
                                         src={offer.image}
                                         alt={offer.name}
                                         fill
-                                        sizes="(min-width: 640px) 33vw, 78vw"
-                                        className="object-contain p-3"
+                                        sizes="(min-width: 640px) 33vw, 112px"
+                                        className="object-contain p-1.5 sm:p-3"
                                         priority
                                     />
                                     <span
-                                        className="absolute left-2 top-2 rounded-full px-2.5 py-1 text-[11px] font-bold text-white"
+                                        className="absolute left-2 top-2 hidden rounded-full px-2.5 py-1 text-[11px] font-bold text-white sm:block"
                                         style={{ backgroundColor: BLUE }}
                                     >
                                         {offer.badge}
                                     </span>
                                 </div>
-                                <div className="flex flex-1 flex-col gap-1 p-4">
-                                    <h3 className="font-urbanist text-lg font-extrabold leading-tight">{offer.name}</h3>
-                                    <p className="text-sm text-neutral-600">{offer.detail}</p>
-                                    <div className="mt-2 flex items-baseline gap-2">
+                                <div className="flex min-w-0 flex-1 flex-col gap-0.5 p-3 sm:gap-1 sm:p-4">
+                                    <h3 className="font-urbanist text-base font-extrabold leading-tight sm:text-lg">{offer.name}</h3>
+                                    <p className="text-xs text-neutral-600 sm:text-sm">{offer.detail}</p>
+                                    <div className="mt-1 flex items-baseline gap-2 sm:mt-2">
                                         {showBefore && (
                                             <s className="text-sm text-neutral-500">{formatPEN(offer.before)}</s>
                                         )}
-                                        <span className="text-2xl font-extrabold" style={{ color: PINK }}>
+                                        <span className="text-xl font-extrabold sm:text-2xl" style={{ color: PINK }}>
                                             {formatPEN(price)}
                                         </span>
                                     </div>
 
-                                    <div className="mt-auto pt-3">
+                                    <div className="mt-auto pt-2 sm:pt-3">
                                         {offer.variants ? (
                                             <div className="grid grid-cols-2 gap-2">
                                                 {offer.variants.map((v) => {
@@ -135,7 +136,14 @@ export default function CyberOffers() {
                                                             onClick={() => addToCart({ productId: offer.productId, variant: v.key })}
                                                             className={BUTTON}
                                                         >
-                                                            {soldOut ? "Agotado" : `Comprar ${v.label.toLowerCase()}`}
+                                                            {soldOut ? (
+                                                                "Agotado"
+                                                            ) : (
+                                                                <>
+                                                                    <span className="sm:hidden">{v.label}</span>
+                                                                    <span className="hidden sm:inline">Comprar {v.label.toLowerCase()}</span>
+                                                                </>
+                                                            )}
                                                         </button>
                                                     );
                                                 })}
