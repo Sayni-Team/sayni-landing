@@ -26,7 +26,7 @@ const OFFERS: readonly Offer[] = [
         productId: "pack-regalo-clasico",
         name: "Pack Ocasión Especial",
         detail: "2 cafés Clásico + prensa francesa + caja premium",
-        image: "/assets/features/products/sayni-package-premium.webp",
+        image: "/assets/features/products/pack-ocasion-cuadrado.webp",
         before: 8990,
         badge: "Ideal para regalar",
     },
