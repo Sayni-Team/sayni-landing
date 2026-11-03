@@ -32,7 +32,7 @@ export default async function ResultPage({ searchParams }: Props) {
     return (
         <main className="flex min-h-screen items-center justify-center bg-sayni-black px-6 text-sayni-light">
             {kind === "approved" && <ClearCartOnSuccess />}
-            {kind === "approved" && order && <TrackPurchase orderId={order.id} />}
+            {kind === "approved" && order && <TrackPurchase orderId={order.id} total={order.total} />}
 
             <div className="w-full max-w-md rounded-3xl border border-[#BCC90F]/30 bg-[#182a1f] p-8 text-center font-urbanist">
                 <h1 className="font-heading text-2xl font-bold text-white">{message.title}</h1>
