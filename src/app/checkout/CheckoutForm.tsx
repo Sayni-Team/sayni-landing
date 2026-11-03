@@ -9,6 +9,7 @@ import { checkoutSchema, type CheckoutField } from "@/lib/checkout-schema";
 import { createOrder } from "./actions";
 import { estimatedDeliveryDate, formatDeliveryDate } from "@/lib/delivery";
 import { clarityEvent } from "@/lib/clarity";
+import { metaEvent, toSoles } from "@/lib/metaPixel";
 
 type Zone = { id: string; district: string; price: number };
 
@@ -40,7 +41,14 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
         if (!isInitialized || items.length === 0 || checkoutTracked.current) return;
         checkoutTracked.current = true;
         clarityEvent("checkout_start");
-    }, [isInitialized, items]);
+        metaEvent("InitiateCheckout", {
+            content_ids: items.map((i) => i.productId),
+            content_type: "product",
+            num_items: items.reduce((acc, i) => acc + i.quantity, 0),
+            value: toSoles(total),
+            currency: "PEN",
+        });
+    }, [isInitialized, items, total]);
 
     const isProvince = form.shippingZoneId === PROVINCE;
     const zone = useMemo(() => zones.find((z) => z.id === form.shippingZoneId), [zones, form.shippingZoneId]);
