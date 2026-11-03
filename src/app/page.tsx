@@ -10,6 +10,7 @@ import FAQSection from "@/features/FAQSection";
 import Hero from "@/features/Hero";
 import CyberWowBanner from "../../public/assets/features/CyberWowBanner";
 import CyberWowTopBar from "@/features/CyberWowTopBar";
+import CyberOffers from "@/features/CyberOffers";
 
 const SITE_URL = "https://www.sayniperu.com";
 
@@ -68,6 +69,9 @@ export default function Home() {
 
             {/* Franja de campaña: arriba del todo, antes del header */}
             <CyberWowTopBar />
+
+            {/* Ofertas Cyber Wow: lo primero que se ve al entrar desde un anuncio */}
+            <CyberOffers />
 
             {/* El header es absoluto: este contenedor hace que empiece debajo de la franja, sobre el Hero */}
             <div className="relative flex flex-grow flex-col">
