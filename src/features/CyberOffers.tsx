@@ -1,7 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import { useEffect } from "react";
 import { useCart } from "@/context/CartContext";
+import { metaEvent } from "@/lib/metaPixel";
 
 // Ofertas Cyber Wow (2 al 5 de noviembre): bloque visible apenas carga la web,
 // para que quien llega desde un anuncio vea de inmediato los precios.
@@ -59,6 +61,15 @@ const BUTTON =
 
 export default function CyberOffers() {
     const { addToCart, getProduct, remainingStock } = useCart();
+
+    // ViewContent: el visitante vio las ofertas (una vez por carga de página)
+    useEffect(() => {
+        metaEvent("ViewContent", {
+            content_ids: OFFERS.map((o) => o.productId),
+            content_type: "product",
+            content_name: "Ofertas Cyber Wow",
+        });
+    }, []);
 
     // Solo se muestran las ofertas cuyo producto está activo en la tienda
     const offers = OFFERS.filter((o) => getProduct(o.productId)?.status === "ACTIVE");

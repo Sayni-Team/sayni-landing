@@ -5,6 +5,7 @@ import { CartProvider } from "@/context/CartContext";
 import "./globals.css";
 import { getStoreProducts } from "@/lib/products";
 import Clarity from "@/components/Clarity";
+import MetaPixel from "@/components/MetaPixel";
 
 const urbanist = Urbanist({
     subsets: ["latin"],
@@ -115,6 +116,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <body className="font-urbanist antialiased">
         <CartProvider catalog={catalog}>{children}</CartProvider>
         <Clarity />
+        <MetaPixel />
         </body>
         </html>
     );
