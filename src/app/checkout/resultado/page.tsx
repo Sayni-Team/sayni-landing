@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPEN } from "@/lib/pricing";
 import ClearCartOnSuccess from "./ClearCartOnSuccess";
 import { estimatedDeliveryDate, formatDeliveryDate } from "@/lib/delivery";
+import TrackPurchase from "./TrackPurchase";
 
 export const metadata = { title: "Estado de tu pedido | Sayni", robots: { index: false, follow: false } };
 export const dynamic = "force-dynamic";
@@ -21,7 +22,7 @@ export default async function ResultPage({ searchParams }: Props) {
     const order = external_reference
         ? await prisma.order.findUnique({
             where: { id: external_reference },
-            select: { number: true, total: true, paidAt: true, createdAt: true },
+            select: { id: true, number: true, total: true, paidAt: true, createdAt: true },
         })
         : null;
 
@@ -31,6 +32,7 @@ export default async function ResultPage({ searchParams }: Props) {
     return (
         <main className="flex min-h-screen items-center justify-center bg-sayni-black px-6 text-sayni-light">
             {kind === "approved" && <ClearCartOnSuccess />}
+            {kind === "approved" && order && <TrackPurchase orderId={order.id} />}
 
             <div className="w-full max-w-md rounded-3xl border border-[#BCC90F]/30 bg-[#182a1f] p-8 text-center font-urbanist">
                 <h1 className="font-heading text-2xl font-bold text-white">{message.title}</h1>

@@ -4,6 +4,7 @@ import localFont from "next/font/local";
 import { CartProvider } from "@/context/CartContext";
 import "./globals.css";
 import { getStoreProducts } from "@/lib/products";
+import Clarity from "@/components/Clarity";
 
 const urbanist = Urbanist({
     subsets: ["latin"],
@@ -113,6 +114,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <html lang="es" className={`${urbanist.variable} ${clashGrotesk.variable}`}>
         <body className="font-urbanist antialiased">
         <CartProvider catalog={catalog}>{children}</CartProvider>
+        <Clarity />
         </body>
         </html>
     );

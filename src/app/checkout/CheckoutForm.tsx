@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import {useEffect, useMemo, useRef, useState, useTransition} from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
@@ -8,6 +8,7 @@ import { formatPEN } from "@/lib/pricing";
 import { checkoutSchema, type CheckoutField } from "@/lib/checkout-schema";
 import { createOrder } from "./actions";
 import { estimatedDeliveryDate, formatDeliveryDate } from "@/lib/delivery";
+import { clarityEvent } from "@/lib/clarity";
 
 type Zone = { id: string; district: string; price: number };
 
@@ -32,6 +33,14 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
     });
     const [errors, setErrors] = useState<Partial<Record<CheckoutField | "city", string>>>({});
     const [serverError, setServerError] = useState("");
+
+    // Una sola vez al entrar al checkout con productos en el carrito
+    const checkoutTracked = useRef(false);
+    useEffect(() => {
+        if (!isInitialized || items.length === 0 || checkoutTracked.current) return;
+        checkoutTracked.current = true;
+        clarityEvent("checkout_start");
+    }, [isInitialized, items]);
 
     const isProvince = form.shippingZoneId === PROVINCE;
     const zone = useMemo(() => zones.find((z) => z.id === form.shippingZoneId), [zones, form.shippingZoneId]);
@@ -77,12 +86,14 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
             (form.reference ? `\n*Referencia:* ${form.reference}` : "") +
             `\n\n¿Me pueden cotizar el envío?`;
 
+        clarityEvent("checkout_whatsapp");
         window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
     };
 
     const onSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setServerError("");
+        if (!isProvince) clarityEvent("checkout_submit");
         if (!validate()) return;
 
         if (isProvince) {

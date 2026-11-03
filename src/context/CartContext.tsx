@@ -3,6 +3,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { priceForQuantity } from "@/lib/pricing";
 import type { StoreProduct } from "@/lib/products";
+import { clarityEvent } from "@/lib/clarity";
 
 // Una línea del carrito: solo qué y cuánto. El precio sale siempre del catálogo.
 type CartLine = {
@@ -127,6 +128,7 @@ export const CartProvider = ({ catalog, children }: { catalog: StoreProduct[]; c
         const product = productsById.get(productId);
         if (!product || product.status !== "ACTIVE" || !isValidVariant(product, variant)) return;
 
+        clarityEvent("add_to_cart");
         setLines((prev) => {
             // No superar el stock de esa presentación
             const available = stockOf(product, variant) - quantityInCart(productId, variant, prev);
