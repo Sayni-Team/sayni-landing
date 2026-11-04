@@ -52,7 +52,11 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
 
     const isProvince = form.shippingZoneId === PROVINCE;
     const zone = useMemo(() => zones.find((z) => z.id === form.shippingZoneId), [zones, form.shippingZoneId]);
-    const shipping = zone?.price ?? 0;
+    // Tarifa plana: si todos los distritos tienen el mismo precio (se cambia desde /admin → Envíos),
+    // el envío y el total se muestran desde el inicio, sin esperar a que elijan distrito.
+    const flatRate = zones.length > 0 && zones.every((z) => z.price === zones[0].price) ? zones[0].price : null;
+    const shipping = zone?.price ?? flatRate ?? 0;
+    const shippingKnown = Boolean(zone) || flatRate !== null;
 
     const set = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setForm((f) => ({ ...f, [field]: e.target.value }));
@@ -80,8 +84,25 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
         }
         if (isProvince && form.city.trim().length < 3) next.city = "Indica tu ciudad o provincia";
         setErrors(next);
-        return Object.keys(next).length === 0;
+        const ok = Object.keys(next).length === 0;
+        if (!ok) scrollToFirstError();
+        return ok;
     };
+
+    // Si falta un dato, lleva al cliente al primer campo marcado (en celular suele estar fuera de la pantalla)
+    const formRef = useRef<HTMLFormElement>(null);
+    const scrollToFirstError = () => {
+        requestAnimationFrame(() => {
+            const first = formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]');
+            if (!first) return;
+            first.scrollIntoView({ behavior: "smooth", block: "center" });
+            first.focus({ preventScroll: true });
+        });
+    };
+
+    const hasErrors = Object.values(errors).some(Boolean);
+    const shippingLabel = isProvince ? "Por cotizar" : shippingKnown ? formatPEN(shipping) : "Elige tu distrito";
+    const grandTotal = total + (isProvince ? 0 : shipping);
 
     // Provincia: el pedido se coordina por WhatsApp (el envío se cotiza aparte)
     const sendToWhatsApp = () => {
@@ -141,33 +162,43 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
     /* ── Formulario + resumen ── */
 
     return (
-        <form onSubmit={onSubmit} noValidate className="mt-10 grid gap-10 font-urbanist lg:grid-cols-[1fr_400px]">
-            {/* Datos */}
+        <form ref={formRef} onSubmit={onSubmit} noValidate className="mt-6 grid gap-8 font-urbanist sm:mt-10 lg:grid-cols-[1fr_400px] lg:gap-10">
+            {/* Celular: resumen compacto arriba, para ver qué se compra y cuánto se paga antes de llenar datos */}
+            <div className="rounded-2xl border border-white/10 bg-[#132219] p-4 lg:hidden">
+                <ul className="space-y-2">
+                    {items.map((item) => (
+                        <li key={item.id} className="flex items-center gap-3">
+                            <span className="relative size-10 shrink-0 overflow-hidden rounded-lg bg-[#1b2f22]">
+                                <Image src={item.image} alt="" fill className="object-contain p-1" />
+                            </span>
+                            <span className="min-w-0 flex-1 truncate text-sm font-semibold text-white">
+                                {item.quantity > 1 && `${item.quantity}× `}
+                                {item.title}
+                            </span>
+                        </li>
+                    ))}
+                </ul>
+                <div className="mt-3 space-y-1 border-t border-white/10 pt-3 text-sm">
+                    {discount > 0 && <Row label="Promoción aplicada" value={`-${formatPEN(discount)}`} accent />}
+                    <Row label="Envío" value={shippingLabel} />
+                    <div className="flex items-center justify-between pt-1">
+                        <span className="text-white/80">Total</span>
+                        <span className="text-lg font-bold text-white">{formatPEN(grandTotal)}</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Datos: primero el distrito (define el envío y el total), luego los datos de contacto */}
             <div className="space-y-8">
                 <fieldset className="space-y-4">
-                    <legend className="mb-2 font-heading text-lg font-bold text-white">Tus datos</legend>
-                    <Field label="Nombre completo" error={errors.customerName}>
-                        <input className={cnInput(errors.customerName)} value={form.customerName} onChange={set("customerName")} autoComplete="name" />
-                    </Field>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        <Field label="Correo" error={errors.email}>
-                            <input type="email" className={cnInput(errors.email)} value={form.email} onChange={set("email")} autoComplete="email" />
-                        </Field>
-                        <Field label="Teléfono" error={errors.phone}>
-                            <input type="tel" className={cnInput(errors.phone)} value={form.phone} onChange={set("phone")} autoComplete="tel" placeholder="999 999 999" />
-                        </Field>
-                    </div>
-                </fieldset>
-
-                <fieldset className="space-y-4">
-                    <legend className="mb-2 font-heading text-lg font-bold text-white">Entrega</legend>
+                    <legend className="mb-2 font-heading text-lg font-bold text-white">¿A dónde lo enviamos?</legend>
                     <Field label="Distrito" error={errors.shippingZoneId}>
-                        <select className={cnInput(errors.shippingZoneId)} value={form.shippingZoneId} onChange={set("shippingZoneId")}>
+                        <select className={cnInput(errors.shippingZoneId)} aria-invalid={Boolean(errors.shippingZoneId)} value={form.shippingZoneId} onChange={set("shippingZoneId")}>
                             <option value="">Elige tu distrito</option>
                             <optgroup label="Lima y Callao">
                                 {zones.map((z) => (
                                     <option key={z.id} value={z.id}>
-                                        {z.district} — {formatPEN(z.price)}
+                                        {flatRate !== null ? z.district : `${z.district} — ${formatPEN(z.price)}`}
                                     </option>
                                 ))}
                             </optgroup>
@@ -176,19 +207,37 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
                             </optgroup>
                         </select>
                     </Field>
+                    {flatRate !== null && !isProvince && (
+                        <p className="-mt-2 text-sm text-[#BCC90F]">Delivery a todo Lima y Callao: {formatPEN(flatRate)}</p>
+                    )}
 
                     {isProvince && (
                         <Field label="Ciudad / provincia" error={errors.city}>
-                            <input className={cnInput(errors.city)} value={form.city} onChange={set("city")} placeholder="Ej. Arequipa" />
+                            <input className={cnInput(errors.city)} aria-invalid={Boolean(errors.city)} value={form.city} onChange={set("city")} placeholder="Ej. Arequipa" />
                         </Field>
                     )}
 
                     <Field label="Dirección" error={errors.address}>
-                        <input className={cnInput(errors.address)} value={form.address} onChange={set("address")} autoComplete="street-address" />
+                        <input className={cnInput(errors.address)} aria-invalid={Boolean(errors.address)} value={form.address} onChange={set("address")} autoComplete="street-address" />
                     </Field>
                     <Field label="Referencia (opcional)" error={errors.reference}>
-                        <input className={cnInput(errors.reference)} value={form.reference} onChange={set("reference")} placeholder="Ej. Frente al parque" />
+                        <input className={cnInput(errors.reference)} aria-invalid={Boolean(errors.reference)} value={form.reference} onChange={set("reference")} placeholder="Ej. Frente al parque" />
                     </Field>
+                </fieldset>
+
+                <fieldset className="space-y-4">
+                    <legend className="mb-2 font-heading text-lg font-bold text-white">Tus datos</legend>
+                    <Field label="Nombre completo" error={errors.customerName}>
+                        <input className={cnInput(errors.customerName)} aria-invalid={Boolean(errors.customerName)} value={form.customerName} onChange={set("customerName")} autoComplete="name" />
+                    </Field>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                        <Field label="Teléfono" error={errors.phone}>
+                            <input type="tel" className={cnInput(errors.phone)} aria-invalid={Boolean(errors.phone)} value={form.phone} onChange={set("phone")} autoComplete="tel" placeholder="999 999 999" />
+                        </Field>
+                        <Field label="Correo (para tu confirmación)" error={errors.email}>
+                            <input type="email" className={cnInput(errors.email)} aria-invalid={Boolean(errors.email)} value={form.email} onChange={set("email")} autoComplete="email" />
+                        </Field>
+                    </div>
                 </fieldset>
             </div>
 
@@ -215,10 +264,10 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
                 <div className="space-y-1.5 border-t border-white/10 pt-4 text-sm">
                     <Row label="Subtotal" value={formatPEN(subtotal)} />
                     {discount > 0 && <Row label="Promoción aplicada" value={`-${formatPEN(discount)}`} accent />}
-                    <Row label="Envío" value={isProvince ? "Por cotizar" : zone ? formatPEN(shipping) : "—"} />
+                    <Row label="Envío" value={shippingLabel} />
                     <div className="flex items-center justify-between pt-2 text-base">
                         <span className="text-white/80">Total</span>
-                        <span className="text-xl font-bold text-white">{formatPEN(total + (isProvince ? 0 : shipping))}</span>
+                        <span className="text-xl font-bold text-white">{formatPEN(grandTotal)}</span>
                     </div>
                 </div>
 
@@ -231,6 +280,12 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
                         <span>
     Fecha estimada de entrega: <strong className="text-white">hasta el {formatDeliveryDate(estimatedDeliveryDate(new Date()))}</strong>
 </span>
+                    </p>
+                )}
+
+                {hasErrors && !serverError && (
+                    <p role="alert" className="rounded-xl border border-red-400/30 bg-red-400/10 p-3 text-sm text-red-300">
+                        Completa los datos marcados en rojo para continuar.
                     </p>
                 )}
 
