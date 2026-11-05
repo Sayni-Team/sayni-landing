@@ -195,7 +195,7 @@ export default function CyberOffers() {
                 <p className="mt-4 text-center text-xs text-white/80 sm:text-sm">
                     {cyber
                         ? "Pago seguro con Mercado Pago · Delivery en Lima y envíos a todo el Perú"
-                        : `Delivery gratis en Lima en compras desde ${formatPEN(FREE_SHIPPING_MIN)}, hasta el 23 de diciembre · Pago seguro con Mercado Pago`}
+                        : `Delivery gratis en Lima en compras desde ${formatPEN(FREE_SHIPPING_MIN)}, hasta el 24 de diciembre · Pago seguro con Mercado Pago`}
                 </p>
             </div>
         </section>

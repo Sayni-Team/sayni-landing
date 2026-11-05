@@ -19,7 +19,7 @@ const XMAS = {
     messages: [
         "🎄 Delivery gratis en Lima",
         `En compras desde ${formatPEN(FREE_SHIPPING_MIN)}`,
-        "Hasta el 23 de diciembre",
+        "Hasta el 24 de diciembre",
     ],
     label: "Navidad en Sayni: delivery gratis en Lima. Ver regalos",
 };
