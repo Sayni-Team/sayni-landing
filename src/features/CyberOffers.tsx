@@ -4,8 +4,10 @@ import Image from "next/image";
 import { useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { metaEvent } from "@/lib/metaPixel";
+import { FREE_SHIPPING_MIN, isCyberActive } from "@/lib/promo";
 
-// Ofertas Cyber Wow (2 al 5 de noviembre): bloque visible apenas carga la web,
+// Ofertas de temporada: Cyber Wow (2 al 5 de noviembre) y luego Navidad (delivery gratis).
+// Bloque visible apenas carga la web,
 // para que quien llega desde un anuncio vea de inmediato los precios.
 // "Comprar" agrega el producto al carrito y lo abre (desde ahí se va a /checkout → Mercado Pago).
 // El precio mostrado sale del catálogo, igual que en el carrito y el checkout.
@@ -61,13 +63,14 @@ const BUTTON =
 
 export default function CyberOffers() {
     const { addToCart, getProduct, remainingStock } = useCart();
+    const cyber = isCyberActive();
 
     // ViewContent: el visitante vio las ofertas (una vez por carga de página)
     useEffect(() => {
         metaEvent("ViewContent", {
             content_ids: OFFERS.map((o) => o.productId),
             content_type: "product",
-            content_name: "Ofertas Cyber Wow",
+            content_name: isCyberActive() ? "Ofertas Cyber Wow" : "Regalos de Navidad",
         });
     }, []);
 
@@ -78,20 +81,33 @@ export default function CyberOffers() {
     return (
         <section
             id="ofertas-cyber"
-            aria-label="Ofertas Cyber Wow en Sayni"
+            aria-label={cyber ? "Ofertas Cyber Wow en Sayni" : "Regalos de Navidad en Sayni"}
             className="relative z-[55] w-full bg-sayni-darkGreen px-4 pb-6 pt-5 sm:px-8 sm:pb-8"
         >
             <div className="mx-auto max-w-6xl">
                 <div className="mb-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center">
-                    <span
-                        className="rounded-full px-3 py-1 text-xs font-extrabold tracking-[0.12em] text-white"
-                        style={{ backgroundColor: PINK }}
-                    >
-                        CYBER WOW
-                    </span>
-                    <h2 className="font-urbanist text-lg font-extrabold text-white sm:text-2xl">
-                        Precios especiales solo hasta el <span className="text-sayni-lime">jueves 5</span>
-                    </h2>
+                    {cyber ? (
+                        <>
+                            <span
+                                className="rounded-full px-3 py-1 text-xs font-extrabold tracking-[0.12em] text-white"
+                                style={{ backgroundColor: PINK }}
+                            >
+                                CYBER WOW
+                            </span>
+                            <h2 className="font-urbanist text-lg font-extrabold text-white sm:text-2xl">
+                                Precios especiales solo hasta el <span className="text-sayni-lime">jueves 5</span>
+                            </h2>
+                        </>
+                    ) : (
+                        <>
+                            <span className="rounded-full bg-sayni-lime px-3 py-1 text-xs font-extrabold tracking-[0.12em] text-sayni-black">
+                                NAVIDAD 🎄
+                            </span>
+                            <h2 className="font-urbanist text-lg font-extrabold text-white sm:text-2xl">
+                                Regalos de café con <span className="text-sayni-lime">delivery gratis</span> en Lima
+                            </h2>
+                        </>
+                    )}
                 </div>
 
                 {/* Celular: filas compactas (las 3 ofertas a la vista). Desde sm: tarjetas en 3 columnas */}
@@ -99,7 +115,7 @@ export default function CyberOffers() {
                     {offers.map((offer) => {
                         const product = getProduct(offer.productId);
                         const price = product?.price ?? 0;
-                        const showBefore = offer.before > price;
+                        const showBefore = cyber && offer.before > price; // precio anterior solo durante el Cyber
 
                         return (
                             <li
@@ -129,7 +145,7 @@ export default function CyberOffers() {
                                         {showBefore && (
                                             <s className="text-sm text-neutral-500">{formatPEN(offer.before)}</s>
                                         )}
-                                        <span className="text-xl font-extrabold sm:text-2xl" style={{ color: PINK }}>
+                                        <span className="text-xl font-extrabold sm:text-2xl" style={{ color: cyber ? PINK : "#1B2A1E" }}>
                                             {formatPEN(price)}
                                         </span>
                                     </div>
@@ -177,7 +193,9 @@ export default function CyberOffers() {
                 </ul>
 
                 <p className="mt-4 text-center text-xs text-white/80 sm:text-sm">
-                    Pago seguro con Mercado Pago · Delivery en Lima y envíos a todo el Perú
+                    {cyber
+                        ? "Pago seguro con Mercado Pago · Delivery en Lima y envíos a todo el Perú"
+                        : `Delivery gratis en Lima en compras desde ${formatPEN(FREE_SHIPPING_MIN)}, hasta el 23 de diciembre · Pago seguro con Mercado Pago`}
                 </p>
             </div>
         </section>

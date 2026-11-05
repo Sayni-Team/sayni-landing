@@ -3,6 +3,7 @@
 import { Preference } from "mercadopago";
 import { prisma } from "@/lib/prisma";
 import { priceForQuantity } from "@/lib/pricing";
+import { shippingFor } from "@/lib/promo";
 import { mp, SITE_URL } from "@/lib/mercadopago";
 import { checkoutSchema, type CheckoutField, type CheckoutInput } from "@/lib/checkout-schema";
 
@@ -117,7 +118,9 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
     }
 
     const subtotal = orderItems.reduce((acc, i) => acc + i.lineTotal, 0);
-    const total = subtotal + zone.price;
+    // Navidad: delivery gratis desde el monto mínimo (ver lib/promo)
+    const shipping = shippingFor(zone.price, subtotal);
+    const total = subtotal + shipping;
 
     // 5. Guardar el pedido como pendiente de pago
     const order = await prisma.order.create({
@@ -129,7 +132,7 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
             reference: data.reference || null,
             shippingZoneId: zone.id,
             subtotal,
-            shipping: zone.price,
+            shipping,
             total,
             items: { create: orderItems },
         },
@@ -149,13 +152,18 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
                         unit_price: item.lineTotal / 100,
                         currency_id: "PEN",
                     })),
-                    {
-                        id: "envio",
-                        title: `Envío — ${zone.district}`,
-                        quantity: 1,
-                        unit_price: zone.price / 100,
-                        currency_id: "PEN",
-                    },
+                    // Con delivery gratis no se envía la línea: Mercado Pago no acepta importes de 0
+                    ...(shipping > 0
+                        ? [
+                              {
+                                  id: "envio",
+                                  title: `Envío — ${zone.district}`,
+                                  quantity: 1,
+                                  unit_price: shipping / 100,
+                                  currency_id: "PEN",
+                              },
+                          ]
+                        : []),
                 ],
                 payer: { name: data.customerName, email: data.email.toLowerCase() },
                 external_reference: order.id, // une el pago con el pedido

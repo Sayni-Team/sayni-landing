@@ -89,7 +89,7 @@ function itemsTable(order: OrderForEmail) {
         ${rows}
         <tr><td colspan="2" style="height:8px;"></td></tr>
         ${line("Subtotal", formatPEN(order.subtotal))}
-        ${line(`Envío (${esc(order.shippingZone.district)})`, formatPEN(order.shipping))}
+        ${line(`Envío (${esc(order.shippingZone.district)})`, order.shipping === 0 ? "Gratis" : formatPEN(order.shipping))}
         ${line("Total pagado", formatPEN(order.total), true)}
     </table>`;
 }
