@@ -87,7 +87,7 @@ export default async function OrderDetailPage({ params }: Props) {
                 </ul>
                 <div className="mt-3 space-y-1 border-t border-white/10 pt-3 text-sm">
                     <div className="flex justify-between text-white/60"><span>Subtotal</span><span>{formatPEN(order.subtotal)}</span></div>
-                    <div className="flex justify-between text-white/60"><span>Envío</span><span>{formatPEN(order.shipping)}</span></div>
+                    <div className="flex justify-between text-white/60"><span>Envío</span><span>{order.shipping === 0 ? "Gratis" : formatPEN(order.shipping)}</span></div>
                     <div className="flex justify-between pt-1 text-base font-bold"><span>Total</span><span>{formatPEN(order.total)}</span></div>
                 </div>
                 {order.mpPaymentId && (

@@ -10,6 +10,7 @@ import { createOrder } from "./actions";
 import { estimatedDeliveryDate, formatDeliveryDate } from "@/lib/delivery";
 import { clarityEvent } from "@/lib/clarity";
 import { metaEvent, toSoles } from "@/lib/metaPixel";
+import { FREE_SHIPPING_MIN, isXmasActive, shippingFor } from "@/lib/promo";
 
 type Zone = { id: string; district: string; price: number };
 
@@ -55,8 +56,11 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
     // Tarifa plana: si todos los distritos tienen el mismo precio (se cambia desde /admin → Envíos),
     // el envío y el total se muestran desde el inicio, sin esperar a que elijan distrito.
     const flatRate = zones.length > 0 && zones.every((z) => z.price === zones[0].price) ? zones[0].price : null;
-    const shipping = zone?.price ?? flatRate ?? 0;
-    const shippingKnown = Boolean(zone) || flatRate !== null;
+    // Navidad: delivery gratis desde el monto mínimo (el servidor aplica la misma regla al cobrar)
+    const freeShipping = shippingFor(1, total) === 0;
+    const shipping = freeShipping ? 0 : zone?.price ?? flatRate ?? 0;
+    const shippingKnown = freeShipping || Boolean(zone) || flatRate !== null;
+    const missingForFree = isXmasActive() && !freeShipping ? FREE_SHIPPING_MIN - total : 0;
 
     const set = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         setForm((f) => ({ ...f, [field]: e.target.value }));
@@ -101,7 +105,13 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
     };
 
     const hasErrors = Object.values(errors).some(Boolean);
-    const shippingLabel = isProvince ? "Por cotizar" : shippingKnown ? formatPEN(shipping) : "Elige tu distrito";
+    const shippingLabel = isProvince
+        ? "Por cotizar"
+        : freeShipping
+          ? "¡Gratis! 🎄"
+          : shippingKnown
+            ? formatPEN(shipping)
+            : "Elige tu distrito";
     const grandTotal = total + (isProvince ? 0 : shipping);
 
     // Provincia: el pedido se coordina por WhatsApp (el envío se cotiza aparte)
@@ -207,8 +217,16 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
                             </optgroup>
                         </select>
                     </Field>
-                    {flatRate !== null && !isProvince && (
+                    {!isProvince && freeShipping && (
+                        <p className="-mt-2 text-sm text-[#BCC90F]">🎄 Delivery gratis a todo Lima y Callao por Navidad</p>
+                    )}
+                    {!isProvince && !freeShipping && flatRate !== null && (
                         <p className="-mt-2 text-sm text-[#BCC90F]">Delivery a todo Lima y Callao: {formatPEN(flatRate)}</p>
+                    )}
+                    {!isProvince && missingForFree > 0 && (
+                        <p className="-mt-2 text-xs text-white/60">
+                            Te faltan {formatPEN(missingForFree)} para el delivery gratis de Navidad (desde {formatPEN(FREE_SHIPPING_MIN)}).
+                        </p>
                     )}
 
                     {isProvince && (
