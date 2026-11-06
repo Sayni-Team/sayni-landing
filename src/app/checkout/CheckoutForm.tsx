@@ -9,7 +9,7 @@ import { checkoutSchema, type CheckoutField } from "@/lib/checkout-schema";
 import { createOrder } from "./actions";
 import { estimatedDeliveryDate, formatDeliveryDate } from "@/lib/delivery";
 import { clarityEvent } from "@/lib/clarity";
-import { metaEvent, toSoles } from "@/lib/metaPixel";
+import { metaCustomEvent, metaEvent, toSoles } from "@/lib/metaPixel";
 import { FREE_SHIPPING_MIN, isXmasActive, shippingFor } from "@/lib/promo";
 
 type Zone = { id: string; district: string; price: number };
@@ -50,6 +50,13 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
             currency: "PEN",
         });
     }, [isInitialized, items, total]);
+    const formStartedTracked = useRef(false);
+    const trackFormStarted = () => {
+        if (formStartedTracked.current) return;
+        formStartedTracked.current = true;
+        metaCustomEvent("CheckoutFormStarted", { value: toSoles(total), currency: "PEN" });
+        clarityEvent("checkout_form_started");
+    };
 
     const isProvince = form.shippingZoneId === PROVINCE;
     const zone = useMemo(() => zones.find((z) => z.id === form.shippingZoneId), [zones, form.shippingZoneId]);
@@ -63,6 +70,7 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
     const missingForFree = isXmasActive() && !freeShipping ? FREE_SHIPPING_MIN - total : 0;
 
     const set = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        trackFormStarted();
         setForm((f) => ({ ...f, [field]: e.target.value }));
         setErrors((er) => ({ ...er, [field]: undefined }));
     };
@@ -134,6 +142,15 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
         setServerError("");
         if (!isProvince) clarityEvent("checkout_submit");
         if (!validate()) return;
+        if (!isProvince) {
+            clarityEvent("checkout_submit");
+            metaEvent("AddPaymentInfo", {
+                content_ids: items.map((i) => i.productId),
+                content_type: "product",
+                value: toSoles(total + shipping),
+                currency: "PEN",
+            });
+        }
 
         if (isProvince) {
             sendToWhatsApp();
