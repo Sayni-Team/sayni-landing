@@ -27,3 +27,18 @@ export function metaEvent(name: string, params?: MetaParams, eventID?: string) {
 
 /** céntimos → soles, como lo espera Meta */
 export const toSoles = (cents: number) => Math.round(cents) / 100;
+
+/** Evento personalizado (no estándar de Meta): se envía con trackCustom */
+export function metaCustomEvent(name: string, params?: MetaParams) {
+    if (typeof window === "undefined" || !META_PIXEL_ID) return;
+
+    let tries = 0;
+    const send = () => {
+        if (window.fbq) {
+            window.fbq("trackCustom", name, params ?? {});
+        } else if (tries++ < 20) {
+            setTimeout(send, 250); // hasta 5 s esperando al script
+        }
+    };
+    send();
+}
