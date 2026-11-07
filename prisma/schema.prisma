@@ -23,11 +23,17 @@ enum ProductStatus {
 }
 
 enum OrderStatus {
-  PENDING    // creado, esperando el pago
-  PAID       // Mercado Pago confirmó el pago
-  SHIPPED    // enviado
-  DELIVERED  // entregado
-  CANCELLED  // cancelado o pago rechazado
+  PENDING      // creado, esperando el pago (Mercado Pago)
+  PAID         // pagado (Mercado Pago) o contra entrega confirmado: por enviar
+  COD_PENDING  // contra entrega: por confirmar por WhatsApp
+  SHIPPED      // enviado
+  DELIVERED    // entregado
+  CANCELLED    // cancelado o pago rechazado
+}
+
+enum PaymentMethod {
+  MERCADO_PAGO
+  CASH_ON_DELIVERY // pago al recibir: Yape, Plin o efectivo
 }
 
 /* ── Productos ───────────────────────────── */
@@ -108,6 +114,9 @@ model Order {
   mpPreferenceId String?
   mpPaymentId    String?      @unique // evita procesar dos veces el mismo pago
   paidAt         DateTime?
+
+  paymentMethod  PaymentMethod @default(MERCADO_PAGO)
+  confirmedAt    DateTime?     // contra entrega: cuándo se confirmó por WhatsApp
 
   items          OrderItem[]
   createdAt      DateTime     @default(now())

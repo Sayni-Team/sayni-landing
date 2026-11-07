@@ -1,10 +1,14 @@
 "use server";
 
+import { headers } from "next/headers";
+import { after } from "next/server";
 import { Preference } from "mercadopago";
 import { prisma } from "@/lib/prisma";
 import { priceForQuantity } from "@/lib/pricing";
 import { shippingFor } from "@/lib/promo";
 import { mp, SITE_URL } from "@/lib/mercadopago";
+import { COD_LIMIT, lockedMinutes, registerFailure } from "@/lib/rate-limit";
+import { sendCodOrderEmails } from "@/lib/email";
 import { checkoutSchema, type CheckoutField, type CheckoutInput } from "@/lib/checkout-schema";
 
 export type CreateOrderResult =
@@ -23,6 +27,11 @@ function allocate(total: number, quantities: number[]): number[] {
     });
 }
 
+async function clientIp() {
+    const h = await headers();
+    return h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip") || "unknown";
+}
+
 export async function createOrder(input: CheckoutInput): Promise<CreateOrderResult> {
     // 1. Validar los datos (nunca confiar en lo que llega del navegador)
     const parsed = checkoutSchema.safeParse(input);
@@ -34,6 +43,16 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
         return { ok: false, error: "Revisa los datos del formulario.", fieldErrors };
     }
     const data = parsed.data;
+    const isCashOnDelivery = data.paymentMethod === "CASH_ON_DELIVERY";
+
+    // Contra entrega: límite de pedidos por conexión (evita pedidos falsos)
+    const codKey = `cod:${await clientIp()}`;
+    if (isCashOnDelivery && (await lockedMinutes([codKey])) > 0) {
+        return {
+            ok: false,
+            error: "Recibimos varios pedidos desde tu conexión. Escríbenos por WhatsApp y te ayudamos a completar tu compra.",
+        };
+    }
 
     // 2. Productos reales de la base de datos (precios, stock, estado, promociones, presentaciones)
     const productIds = [...new Set(data.items.map((i) => i.productId))];
@@ -76,7 +95,6 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
         const quantity = lines.reduce((acc, l) => acc + l.quantity, 0);
 
         if (product.variants.length > 0) {
-            // Cada presentación con su propio stock
             for (const variant of product.variants) {
                 const requested = lines.filter((l) => l.variant === variant.key).reduce((acc, l) => acc + l.quantity, 0);
                 if (requested > variant.stock) {
@@ -109,7 +127,7 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
         });
     }
 
-    // 4. Envío desde la base de datos
+    // 4. Envío desde la base de datos (gratis en Navidad desde el monto mínimo)
     const zone = await prisma.shippingZone.findFirst({
         where: { id: data.shippingZoneId, active: true },
     });
@@ -118,11 +136,10 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
     }
 
     const subtotal = orderItems.reduce((acc, i) => acc + i.lineTotal, 0);
-    // Navidad: delivery gratis desde el monto mínimo (ver lib/promo)
     const shipping = shippingFor(zone.price, subtotal);
     const total = subtotal + shipping;
 
-    // 5. Guardar el pedido como pendiente de pago
+    // 5. Guardar el pedido
     const order = await prisma.order.create({
         data: {
             customerName: data.customerName,
@@ -134,13 +151,27 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
             subtotal,
             shipping,
             total,
+            paymentMethod: data.paymentMethod,
+            // Contra entrega: queda por confirmar por WhatsApp. Mercado Pago: pendiente de pago.
+            status: isCashOnDelivery ? "COD_PENDING" : "PENDING",
             items: { create: orderItems },
         },
         select: { id: true },
     });
 
-    // 6. Crear la preferencia de pago en Mercado Pago.
-    //    Cada línea va como 1 unidad con su total ya calculado (así la promoción cuadra al céntimo).
+    // 6a. Contra entrega: no pasa por Mercado Pago
+    if (isCashOnDelivery) {
+        await registerFailure(codKey, COD_LIMIT); // cuenta para el límite por hora
+        after(() =>
+            sendCodOrderEmails(order.id).catch((error) =>
+                console.error("Error enviando correos del pedido contra entrega", error)
+            )
+        );
+        return { ok: true, checkoutUrl: `/checkout/resultado?status=cod&external_reference=${order.id}` };
+    }
+
+    // 6b. Mercado Pago: crear la preferencia de pago.
+    //     Cada línea va como 1 unidad con su total ya calculado (así la promoción cuadra al céntimo).
     try {
         const preference = await new Preference(mp).create({
             body: {
@@ -152,17 +183,17 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
                         unit_price: item.lineTotal / 100,
                         currency_id: "PEN",
                     })),
-                    // Con delivery gratis no se envía la línea: Mercado Pago no acepta importes de 0
+                    // Envío gratis: Mercado Pago no acepta líneas en 0, así que no se envía
                     ...(shipping > 0
                         ? [
-                              {
-                                  id: "envio",
-                                  title: `Envío — ${zone.district}`,
-                                  quantity: 1,
-                                  unit_price: shipping / 100,
-                                  currency_id: "PEN",
-                              },
-                          ]
+                            {
+                                id: "envio",
+                                title: `Envío — ${zone.district}`,
+                                quantity: 1,
+                                unit_price: shipping / 100,
+                                currency_id: "PEN",
+                            },
+                        ]
                         : []),
                 ],
                 payer: { name: data.customerName, email: data.email.toLowerCase() },

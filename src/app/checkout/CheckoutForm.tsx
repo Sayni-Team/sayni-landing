@@ -1,11 +1,11 @@
 "use client";
 
-import {useEffect, useMemo, useRef, useState, useTransition} from "react";
+import { useEffect, useMemo, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
 import { formatPEN } from "@/lib/pricing";
-import { checkoutSchema, type CheckoutField } from "@/lib/checkout-schema";
+import { checkoutSchema, type CheckoutField, type CheckoutInput } from "@/lib/checkout-schema";
 import { createOrder } from "./actions";
 import { estimatedDeliveryDate, formatDeliveryDate } from "@/lib/delivery";
 import { clarityEvent } from "@/lib/clarity";
@@ -13,12 +13,19 @@ import { metaCustomEvent, metaEvent, toSoles } from "@/lib/metaPixel";
 import { FREE_SHIPPING_MIN, isXmasActive, shippingFor } from "@/lib/promo";
 
 type Zone = { id: string; district: string; price: number };
+type PaymentMethod = "MERCADO_PAGO" | "CASH_ON_DELIVERY";
 
 const WHATSAPP_NUMBER = "51939273366";
 const PROVINCE = "provincia"; // opción especial: se cotiza por WhatsApp
 
 const INPUT =
     "w-full rounded-xl border bg-[#132219] px-4 py-3 text-sm text-white placeholder-white/35 transition-colors focus:border-[#BCC90F] focus:outline-none";
+
+// Opciones de pago (solo Lima: provincia se coordina por WhatsApp)
+const PAYMENT_OPTIONS: { value: PaymentMethod; title: string; text: string }[] = [
+    { value: "MERCADO_PAGO", title: "Pagar ahora con Mercado Pago", text: "Tarjeta, Yape y otros medios" },
+    { value: "CASH_ON_DELIVERY", title: "Pagar al recibir", text: "Yape, Plin o efectivo · te confirmamos por WhatsApp" },
+];
 
 export default function CheckoutForm({ zones }: { zones: Zone[] }) {
     const { items, subtotal, discount, total, isInitialized } = useCart();
@@ -35,6 +42,7 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
     });
     const [errors, setErrors] = useState<Partial<Record<CheckoutField | "city", string>>>({});
     const [serverError, setServerError] = useState("");
+    const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("MERCADO_PAGO");
 
     // Una sola vez al entrar al checkout con productos en el carrito
     const checkoutTracked = useRef(false);
@@ -50,6 +58,8 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
             currency: "PEN",
         });
     }, [isInitialized, items, total]);
+
+    // Una sola vez: la primera vez que escribe o elige algo en el formulario
     const formStartedTracked = useRef(false);
     const trackFormStarted = () => {
         if (formStartedTracked.current) return;
@@ -59,6 +69,7 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
     };
 
     const isProvince = form.shippingZoneId === PROVINCE;
+    const isCashOnDelivery = !isProvince && paymentMethod === "CASH_ON_DELIVERY";
     const zone = useMemo(() => zones.find((z) => z.id === form.shippingZoneId), [zones, form.shippingZoneId]);
     // Tarifa plana: si todos los distritos tienen el mismo precio (se cambia desde /admin → Envíos),
     // el envío y el total se muestran desde el inicio, sin esperar a que elijan distrito.
@@ -76,7 +87,7 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
     };
 
     // Datos para validar y enviar (provincia no necesita zona de la base de datos)
-    const payload = () => ({
+    const payload = (): CheckoutInput => ({
         customerName: form.customerName,
         email: form.email,
         phone: form.phone,
@@ -84,7 +95,19 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
         reference: form.reference || undefined,
         shippingZoneId: isProvince ? PROVINCE : form.shippingZoneId,
         items: items.map((i) => ({ productId: i.productId, variant: i.variant, quantity: i.quantity })),
+        paymentMethod: isProvince ? "MERCADO_PAGO" : paymentMethod,
     });
+
+    // Si falta un dato, lleva al cliente al primer campo marcado (en celular suele estar fuera de la pantalla)
+    const formRef = useRef<HTMLFormElement>(null);
+    const scrollToFirstError = () => {
+        requestAnimationFrame(() => {
+            const first = formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]');
+            if (!first) return;
+            first.scrollIntoView({ behavior: "smooth", block: "center" });
+            first.focus({ preventScroll: true });
+        });
+    };
 
     const validate = () => {
         const result = checkoutSchema.safeParse(payload());
@@ -101,26 +124,23 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
         return ok;
     };
 
-    // Si falta un dato, lleva al cliente al primer campo marcado (en celular suele estar fuera de la pantalla)
-    const formRef = useRef<HTMLFormElement>(null);
-    const scrollToFirstError = () => {
-        requestAnimationFrame(() => {
-            const first = formRef.current?.querySelector<HTMLElement>('[aria-invalid="true"]');
-            if (!first) return;
-            first.scrollIntoView({ behavior: "smooth", block: "center" });
-            first.focus({ preventScroll: true });
-        });
-    };
-
     const hasErrors = Object.values(errors).some(Boolean);
     const shippingLabel = isProvince
         ? "Por cotizar"
         : freeShipping
-          ? "¡Gratis! 🎄"
-          : shippingKnown
-            ? formatPEN(shipping)
-            : "Elige tu distrito";
+            ? "¡Gratis! 🎄"
+            : shippingKnown
+                ? formatPEN(shipping)
+                : "Elige tu distrito";
     const grandTotal = total + (isProvince ? 0 : shipping);
+
+    const buttonLabel = isPending
+        ? "Procesando…"
+        : isProvince
+            ? "Coordinar por WhatsApp"
+            : isCashOnDelivery
+                ? "Registrar pedido"
+                : "Continuar al pago";
 
     // Provincia: el pedido se coordina por WhatsApp (el envío se cotiza aparte)
     const sendToWhatsApp = () => {
@@ -140,22 +160,22 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
     const onSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setServerError("");
-        if (!isProvince) clarityEvent("checkout_submit");
         if (!validate()) return;
-        if (!isProvince) {
-            clarityEvent("checkout_submit");
-            metaEvent("AddPaymentInfo", {
-                content_ids: items.map((i) => i.productId),
-                content_type: "product",
-                value: toSoles(total + shipping),
-                currency: "PEN",
-            });
-        }
 
         if (isProvince) {
             sendToWhatsApp();
             return;
         }
+
+        // Solo cuenta a quienes rellenaron bien el formulario y enviaron el pedido
+        clarityEvent("checkout_submit");
+        metaEvent("AddPaymentInfo", {
+            content_ids: items.map((i) => i.productId),
+            content_type: "product",
+            value: toSoles(grandTotal),
+            currency: "PEN",
+            payment_type: isCashOnDelivery ? "contra_entrega" : "mercado_pago",
+        });
 
         startTransition(async () => {
             const result = await createOrder(payload());
@@ -164,7 +184,7 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
                 if (result.fieldErrors) setErrors(result.fieldErrors);
                 return;
             }
-            // Al pago en la página de Mercado Pago
+            // Mercado Pago: a su página de pago. Contra entrega: a la confirmación del pedido.
             window.location.href = result.checkoutUrl;
         });
     };
@@ -266,7 +286,7 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
                         <input className={cnInput(errors.customerName)} aria-invalid={Boolean(errors.customerName)} value={form.customerName} onChange={set("customerName")} autoComplete="name" />
                     </Field>
                     <div className="grid gap-4 sm:grid-cols-2">
-                        <Field label="Teléfono" error={errors.phone}>
+                        <Field label="Teléfono (WhatsApp)" error={errors.phone}>
                             <input type="tel" className={cnInput(errors.phone)} aria-invalid={Boolean(errors.phone)} value={form.phone} onChange={set("phone")} autoComplete="tel" placeholder="999 999 999" />
                         </Field>
                         <Field label="Correo (para tu confirmación)" error={errors.email}>
@@ -301,21 +321,54 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
                     {discount > 0 && <Row label="Promoción aplicada" value={`-${formatPEN(discount)}`} accent />}
                     <Row label="Envío" value={shippingLabel} />
                     <div className="flex items-center justify-between pt-2 text-base">
-                        <span className="text-white/80">Total</span>
+                        <span className="text-white/80">{isCashOnDelivery ? "Total a pagar al recibir" : "Total"}</span>
                         <span className="text-xl font-bold text-white">{formatPEN(grandTotal)}</span>
                     </div>
                 </div>
 
-                {/* Entrega estimada: solo para Lima (provincia se coordina por WhatsApp) */}
-                {zone && !isProvince && (
+                {/* Entrega estimada: solo Lima con Mercado Pago (contra entrega se coordina por WhatsApp) */}
+                {zone && !isProvince && !isCashOnDelivery && (
                     <p className="flex items-center gap-2 rounded-xl bg-[#BCC90F]/10 px-3 py-2.5 text-sm text-white/80">
                         <svg viewBox="0 0 24 24" fill="none" className="size-4 shrink-0 text-[#BCC90F]" aria-hidden>
                             <path d="M3 7h11v9H3zM14 10h4l3 3v3h-7M7 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm10 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
                         </svg>
                         <span>
-    Fecha estimada de entrega: <strong className="text-white">hasta el {formatDeliveryDate(estimatedDeliveryDate(new Date()))}</strong>
-</span>
+                            Fecha estimada de entrega: <strong className="text-white">hasta el {formatDeliveryDate(estimatedDeliveryDate(new Date()))}</strong>
+                        </span>
                     </p>
+                )}
+
+                {/* Método de pago: solo Lima (provincia se coordina por WhatsApp) */}
+                {!isProvince && (
+                    <fieldset className="space-y-2">
+                        <legend className="mb-1 text-sm font-semibold text-white">¿Cómo quieres pagar?</legend>
+                        {PAYMENT_OPTIONS.map((option) => {
+                            const selected = paymentMethod === option.value;
+                            return (
+                                <label
+                                    key={option.value}
+                                    className={`flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition-colors ${
+                                        selected ? "border-[#BCC90F] bg-[#BCC90F]/10" : "border-white/15 hover:border-white/35"
+                                    }`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="paymentMethod"
+                                        checked={selected}
+                                        onChange={() => {
+                                            trackFormStarted();
+                                            setPaymentMethod(option.value);
+                                        }}
+                                        className="mt-1 accent-[#BCC90F]"
+                                    />
+                                    <span>
+                                        <span className="block text-sm font-semibold text-white">{option.title}</span>
+                                        <span className="block text-xs text-white/60">{option.text}</span>
+                                    </span>
+                                </label>
+                            );
+                        })}
+                    </fieldset>
                 )}
 
                 {hasErrors && !serverError && (
@@ -335,7 +388,7 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
                     disabled={isPending}
                     className="inline-flex w-full cursor-pointer items-center justify-center gap-3 rounded-full border-t border-white/40 bg-[#BCC90F] px-6 py-3.5 text-base font-bold text-[#132219] shadow-[inset_0_3px_5px_rgba(255,255,255,0.45),_inset_0_-4px_8px_rgba(0,0,0,0.25),_0_10px_20px_rgba(0,0,0,0.4)] transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] disabled:cursor-wait disabled:opacity-70"
                 >
-                    {isPending ? "Procesando…" : isProvince ? "Coordinar por WhatsApp" : "Continuar al pago"}
+                    {buttonLabel}
                 </button>
 
                 <p className="text-center text-xs leading-relaxed text-white/50">

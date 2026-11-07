@@ -63,7 +63,7 @@ function layout(title: string, body: string) {
     </div>`;
 }
 
-function itemsTable(order: OrderForEmail) {
+function itemsTable(order: OrderForEmail, totalLabel = "Total pagado") {
     const rows = order.items
         .map(
             (item) => `
@@ -90,7 +90,7 @@ function itemsTable(order: OrderForEmail) {
         <tr><td colspan="2" style="height:8px;"></td></tr>
         ${line("Subtotal", formatPEN(order.subtotal))}
         ${line(`Envío (${esc(order.shippingZone.district)})`, order.shipping === 0 ? "Gratis" : formatPEN(order.shipping))}
-        ${line("Total pagado", formatPEN(order.total), true)}
+        ${line(totalLabel, formatPEN(order.total), true)}
     </table>`;
 }
 
@@ -304,4 +304,79 @@ export async function sendComplaintResponseEmail(complaintId: string) {
         { idempotencyKey: `complaint-response/${c.id}` }
     );
     if (error) console.error(`Resend rechazó la respuesta del reclamo ${code}`, error);
+}
+
+/* ── Pedidos contra entrega ──────────────── */
+
+/** Enlace de WhatsApp al cliente, con el mensaje de confirmación ya escrito */
+function whatsappConfirmLink(order: OrderForEmail) {
+    const digits = order.phone.replace(/\D/g, "");
+    const number = digits.length === 9 ? `51${digits}` : digits;
+    const message = `Hola ${order.customerName.split(" ")[0]}, te escribimos de Sayni para confirmar tu pedido #${order.number} por ${formatPEN(order.total)}, con pago al recibir. ¿Nos confirmas la dirección y si pagarás con Yape, Plin o efectivo?`;
+    return `https://wa.me/${number}?text=${encodeURIComponent(message)}`;
+}
+
+/** Pedido contra entrega registrado: aviso al cliente y al negocio */
+export async function sendCodOrderEmails(orderId: string) {
+    const order = await getOrder(orderId);
+    if (!order) return;
+
+    const results = await Promise.allSettled([
+        resend.emails.send(
+            {
+                from: FROM,
+                to: order.email,
+                replyTo: REPLY_TO,
+                subject: `Recibimos tu pedido #${order.number} — Sayni`,
+                html: layout(
+                    `¡Pedido registrado, ${esc(order.customerName.split(" ")[0])}!`,
+                    `<p style="margin:0 0 16px; font-size:14px; line-height:1.6;">
+                        Recibimos tu pedido <strong>#${order.number}</strong> con <strong>pago al recibir</strong>.
+                        Te escribiremos por WhatsApp para confirmarlo y coordinar la entrega.
+                    </p>
+                    <div style="margin:0 0 20px; padding:14px 16px; background:#f6f7ef; border-left:4px solid ${LIME}; border-radius:8px; font-size:14px;">
+                        Pagas al recibir con <strong>Yape, Plin o efectivo</strong>.
+                    </div>
+                    ${itemsTable(order, "Total a pagar al recibir")}
+                    ${addressBlock(order)}`
+                ),
+            },
+            { idempotencyKey: `order-cod-customer/${order.id}` }
+        ),
+        NOTIFY_TO
+            ? resend.emails.send(
+                {
+                    from: FROM,
+                    to: NOTIFY_TO,
+                    replyTo: order.email,
+                    subject: `Pedido contra entrega #${order.number} por confirmar — ${formatPEN(order.total)}`,
+                    html: layout(
+                        `Pedido #${order.number}: contra entrega, por confirmar`,
+                        `<p style="margin:0 0 16px; font-size:14px; line-height:1.6;">
+                              <strong>${esc(order.customerName)}</strong><br />
+                              ${esc(order.phone)} · ${esc(order.email)}
+                          </p>
+                          ${addressBlock(order)}
+                          ${itemsTable(order, "Total a cobrar al entregar")}
+                          <a href="${whatsappConfirmLink(order)}" style="display:inline-block; margin-top:8px; padding:12px 24px; background:${LIME}; color:${DARK}; font-size:14px; font-weight:bold; text-decoration:none; border-radius:999px;">
+                              Confirmar por WhatsApp
+                          </a>
+                          <p style="margin:12px 0 0; font-size:12px; color:#888;">
+                              Cuando lo confirmes, márcalo en el panel:
+                              <a href="${SITE_URL}/admin/pedidos/${order.id}" style="color:#666;">ver pedido</a>
+                          </p>`
+                    ),
+                },
+                { idempotencyKey: `order-cod-admin/${order.id}` }
+            )
+            : Promise.resolve(null),
+    ]);
+
+    for (const result of results) {
+        if (result.status === "rejected") {
+            console.error(`Error enviando correo del pedido #${order.number}`, result.reason);
+        } else if (result.value?.error) {
+            console.error(`Resend rechazó un correo del pedido #${order.number}`, result.value.error);
+        }
+    }
 }

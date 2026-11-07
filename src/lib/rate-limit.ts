@@ -12,6 +12,9 @@ export const LOGIN_LIMITS = {
     ip: { maxFailures: 20, windowMs: 60 * MINUTE, lockMs: 60 * MINUTE },
 } satisfies Record<string, Limit>;
 
+// Pedidos contra entrega: máximo 5 por hora desde la misma conexión (evita pedidos falsos)
+export const COD_LIMIT = { maxFailures: 5, windowMs: 60 * MINUTE, lockMs: 60 * MINUTE };
+
 /** Minutos de bloqueo restantes para cualquiera de las claves (0 si no hay bloqueo). */
 export async function lockedMinutes(keys: string[]): Promise<number> {
     const now = new Date();
