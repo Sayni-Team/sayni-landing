@@ -64,9 +64,9 @@ export default async function OrderDetailPage({ params }: Props) {
                     <p className="mt-3 font-semibold">{order.shippingZone.district}</p>
                     <p className="mt-1 text-sm text-white/80">{order.address}</p>
                     {order.reference && <p className="mt-1 text-sm text-white/60">Ref.: {order.reference}</p>}
-                    {order.paidAt && order.status === "PAID" && (
+                    {(order.paidAt ?? order.confirmedAt) && order.status === "PAID" && (
                         <p className="mt-3 text-sm font-semibold text-[#BCC90F]">
-                            Fecha límite de entrega: {formatDeliveryDate(estimatedDeliveryDate(order.paidAt))}
+                            Fecha límite de entrega: {formatDeliveryDate(estimatedDeliveryDate((order.paidAt ?? order.confirmedAt)!))}
                         </p>
                     )}
                 </section>
@@ -94,6 +94,27 @@ export default async function OrderDetailPage({ params }: Props) {
                     <p className="mt-3 text-xs text-white/40">Pago Mercado Pago: {order.mpPaymentId}</p>
                 )}
             </section>
+
+            {order.paymentMethod === "CASH_ON_DELIVERY" && (
+                <section className="mt-6 rounded-2xl border border-amber-400/30 bg-amber-400/10 p-5">
+                    <h2 className="text-xs font-semibold uppercase tracking-wider text-amber-300">Pago contra entrega</h2>
+                    <p className="mt-2 text-sm">
+                        Cobrar <strong>{formatPEN(order.total)}</strong> al entregar (Yape, Plin o efectivo).
+                    </p>
+                    {order.status === "COD_PENDING" && (
+                        <a
+                            href={`https://wa.me/${waNumber}?text=${encodeURIComponent(
+                                `Hola ${order.customerName.split(" ")[0]}, te escribimos de Sayni para confirmar tu pedido #${order.number} por ${formatPEN(order.total)}, con pago al recibir. ¿Nos confirmas la dirección y si pagarás con Yape, Plin o efectivo?`
+                            )}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-3 inline-block text-sm font-semibold text-[#BCC90F] hover:underline"
+                        >
+                            Escribir al cliente para confirmar →
+                        </a>
+                    )}
+                </section>
+            )}
 
             {/* Acciones de estado */}
             {TRANSITIONS[order.status].length > 0 && (

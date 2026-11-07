@@ -14,6 +14,7 @@ const FILTERS: { key: string; label: string; status?: OrderStatus }[] = [
     { key: "entregados", label: "Entregados", status: "DELIVERED" },
     { key: "pendientes", label: "Pendientes de pago", status: "PENDING" },
     { key: "cancelados", label: "Cancelados", status: "CANCELLED" },
+    { key: "por-confirmar", label: "Contra entrega por confirmar", status: "COD_PENDING" },
     { key: "todos", label: "Todos" },
 ];
 

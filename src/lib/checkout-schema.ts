@@ -17,6 +17,7 @@ export const checkoutSchema = z.object({
     reference: z.string().trim().max(160).optional(),
     shippingZoneId: z.string().min(1, "Elige tu distrito"),
     items: z.array(checkoutItemSchema).min(1, "Tu carrito está vacío"),
+    paymentMethod: z.enum(["MERCADO_PAGO", "CASH_ON_DELIVERY"]),
 });
 
 export type CheckoutInput = z.infer<typeof checkoutSchema>;
