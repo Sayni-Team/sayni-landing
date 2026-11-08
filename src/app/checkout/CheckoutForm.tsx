@@ -341,7 +341,7 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
                 {/* Método de pago: solo Lima (provincia se coordina por WhatsApp) */}
                 {!isProvince && (
                     <fieldset className="space-y-2">
-                        <legend className="mb-1 text-sm font-semibold text-white">¿Cómo quieres pagar?</legend>
+                        <legend className="mb-5 text-sm font-semibold text-white">¿Cómo quieres pagar?</legend>
                         {PAYMENT_OPTIONS.map((option) => {
                             const selected = paymentMethod === option.value;
                             return (
