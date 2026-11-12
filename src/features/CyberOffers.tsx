@@ -7,13 +7,16 @@ import { metaEvent } from "@/lib/metaPixel";
 import { FREE_SHIPPING_MIN, isCyberActive } from "@/lib/promo";
 
 // Ofertas de temporada: Cyber Wow (2 al 5 de noviembre) y luego Navidad (delivery gratis).
-// Bloque visible apenas carga la web,
-// para que quien llega desde un anuncio vea de inmediato los precios.
+// Bloque visible apenas carga la web, para que quien llega desde un anuncio vea de inmediato los precios.
 // "Comprar" agrega el producto al carrito y lo abre (desde ahí se va a /checkout → Mercado Pago).
 // El precio mostrado sale del catálogo, igual que en el carrito y el checkout.
 
-const BLUE = "#0535FF";
-const PINK = "#FE2D73";
+const PINK = "#FE2D73"; // solo para la marca Cyber Wow, durante la campaña
+
+// Patrón de fondo: granos de café en lima, con tamaños y giros variados (SVG en línea).
+// El grano se dibuja una vez (#b) y se reutiliza en distintas posiciones.
+const BEAN_SVG = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="360" height="360" viewBox="0 0 360 360"><defs><g id="b"><path d="M2-28C16-27 23-13 22 2S13 28-1 28C-15 27-23 14-22-1S-12-29 2-28Z" fill="#BCC90F" fill-opacity="0.18" stroke="#BCC90F" stroke-width="2"/><path d="M3-24C-6-14 8-6 0 2S-8 16 1 24" fill="none" stroke="#BCC90F" stroke-width="2.2" stroke-linecap="round"/><path d="M7-21C0-12 12-5 4 3S-3 15 5 21" fill="none" stroke="#BCC90F" stroke-width="1" stroke-linecap="round" opacity="0.6"/></g></defs><use xlink:href="#b" href="#b" transform="translate(62 72) rotate(-25) scale(1.1)"/><use xlink:href="#b" href="#b" transform="translate(252 46) rotate(40) scale(0.8)"/><use xlink:href="#b" href="#b" transform="translate(172 192) rotate(-70) scale(1.35)"/><use xlink:href="#b" href="#b" transform="translate(306 262) rotate(15) scale(0.95)"/><use xlink:href="#b" href="#b" transform="translate(70 292) rotate(65) scale(0.85)"/></svg>`;
+const BEAN_PATTERN = `url("data:image/svg+xml,${encodeURIComponent(BEAN_SVG)}")`;
 
 type Offer = {
     productId: string; // id del producto en la base de datos
@@ -30,7 +33,7 @@ const OFFERS: readonly Offer[] = [
         productId: "pack-regalo-clasico",
         name: "Pack Ocasión Especial",
         detail: "2 cafés Clásico + prensa francesa + caja premium",
-        image: "/assets/features/products/pack-ocasion-cuadrado.webp",
+        image: "/assets/features/products/pack-ocasion-cuadrado_.webp",
         before: 8990,
         badge: "Ideal para regalar",
     },
@@ -59,7 +62,7 @@ const OFFERS: readonly Offer[] = [
 const formatPEN = (cents: number) => `S/ ${(cents / 100).toFixed(2)}`;
 
 const BUTTON =
-    "block w-full rounded-full bg-sayni-lime py-2 text-center text-sm sm:py-2.5 sm:text-base font-extrabold text-sayni-black transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-50";
+    "block w-full cursor-pointer rounded-full bg-sayni-lime py-2 text-center text-sm font-extrabold text-sayni-black transition-colors duration-200 hover:bg-sayni-olive disabled:cursor-not-allowed disabled:opacity-40 sm:py-2.5 sm:text-base";
 
 export default function CyberOffers() {
     const { addToCart, getProduct, remainingStock } = useCart();
@@ -82,10 +85,23 @@ export default function CyberOffers() {
         <section
             id="ofertas-cyber"
             aria-label={cyber ? "Ofertas Cyber Wow en Sayni" : "Regalos de Navidad en Sayni"}
-            className="relative z-[55] w-full bg-sayni-darkGreen px-4 pb-6 pt-5 sm:px-8 sm:pb-8"
+            className="relative isolate w-full overflow-hidden border-b border-white/5 bg-sayni-black px-4 pb-8 pt-28  sm:px-8 sm:pb-10 sm:pt-32"
         >
+            {/* ── Fondo decorativo: dos capas del mismo patrón a distinto tamaño y desenfoque, para dar profundidad ── */}
+            <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 -z-10 opacity-[0.06] blur-[4px] [mask-image:radial-gradient(ellipse_at_center,black_50%,transparent_90%)]"
+                style={{ backgroundImage: BEAN_PATTERN, backgroundSize: "360px 360px" }}
+            />
+            <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 -z-10 rotate-180 opacity-[0.05] blur-[1px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_85%)]"
+                style={{ backgroundImage: BEAN_PATTERN, backgroundSize: "520px 520px", backgroundPosition: "180px 120px" }}
+            />
+
             <div className="mx-auto max-w-6xl">
-                <div className="mb-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-center">
+                {/* Título */}
+                <div className="mb-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-center sm:mb-7">
                     {cyber ? (
                         <>
                             <span
@@ -94,16 +110,13 @@ export default function CyberOffers() {
                             >
                                 CYBER WOW
                             </span>
-                            <h2 className="font-urbanist text-lg font-extrabold text-white sm:text-2xl">
+                            <h2 className="font-heading text-xl font-bold text-sayni-light sm:text-3xl">
                                 Precios especiales solo hasta el <span className="text-sayni-lime">jueves 5</span>
                             </h2>
                         </>
                     ) : (
                         <>
-                            <span className="rounded-full bg-sayni-lime px-3 py-1 text-xs font-extrabold tracking-[0.12em] text-sayni-black">
-                                NAVIDAD 🎄
-                            </span>
-                            <h2 className="font-urbanist text-lg font-extrabold text-white sm:text-2xl">
+                            <h2 className="font-heading text-xl font-bold text-sayni-light sm:text-3xl">
                                 Regalos de café con <span className="text-sayni-lime">delivery gratis</span> en Lima
                             </h2>
                         </>
@@ -120,37 +133,47 @@ export default function CyberOffers() {
                         return (
                             <li
                                 key={offer.productId}
-                                className="flex flex-row overflow-hidden rounded-2xl bg-white text-sayni-black shadow-lg sm:flex-col"
+                                className="group flex flex-row overflow-hidden rounded-3xl border border-sayni-lime/15 bg-sayni-darkGreen text-sayni-light transition-[translate,border-color] duration-300 hover:-translate-y-1 hover:border-sayni-lime/40 sm:flex-col"
                             >
-                                <div className="relative w-28 shrink-0 bg-white sm:aspect-square sm:w-full">
+                                {/* Imagen con halo lima detrás del producto */}
+                                <div className="relative w-28 shrink-0 bg-gradient-to-b from-sayni-black/40 to-transparent sm:aspect-square sm:w-full">
+                                    <span
+                                        aria-hidden
+                                        className="pointer-events-none absolute left-1/2 top-1/2 size-3/4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sayni-lime/8 blur-2xl"
+                                    />
                                     <Image
                                         src={offer.image}
                                         alt={offer.name}
                                         fill
                                         sizes="(min-width: 640px) 33vw, 112px"
-                                        className="object-contain p-1.5 sm:p-3"
+                                        className="object-contain p-2 transition-[scale] duration-500 group-hover:scale-105 sm:p-5 mt-8"
                                         priority
                                     />
-                                    <span
-                                        className="absolute left-2 top-2 hidden rounded-full px-2.5 py-1 text-[11px] font-bold text-white sm:block"
-                                        style={{ backgroundColor: BLUE }}
-                                    >
+                                    <span className="absolute left-3 top-3 hidden rounded-full bg-sayni-lime px-2.5 py-1 text-[11px] font-bold text-sayni-black sm:block">
                                         {offer.badge}
                                     </span>
                                 </div>
-                                <div className="flex min-w-0 flex-1 flex-col gap-0.5 p-3 sm:gap-1 sm:p-4">
-                                    <h3 className="font-urbanist text-base font-extrabold leading-tight sm:text-lg">{offer.name}</h3>
-                                    <p className="text-xs text-neutral-600 sm:text-sm">{offer.detail}</p>
+
+                                {/* Información */}
+                                <div className="flex min-w-0 flex-1 flex-col gap-0.5 p-3 sm:gap-1 sm:p-5">
+                                    <h3 className="font-urbanist text-base font-extrabold leading-tight text-sayni-light sm:text-lg">
+                                        {offer.name}
+                                    </h3>
+                                    <p className="text-xs text-sayni-light/60 sm:text-sm">{offer.detail}</p>
                                     <div className="mt-1 flex items-baseline gap-2 sm:mt-2">
                                         {showBefore && (
-                                            <s className="text-sm text-neutral-500">{formatPEN(offer.before)}</s>
+                                            <s className="text-sm text-sayni-light/40">{formatPEN(offer.before)}</s>
                                         )}
-                                        <span className="text-xl font-extrabold sm:text-2xl" style={{ color: cyber ? PINK : "#1B2A1E" }}>
-                                            {formatPEN(price)}
+                                        <span
+                                            className="text-xl font-extrabold sm:text-2xl"
+                                            style={cyber ? { color: PINK } : undefined}
+                                        >
+                                            <span className={cyber ? "" : "text-sayni-lime"}>{formatPEN(price)}</span>
                                         </span>
                                     </div>
 
-                                    <div className="mt-auto pt-2 sm:pt-3">
+                                    {/* Botones */}
+                                    <div className="mt-auto pt-2 sm:pt-4">
                                         {offer.variants ? (
                                             <div className="grid grid-cols-2 gap-2">
                                                 {offer.variants.map((v) => {
@@ -192,7 +215,7 @@ export default function CyberOffers() {
                     })}
                 </ul>
 
-                <p className="mt-4 text-center text-xs text-white/80 sm:text-sm">
+                <p className="mt-5 text-center text-xs text-sayni-light/60 sm:text-sm">
                     {cyber
                         ? "Pago seguro con Mercado Pago · Delivery en Lima y envíos a todo el Perú"
                         : `Delivery gratis en Lima en compras desde ${formatPEN(FREE_SHIPPING_MIN)}, hasta el 24 de diciembre · Pago seguro con Mercado Pago`}
