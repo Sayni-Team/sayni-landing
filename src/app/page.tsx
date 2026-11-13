@@ -68,19 +68,16 @@ export default function Home() {
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
             />
 
-            {/* Franja de campaña: arriba del todo, antes del header */}
+            {/* Franja de promoción: arriba del todo */}
             <CyberWowTopBar />
 
-            {/* Ofertas de temporada (Cyber Wow / Navidad): lo primero que se ve al entrar desde un anuncio */}
-            <CyberOffers />
-
-            {/* El header es absoluto: este contenedor hace que empiece debajo de la franja, sobre el Hero */}
+            {/* El header es absoluto: flota sobre el primer elemento, justo debajo de la franja */}
             <div className="relative flex flex-grow flex-col">
                 <Header />
 
                 <main className="flex-grow overflow-visible relative">
+                    <CyberOffers />
                     <Hero />
-                    {/* Banner de campaña: justo después del Hero */}
                     {isCyberActive() && <CyberWowBanner />}
                     <InfiniteMarquee />
                     <AboutUs />

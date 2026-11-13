@@ -71,7 +71,7 @@ const PRODUCTS: SeedProduct[] = [
     {
         id: "pack-regalo-clasico",
         name: "Pack Ocasión Especial",
-        image: "/assets/features/products/sayni-package-premium.webp",
+        image: "/assets/features/products/sayni-package-premium_.webp",
         price: 7990,
         stock: INITIAL_STOCK,
         status: ProductStatus.ACTIVE,
