@@ -36,6 +36,11 @@ enum PaymentMethod {
   CASH_ON_DELIVERY // pago al recibir: Yape, Plin o efectivo
 }
 
+enum ShippingMethod {
+  LIMA_DELIVERY // delivery a domicilio en Lima y Callao (tarifa por distrito)
+  SHALOM        // provincia: lo dejamos en Shalom Lima; el cliente paga el flete al recoger en su agencia
+}
+
 /* ── Productos ───────────────────────────── */
 
 model Product {
@@ -102,10 +107,17 @@ model Order {
   customerName   String
   email          String
   phone          String
-  address        String
+  address        String        // Lima: dirección de entrega. Shalom: agencia de destino.
   reference      String?
-  shippingZoneId String
-  shippingZone   ShippingZone @relation(fields: [shippingZoneId], references: [id])
+  shippingMethod ShippingMethod @default(LIMA_DELIVERY)
+  shippingZoneId String?       // solo Lima
+  shippingZone   ShippingZone? @relation(fields: [shippingZoneId], references: [id])
+
+  // Solo provincia (Shalom)
+  region         String?       // departamento
+  city           String?       // ciudad / provincia
+  shalomAgency   String?       // agencia Shalom donde recoge
+  pickupDni      String?       // DNI de quien recoge
 
   subtotal       Int          // productos, en céntimos
   shipping       Int          // envío, en céntimos

@@ -90,12 +90,12 @@ export default function CyberOffers() {
             {/* ── Fondo decorativo: dos capas del mismo patrón a distinto tamaño y desenfoque, para dar profundidad ── */}
             <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 -z-10 opacity-[0.06] blur-[4px] [mask-image:radial-gradient(ellipse_at_center,black_50%,transparent_90%)]"
+                className="pointer-events-none absolute inset-0 -z-10 opacity-[0.03] blur-[4px] [mask-image:radial-gradient(ellipse_at_center,black_50%,transparent_90%)]"
                 style={{ backgroundImage: BEAN_PATTERN, backgroundSize: "360px 360px" }}
             />
             <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 -z-10 rotate-180 opacity-[0.05] blur-[1px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_85%)]"
+                className="pointer-events-none absolute inset-0 -z-10 rotate-180 opacity-[0.04] blur-[1px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_85%)]"
                 style={{ backgroundImage: BEAN_PATTERN, backgroundSize: "520px 520px", backgroundPosition: "180px 120px" }}
             />
 

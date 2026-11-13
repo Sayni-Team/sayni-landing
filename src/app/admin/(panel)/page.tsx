@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { formatPEN } from "@/lib/pricing";
 import { STATUS_LABEL, STATUS_STYLE, formatDate } from "@/lib/order-status";
 import ExportForm from "./ExportForm";
+import { destinationLabel } from "@/lib/shipping-label";
 
 type Props = { searchParams: Promise<{ estado?: string }> };
 
@@ -78,7 +79,7 @@ export default async function OrdersPage({ searchParams }: Props) {
                             <th className="px-4 py-3">Pedido</th>
                             <th className="px-4 py-3">Fecha</th>
                             <th className="px-4 py-3">Cliente</th>
-                            <th className="px-4 py-3">Distrito</th>
+                            <th className="px-4 py-3">Destino</th>
                             <th className="px-4 py-3 text-right">Total</th>
                             <th className="px-4 py-3">Estado</th>
                         </tr>
@@ -107,7 +108,7 @@ export default async function OrdersPage({ searchParams }: Props) {
                                     </td>
                                     <td className="p-0 text-white/70">
                                         <Link href={href} tabIndex={-1} aria-hidden className={CELL_LINK}>
-                                            {o.shippingZone.district}
+                                            {destinationLabel(o)}
                                         </Link>
                                     </td>
                                     <td className="p-0 text-right font-semibold">

@@ -5,6 +5,7 @@ import { formatPEN } from "@/lib/pricing";
 import { SITE_URL } from "@/lib/mercadopago";
 import { BUSINESS, complaintCode } from "@/lib/business";
 import { estimatedDeliveryDate, formatDeliveryDate } from "@/lib/delivery";
+import { destinationLabel, isShalomOrder, SHALOM_FREIGHT_LABEL } from "@/lib/shipping-label";
 
 
 const resend = new Resend(process.env.RESEND_API_KEY);
@@ -89,7 +90,9 @@ function itemsTable(order: OrderForEmail, totalLabel = "Total pagado") {
         ${rows}
         <tr><td colspan="2" style="height:8px;"></td></tr>
         ${line("Subtotal", formatPEN(order.subtotal))}
-        ${line(`Envío (${esc(order.shippingZone.district)})`, order.shipping === 0 ? "Gratis" : formatPEN(order.shipping))}
+                ${isShalomOrder(order)
+        ? line("Envío a provincia", SHALOM_FREIGHT_LABEL)
+        : line(`Envío (${esc(destinationLabel(order))})`, order.shipping === 0 ? "Gratis" : formatPEN(order.shipping))}
         ${line(totalLabel, formatPEN(order.total), true)}
     </table>`;
 }
@@ -97,9 +100,14 @@ function itemsTable(order: OrderForEmail, totalLabel = "Total pagado") {
 function addressBlock(order: OrderForEmail) {
     return `
     <div style="margin-top:8px; padding:16px; background:#f6f7ef; border-radius:12px; font-size:14px; line-height:1.5;">
-        <strong>Entrega en ${esc(order.shippingZone.district)}</strong><br />
+        ${isShalomOrder(order)
+        ? `<strong>Recojo en Shalom · ${esc(destinationLabel(order).replace("Shalom · ", ""))}</strong><br />
+        Agencia: ${esc(order.shalomAgency ?? "")}<br />
+        DNI de quien recoge: ${esc(order.pickupDni ?? "")}<br />
+        <span style="color:#666;">Despachamos a Shalom en 24 a 48 horas hábiles. El flete se paga al recoger en la agencia.</span>`
+        : `<strong>Entrega en ${esc(destinationLabel(order))}</strong><br />
         ${esc(order.address)}
-        ${order.reference ? `<br /><span style="color:#666;">Ref.: ${esc(order.reference)}</span>` : ""}
+        ${order.reference ? `<br /><span style="color:#666;">Ref.: ${esc(order.reference)}</span>` : ""}`}
     </div>`;
 }
 
@@ -114,8 +122,12 @@ function customerEmail(order: OrderForEmail) {
             Recibimos tu pago y ya estamos preparando tu pedido <strong>#${order.number}</strong>.
         </p>
         <div style="margin:0 0 20px; padding:14px 16px; background:#f6f7ef; border-left:4px solid ${LIME}; border-radius:8px; font-size:14px;">
-                        <span style="color:#666;">Fecha estimada de entrega:</span><br />
-            <strong>Hasta el ${formatDeliveryDate(estimatedDeliveryDate(order.paidAt ?? order.createdAt))}</strong>
+                        ${isShalomOrder(order)
+            ? `<span style="color:#666;">Envío a provincia por Shalom:</span><br />
+            <strong>Lo dejamos en Shalom en 24 a 48 horas hábiles</strong><br />
+            <span style="color:#666;">Te avisaremos por WhatsApp cuando esté en camino. El flete se paga al recoger.</span>`
+            : `<span style="color:#666;">Fecha estimada de entrega:</span><br />
+            <strong>Hasta el ${formatDeliveryDate(estimatedDeliveryDate(order.paidAt ?? order.createdAt))}</strong>`}
         </div>
         ${itemsTable(order)}
         ${addressBlock(order)}
@@ -135,7 +147,9 @@ function adminEmail(order: OrderForEmail) {
             ${esc(order.phone)} · ${esc(order.email)}
         </p>
         <p style="margin:0 0 16px; font-size:14px;">
-                        <strong>Fecha límite de entrega: ${formatDeliveryDate(estimatedDeliveryDate(order.paidAt ?? order.createdAt))}</strong>
+                                    <strong>${isShalomOrder(order)
+            ? "Provincia (Shalom): dejar en Shalom Lima en 24 a 48 h hábiles, flete pagado en destino"
+            : `Fecha límite de entrega: ${formatDeliveryDate(estimatedDeliveryDate(order.paidAt ?? order.createdAt))}`}</strong>
         </p>
         ${addressBlock(order)}
         ${itemsTable(order)}

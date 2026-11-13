@@ -127,16 +127,23 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
         });
     }
 
-    // 4. Envío desde la base de datos (gratis en Navidad desde el monto mínimo)
-    const zone = await prisma.shippingZone.findFirst({
-        where: { id: data.shippingZoneId, active: true },
-    });
-    if (!zone) {
-        return { ok: false, error: "Elige un distrito válido.", fieldErrors: { shippingZoneId: "Elige tu distrito" } };
+    // 4. Envío
+    //    Lima: tarifa del distrito desde la base de datos (gratis en Navidad desde el monto mínimo).
+    //    Provincia (Shalom): lo dejamos en Shalom Lima sin costo; el flete lo paga el cliente al recoger.
+    const isShalom = data.shippingMethod === "SHALOM";
+    let zone: { id: string; district: string; price: number } | null = null;
+    if (!isShalom) {
+        zone = await prisma.shippingZone.findFirst({
+            where: { id: data.shippingZoneId, active: true },
+            select: { id: true, district: true, price: true },
+        });
+        if (!zone) {
+            return { ok: false, error: "Elige un distrito válido.", fieldErrors: { shippingZoneId: "Elige tu distrito" } };
+        }
     }
 
     const subtotal = orderItems.reduce((acc, i) => acc + i.lineTotal, 0);
-    const shipping = shippingFor(zone.price, subtotal);
+    const shipping = zone ? shippingFor(zone.price, subtotal) : 0;
     const total = subtotal + shipping;
 
     // 5. Guardar el pedido
@@ -145,9 +152,17 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
             customerName: data.customerName,
             email: data.email.toLowerCase(),
             phone: data.phone,
-            address: data.address,
             reference: data.reference || null,
-            shippingZoneId: zone.id,
+            shippingMethod: isShalom ? "SHALOM" : "LIMA_DELIVERY",
+            ...(isShalom
+                ? {
+                    address: `Agencia Shalom: ${data.shalomAgency}`,
+                    region: data.region,
+                    city: data.city,
+                    shalomAgency: data.shalomAgency,
+                    pickupDni: data.pickupDni,
+                }
+                : { address: data.address!, shippingZoneId: zone!.id }),
             subtotal,
             shipping,
             total,
@@ -188,7 +203,7 @@ export async function createOrder(input: CheckoutInput): Promise<CreateOrderResu
                         ? [
                             {
                                 id: "envio",
-                                title: `Envío — ${zone.district}`,
+                                title: `Envío — ${zone?.district ?? "Shalom"}`,
                                 quantity: 1,
                                 unit_price: shipping / 100,
                                 currency_id: "PEN",

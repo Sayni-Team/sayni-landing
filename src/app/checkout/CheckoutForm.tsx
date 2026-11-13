@@ -11,17 +11,21 @@ import { estimatedDeliveryDate, formatDeliveryDate } from "@/lib/delivery";
 import { clarityEvent } from "@/lib/clarity";
 import { metaCustomEvent, metaEvent, toSoles } from "@/lib/metaPixel";
 import { FREE_SHIPPING_MIN, isXmasActive, shippingFor } from "@/lib/promo";
+import { PERU_REGIONS } from "@/lib/peru-regions";
 
 type Zone = { id: string; district: string; price: number };
 type PaymentMethod = "MERCADO_PAGO" | "CASH_ON_DELIVERY";
+type ShippingMethod = "" | "LIMA" | "SHALOM";
 
 const WHATSAPP_NUMBER = "51939273366";
-const PROVINCE = "provincia"; // opción especial: se cotiza por WhatsApp
+const WHATSAPP_HELP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
+    "¡Hola Sayni! ☕ Tengo una consulta sobre mi pedido y el envío."
+)}`;
 
 const INPUT =
     "w-full rounded-xl border bg-[#132219] px-4 py-3 text-sm text-white placeholder-white/35 transition-colors focus:border-[#BCC90F] focus:outline-none";
 
-// Opciones de pago (solo Lima: provincia se coordina por WhatsApp)
+// Opciones de pago (pagar al recibir es solo para Lima; provincia paga con Mercado Pago)
 const PAYMENT_OPTIONS: { value: PaymentMethod; title: string; text: string }[] = [
     { value: "MERCADO_PAGO", title: "Pagar ahora con Mercado Pago", text: "Tarjeta, Yape y otros medios" },
     { value: "CASH_ON_DELIVERY", title: "Pagar al recibir", text: "Yape, Plin o efectivo · te confirmamos por WhatsApp" },
@@ -38,9 +42,14 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
         address: "",
         reference: "",
         shippingZoneId: "",
-        city: "", // solo para provincia
+        // Solo provincia (Shalom)
+        region: "",
+        city: "",
+        shalomAgency: "",
+        pickupDni: "",
     });
-    const [errors, setErrors] = useState<Partial<Record<CheckoutField | "city", string>>>({});
+    const [shippingMethod, setShippingMethod] = useState<ShippingMethod>("");
+    const [errors, setErrors] = useState<Partial<Record<CheckoutField, string>>>({});
     const [serverError, setServerError] = useState("");
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("MERCADO_PAGO");
 
@@ -68,7 +77,7 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
         clarityEvent("checkout_form_started");
     };
 
-    const isProvince = form.shippingZoneId === PROVINCE;
+    const isProvince = shippingMethod === "SHALOM";
     const isCashOnDelivery = !isProvince && paymentMethod === "CASH_ON_DELIVERY";
     const zone = useMemo(() => zones.find((z) => z.id === form.shippingZoneId), [zones, form.shippingZoneId]);
     // Tarifa plana: si todos los distritos tienen el mismo precio (se cambia desde /admin → Envíos),
@@ -86,14 +95,31 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
         setErrors((er) => ({ ...er, [field]: undefined }));
     };
 
-    // Datos para validar y enviar (provincia no necesita zona de la base de datos)
+    const chooseShipping = (method: Exclude<ShippingMethod, "">) => {
+        trackFormStarted();
+        setShippingMethod(method);
+        if (method === "SHALOM") setPaymentMethod("MERCADO_PAGO"); // pagar al recibir es solo para Lima
+        setErrors({});
+    };
+
+    // Datos para validar y enviar: Lima lleva distrito y dirección; provincia, los datos de la agencia Shalom
     const payload = (): CheckoutInput => ({
         customerName: form.customerName,
         email: form.email,
         phone: form.phone,
-        address: form.address,
-        reference: form.reference || undefined,
-        shippingZoneId: isProvince ? PROVINCE : form.shippingZoneId,
+        shippingMethod: (shippingMethod || undefined) as CheckoutInput["shippingMethod"],
+        ...(isProvince
+            ? {
+                region: form.region,
+                city: form.city,
+                shalomAgency: form.shalomAgency,
+                pickupDni: form.pickupDni.replace(/\D/g, ""),
+            }
+            : {
+                shippingZoneId: form.shippingZoneId,
+                address: form.address,
+                reference: form.reference || undefined,
+            }),
         items: items.map((i) => ({ productId: i.productId, variant: i.variant, quantity: i.quantity })),
         paymentMethod: isProvince ? "MERCADO_PAGO" : paymentMethod,
     });
@@ -117,7 +143,6 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
                 next[key as CheckoutField] = messages?.[0];
             }
         }
-        if (isProvince && form.city.trim().length < 3) next.city = "Indica tu ciudad o provincia";
         setErrors(next);
         const ok = Object.keys(next).length === 0;
         if (!ok) scrollToFirstError();
@@ -126,46 +151,22 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
 
     const hasErrors = Object.values(errors).some(Boolean);
     const shippingLabel = isProvince
-        ? "Por cotizar"
-        : freeShipping
-            ? "¡Gratis! 🎄"
-            : shippingKnown
-                ? formatPEN(shipping)
-                : "Elige tu distrito";
-    const grandTotal = total + (isProvince ? 0 : shipping);
+        ? "Flete Shalom: pagas al recoger"
+        : !shippingMethod
+            ? "Elige dónde recibes"
+            : freeShipping
+                ? "¡Gratis! 🎄"
+                : shippingKnown
+                    ? formatPEN(shipping)
+                    : "Elige tu distrito";
+    const grandTotal = total + (isProvince || !shippingMethod ? 0 : shipping);
 
-    const buttonLabel = isPending
-        ? "Procesando…"
-        : isProvince
-            ? "Coordinar por WhatsApp"
-            : isCashOnDelivery
-                ? "Registrar pedido"
-                : "Continuar al pago";
-
-    // Provincia: el pedido se coordina por WhatsApp (el envío se cotiza aparte)
-    const sendToWhatsApp = () => {
-        const list = items.map((i) => `• ${i.quantity}x *${i.title}* — ${formatPEN(i.unitPrice)} c/u`).join("\n");
-        const promo = discount > 0 ? `\n*Descuento por promoción:* -${formatPEN(discount)}` : "";
-        const message =
-            `¡Hola Sayni! ☕ Quiero hacer un pedido para *provincia*:\n\n${list}\n${promo}\n*Total productos:* ${formatPEN(total)}\n\n` +
-            `*Nombre:* ${form.customerName}\n*Teléfono:* ${form.phone}\n*Correo:* ${form.email}\n` +
-            `*Ciudad / provincia:* ${form.city}\n*Dirección:* ${form.address}` +
-            (form.reference ? `\n*Referencia:* ${form.reference}` : "") +
-            `\n\n¿Me pueden cotizar el envío?`;
-
-        clarityEvent("checkout_whatsapp");
-        window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
-    };
+    const buttonLabel = isPending ? "Procesando…" : isCashOnDelivery ? "Registrar pedido" : "Continuar al pago";
 
     const onSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         setServerError("");
         if (!validate()) return;
-
-        if (isProvince) {
-            sendToWhatsApp();
-            return;
-        }
 
         // Solo cuenta a quienes rellenaron bien el formulario y enviaron el pedido
         clarityEvent("checkout_submit");
@@ -175,6 +176,7 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
             value: toSoles(grandTotal),
             currency: "PEN",
             payment_type: isCashOnDelivery ? "contra_entrega" : "mercado_pago",
+            shipping_tier: isProvince ? "shalom_provincia" : "delivery_lima",
         });
 
         startTransition(async () => {
@@ -235,49 +237,119 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
                 </div>
             </div>
 
-            {/* Datos: primero el distrito (define el envío y el total), luego los datos de contacto */}
+            {/* Datos: primero el destino (define el envío y el total), luego los datos de contacto */}
             <div className="space-y-8">
                 <fieldset className="space-y-4">
-                    <legend className="mb-2 font-heading text-lg font-bold text-white">¿A dónde lo enviamos?</legend>
-                    <Field label="Distrito" error={errors.shippingZoneId}>
-                        <select className={cnInput(errors.shippingZoneId)} aria-invalid={Boolean(errors.shippingZoneId)} value={form.shippingZoneId} onChange={set("shippingZoneId")}>
-                            <option value="">Elige tu distrito</option>
-                            <optgroup label="Lima y Callao">
-                                {zones.map((z) => (
-                                    <option key={z.id} value={z.id}>
-                                        {flatRate !== null ? z.district : `${z.district} — ${formatPEN(z.price)}`}
-                                    </option>
-                                ))}
-                            </optgroup>
-                            <optgroup label="Fuera de Lima">
-                                <option value={PROVINCE}>Provincia — se cotiza por WhatsApp</option>
-                            </optgroup>
-                        </select>
-                    </Field>
-                    {!isProvince && freeShipping && (
-                        <p className="-mt-2 text-sm text-[#BCC90F]">🎄 Delivery gratis a todo Lima y Callao por Navidad</p>
-                    )}
-                    {!isProvince && !freeShipping && flatRate !== null && (
-                        <p className="-mt-2 text-sm text-[#BCC90F]">Delivery a todo Lima y Callao: {formatPEN(flatRate)}</p>
-                    )}
-                    {!isProvince && missingForFree > 0 && (
-                        <p className="-mt-2 text-xs text-white/60">
-                            Te faltan {formatPEN(missingForFree)} para el delivery gratis de Navidad (desde {formatPEN(FREE_SHIPPING_MIN)}).
-                        </p>
+                    <legend className="mb-2 font-heading text-lg font-bold text-white">¿Dónde recibes tu pedido?</legend>
+
+                    {/* Primero el destino: deja claro desde el inicio que se envía a todo el Perú */}
+                    <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Dónde recibes tu pedido" aria-invalid={Boolean(errors.shippingMethod)}>
+                        <ShippingOption
+                            selected={shippingMethod === "LIMA"}
+                            onSelect={() => chooseShipping("LIMA")}
+                            invalid={Boolean(errors.shippingMethod)}
+                            icon="🏙️"
+                            title="Lima y Callao"
+                            text={isXmasActive() ? `Delivery a domicilio · gratis desde ${formatPEN(FREE_SHIPPING_MIN)} 🎄` : "Delivery a domicilio"}
+                        />
+                        <ShippingOption
+                            selected={isProvince}
+                            onSelect={() => chooseShipping("SHALOM")}
+                            invalid={Boolean(errors.shippingMethod)}
+                            icon="📦"
+                            title="Provincia"
+                            text="Envíos a todo el Perú por Shalom"
+                        />
+                    </div>
+                    {errors.shippingMethod && <p className="-mt-2 text-xs text-red-300">{errors.shippingMethod}</p>}
+
+                    {/* Lima y Callao: distrito + dirección */}
+                    {shippingMethod === "LIMA" && (
+                        <>
+                            <Field label="Distrito" error={errors.shippingZoneId}>
+                                <select className={cnInput(errors.shippingZoneId)} aria-invalid={Boolean(errors.shippingZoneId)} value={form.shippingZoneId} onChange={set("shippingZoneId")}>
+                                    <option value="">Elige tu distrito</option>
+                                    {zones.map((z) => (
+                                        <option key={z.id} value={z.id}>
+                                            {flatRate !== null ? z.district : `${z.district} — ${formatPEN(z.price)}`}
+                                        </option>
+                                    ))}
+                                </select>
+                            </Field>
+                            {freeShipping && (
+                                <p className="-mt-2 text-sm text-[#BCC90F]">🎄 Delivery gratis a todo Lima y Callao por Navidad</p>
+                            )}
+                            {!freeShipping && flatRate !== null && (
+                                <p className="-mt-2 text-sm text-[#BCC90F]">Delivery a todo Lima y Callao: {formatPEN(flatRate)}</p>
+                            )}
+                            {missingForFree > 0 && (
+                                <p className="-mt-2 text-xs text-white/60">
+                                    Te faltan {formatPEN(missingForFree)} para el delivery gratis de Navidad (desde {formatPEN(FREE_SHIPPING_MIN)}).
+                                </p>
+                            )}
+                            <Field label="Dirección" error={errors.address}>
+                                <input className={cnInput(errors.address)} aria-invalid={Boolean(errors.address)} value={form.address} onChange={set("address")} autoComplete="street-address" />
+                            </Field>
+                            <Field label="Referencia (opcional)" error={errors.reference}>
+                                <input className={cnInput(errors.reference)} aria-invalid={Boolean(errors.reference)} value={form.reference} onChange={set("reference")} placeholder="Ej. Frente al parque" />
+                            </Field>
+                        </>
                     )}
 
+                    {/* Provincia: recojo en agencia Shalom (el flete se paga al recoger, nunca decimos "gratis") */}
                     {isProvince && (
-                        <Field label="Ciudad / provincia" error={errors.city}>
-                            <input className={cnInput(errors.city)} aria-invalid={Boolean(errors.city)} value={form.city} onChange={set("city")} placeholder="Ej. Arequipa" />
-                        </Field>
-                    )}
+                        <>
+                            <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm leading-relaxed text-white/75">
+                                <p className="font-semibold text-white">¿Cómo funciona el envío a provincia?</p>
+                                <ol className="mt-2 list-decimal space-y-1 pl-5">
+                                    <li>Pagas tu café aquí con Mercado Pago.</li>
+                                    <li>Llevamos tu pedido a Shalom en 24 a 48 horas hábiles, <strong className="text-white">sin costo para ti</strong>.</li>
+                                    <li>
+                                        Lo recoges en la agencia Shalom que elijas y ahí <strong className="text-white">pagas el flete de Shalom</strong> (según tu destino).
+                                    </li>
+                                </ol>
+                                <p className="mt-2 text-xs text-white/50">El tiempo de traslado hasta tu ciudad depende de Shalom.</p>
+                            </div>
 
-                    <Field label="Dirección" error={errors.address}>
-                        <input className={cnInput(errors.address)} aria-invalid={Boolean(errors.address)} value={form.address} onChange={set("address")} autoComplete="street-address" />
-                    </Field>
-                    <Field label="Referencia (opcional)" error={errors.reference}>
-                        <input className={cnInput(errors.reference)} aria-invalid={Boolean(errors.reference)} value={form.reference} onChange={set("reference")} placeholder="Ej. Frente al parque" />
-                    </Field>
+                            <div className="grid gap-4 sm:grid-cols-2">
+                                <Field label="Departamento" error={errors.region}>
+                                    <select className={cnInput(errors.region)} aria-invalid={Boolean(errors.region)} value={form.region} onChange={set("region")}>
+                                        <option value="">Elige tu departamento</option>
+                                        {PERU_REGIONS.map((r) => (
+                                            <option key={r} value={r}>
+                                                {r}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </Field>
+                                <Field label="Ciudad / provincia" error={errors.city}>
+                                    <input className={cnInput(errors.city)} aria-invalid={Boolean(errors.city)} value={form.city} onChange={set("city")} placeholder="Ej. Piura" />
+                                </Field>
+                            </div>
+                            <Field label="Agencia Shalom donde recogerás" error={errors.shalomAgency}>
+                                <input
+                                    className={cnInput(errors.shalomAgency)}
+                                    aria-invalid={Boolean(errors.shalomAgency)}
+                                    value={form.shalomAgency}
+                                    onChange={set("shalomAgency")}
+                                    placeholder="Ej. Shalom Piura – Av. Sánchez Cerro"
+                                />
+                            </Field>
+                            <p className="-mt-2 text-xs text-white/50">Puedes ver las agencias cercanas en la app o web de Shalom.</p>
+                            <Field label="DNI de quien recoge" error={errors.pickupDni}>
+                                <input
+                                    className={cnInput(errors.pickupDni)}
+                                    aria-invalid={Boolean(errors.pickupDni)}
+                                    value={form.pickupDni}
+                                    onChange={set("pickupDni")}
+                                    inputMode="numeric"
+                                    maxLength={8}
+                                    placeholder="8 dígitos"
+                                />
+                            </Field>
+                            <p className="-mt-2 text-xs text-white/50">Shalom pide el DNI para entregar el paquete. El nombre de abajo debe ser el de esa persona.</p>
+                        </>
+                    )}
                 </fieldset>
 
                 <fieldset className="space-y-4">
@@ -338,11 +410,18 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
                     </p>
                 )}
 
-                {/* Método de pago: solo Lima (provincia se coordina por WhatsApp) */}
-                {!isProvince && (
+                {/* Provincia: el flete se paga en destino */}
+                {isProvince && (
+                    <p className="rounded-xl bg-[#BCC90F]/10 px-3 py-2.5 text-sm text-white/80">
+                        Despachamos a Shalom en <strong className="text-white">24 a 48 horas hábiles</strong>. El flete de Shalom se paga al recoger y no está incluido en este total.
+                    </p>
+                )}
+
+                {/* Método de pago: pagar al recibir solo en Lima */}
+                {shippingMethod && (
                     <fieldset className="space-y-2">
-                        <legend className="mb-5 text-sm font-semibold text-white">¿Cómo quieres pagar?</legend>
-                        {PAYMENT_OPTIONS.map((option) => {
+                        <legend className="mb-4 text-sm font-semibold text-white">¿Cómo quieres pagar?</legend>
+                        {PAYMENT_OPTIONS.filter((option) => !isProvince || option.value === "MERCADO_PAGO").map((option) => {
                             const selected = paymentMethod === option.value;
                             return (
                                 <label
@@ -391,6 +470,16 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
                     {buttonLabel}
                 </button>
 
+                <a
+                    href={WHATSAPP_HELP_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => clarityEvent("checkout_whatsapp_help")}
+                    className="block text-center text-sm text-white/70 underline underline-offset-4 transition-colors hover:text-[#BCC90F]"
+                >
+                    ¿Dudas con tu pedido o envío? Escríbenos por WhatsApp
+                </a>
+
                 <p className="text-center text-xs leading-relaxed text-white/50">
                     Al continuar aceptas nuestros{" "}
                     <Link href="/terminos-y-condiciones" target="_blank" className="text-white/70 underline underline-offset-2 hover:text-[#BCC90F]">
@@ -418,6 +507,43 @@ function Field({ label, error, children }: { label: string; error?: string; chil
             {children}
             {error && <span className="mt-1 block text-xs text-red-300">{error}</span>}
         </label>
+    );
+}
+
+function ShippingOption({
+                            selected,
+                            onSelect,
+                            invalid,
+                            icon,
+                            title,
+                            text,
+                        }: {
+    selected: boolean;
+    onSelect: () => void;
+    invalid: boolean;
+    icon: string;
+    title: string;
+    text: string;
+}) {
+    return (
+        <button
+            type="button"
+            role="radio"
+            aria-checked={selected}
+            onClick={onSelect}
+            className={`flex w-full cursor-pointer items-start gap-3 rounded-xl border p-4 text-left transition-colors ${
+                selected
+                    ? "border-[#BCC90F] bg-[#BCC90F]/10"
+                    : invalid
+                        ? "border-red-400 bg-[#132219]"
+                        : "border-white/15 bg-[#132219] hover:border-white/35"
+            }`}
+        >
+            <span>
+                <span className="block text-base font-semibold text-white">{title}</span>
+                <span className="mt-0.5 block text-xs text-white/65">{text}</span>
+            </span>
+        </button>
     );
 }
 

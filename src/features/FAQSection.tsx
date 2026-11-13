@@ -23,7 +23,7 @@ const faqData: FAQItem[] = [
     },
     {
         question: "¿Cómo compro y hacen envíos?",
-        answer: "Puedes hacer tu pedido por WhatsApp o por nuestro Instagram. Hacemos delivery en Lima Metropolitana, con un costo que depende del distrito. Te lo confirmamos antes de cerrar tu pedido. Si buscas un regalo, tenemos packs de 4 bolsas en caja premium, con opción de incluir una prensa francesa.",
+        answer: "Puedes comprar aquí en la web o escribirnos por WhatsApp. En Lima Metropolitana y Callao hacemos delivery a domicilio (el costo depende del distrito y se muestra antes de pagar). A provincia enviamos a todo el Perú por Shalom: llevamos tu pedido a Shalom en 24 a 48 horas hábiles sin costo, y el flete hasta tu ciudad lo pagas al recoger en la agencia que elijas.",
     },
     {
         question: "¿Atienden empresas, cafeterías o pedidos al por mayor?",
