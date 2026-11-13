@@ -2,6 +2,7 @@ import ExcelJS from "exceljs";
 import { getAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { EXPORT_FILTERS, STATUS_LABEL, formatDate } from "@/lib/order-status";
+import {destinationLabel} from "@/lib/shipping-label";
 
 export const dynamic = "force-dynamic";
 
@@ -50,9 +51,10 @@ export async function GET(req: Request) {
         { header: "Cliente", key: "customer", width: 26 },
         { header: "Correo", key: "email", width: 28 },
         { header: "Teléfono", key: "phone", width: 15 },
-        { header: "Distrito", key: "district", width: 22 },
+        { header: "Destino", key: "district", width: 26 },
         { header: "Dirección", key: "address", width: 34 },
         { header: "Referencia", key: "reference", width: 26 },
+        { header: "DNI recoge (Shalom)", key: "pickupDni", width: 16 },
         { header: "Subtotal", key: "subtotal", width: 12, style: { numFmt: MONEY_FORMAT } },
         { header: "Envío", key: "shipping", width: 10, style: { numFmt: MONEY_FORMAT } },
         { header: "Total", key: "total", width: 12, style: { numFmt: MONEY_FORMAT } },
@@ -68,9 +70,10 @@ export async function GET(req: Request) {
             customer: o.customerName,
             email: o.email,
             phone: o.phone,
-            district: o.shippingZone.district,
+            district: destinationLabel(o),
             address: o.address,
             reference: o.reference ?? "",
+            pickupDni: o.pickupDni ?? "",
             subtotal: o.subtotal / 100,
             shipping: o.shipping / 100,
             total: o.total / 100,

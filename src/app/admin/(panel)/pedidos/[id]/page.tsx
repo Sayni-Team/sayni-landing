@@ -5,6 +5,7 @@ import { formatPEN } from "@/lib/pricing";
 import { STATUS_LABEL, STATUS_STYLE, TRANSITIONS, formatDate } from "@/lib/order-status";
 import { updateOrderStatus } from "../actions";
 import { estimatedDeliveryDate, formatDeliveryDate } from "@/lib/delivery";
+import { destinationLabel, isShalomOrder } from "@/lib/shipping-label";
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -61,9 +62,19 @@ export default async function OrderDetailPage({ params }: Props) {
                 {/* Entrega */}
                 <section className="rounded-2xl border border-white/10 bg-[#132219] p-5">
                     <h2 className="text-xs font-semibold uppercase tracking-wider text-white/50">Entrega</h2>
-                    <p className="mt-3 font-semibold">{order.shippingZone.district}</p>
-                    <p className="mt-1 text-sm text-white/80">{order.address}</p>
-                    {order.reference && <p className="mt-1 text-sm text-white/60">Ref.: {order.reference}</p>}
+                    <p className="mt-3 font-semibold">{destinationLabel(order)}</p>
+                    {isShalomOrder(order) ? (
+                        <>
+                            <p className="mt-1 text-sm text-white/80">Agencia: {order.shalomAgency}</p>
+                            <p className="mt-1 text-sm text-white/80">DNI de quien recoge: {order.pickupDni}</p>
+                            <p className="mt-1 text-xs text-white/50">Dejar en Shalom Lima con flete pagado en destino.</p>
+                        </>
+                    ) : (
+                        <>
+                            <p className="mt-1 text-sm text-white/80">{order.address}</p>
+                            {order.reference && <p className="mt-1 text-sm text-white/60">Ref.: {order.reference}</p>}
+                        </>
+                    )}
                     {(order.paidAt ?? order.confirmedAt) && order.status === "PAID" && (
                         <p className="mt-3 text-sm font-semibold text-[#BCC90F]">
                             Fecha límite de entrega: {formatDeliveryDate(estimatedDeliveryDate((order.paidAt ?? order.confirmedAt)!))}

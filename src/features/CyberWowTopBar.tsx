@@ -17,11 +17,11 @@ const XMAS = {
     pillText: "#121212",
     pill: "NAVIDAD",
     messages: [
-        "🎄 Delivery gratis en Lima",
-        `En compras desde ${formatPEN(FREE_SHIPPING_MIN)}`,
+        `🎄 Delivery gratis en Lima desde ${formatPEN(FREE_SHIPPING_MIN)}`,
+        "📦 Envíos a todo el Perú por Shalom",
         "Hasta el 24 de diciembre",
     ],
-    label: "Navidad en Sayni: delivery gratis en Lima. Ver regalos",
+    label: "Navidad en Sayni: delivery gratis en Lima y envíos a todo el Perú. Ver regalos",
 };
 const REPEAT = 4; // repeticiones por mitad: cubren de sobra pantallas anchas
 

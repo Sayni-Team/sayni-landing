@@ -90,12 +90,12 @@ export default function CyberOffers() {
             {/* ── Fondo decorativo: dos capas del mismo patrón a distinto tamaño y desenfoque, para dar profundidad ── */}
             <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 -z-10 opacity-[0.06] blur-[4px] [mask-image:radial-gradient(ellipse_at_center,black_50%,transparent_90%)]"
+                className="pointer-events-none absolute inset-0 -z-10 opacity-[0.03] blur-[4px] [mask-image:radial-gradient(ellipse_at_center,black_50%,transparent_90%)]"
                 style={{ backgroundImage: BEAN_PATTERN, backgroundSize: "360px 360px" }}
             />
             <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 -z-10 rotate-180 opacity-[0.05] blur-[1px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_85%)]"
+                className="pointer-events-none absolute inset-0 -z-10 rotate-180 opacity-[0.04] blur-[1px] [mask-image:radial-gradient(ellipse_at_center,black_40%,transparent_85%)]"
                 style={{ backgroundImage: BEAN_PATTERN, backgroundSize: "520px 520px", backgroundPosition: "180px 120px" }}
             />
 
@@ -136,7 +136,7 @@ export default function CyberOffers() {
                                 className="group flex flex-row overflow-hidden rounded-3xl border border-sayni-lime/15 bg-sayni-darkGreen text-sayni-light transition-[translate,border-color] duration-300 hover:-translate-y-1 hover:border-sayni-lime/40 sm:flex-col"
                             >
                                 {/* Imagen con halo lima detrás del producto */}
-                                <div className="relative w-28 shrink-0 bg-gradient-to-b from-sayni-black/40 to-transparent sm:aspect-square sm:w-full">
+                                <div className="relative w-28 shrink-0 self-stretch bg-gradient-to-b from-sayni-black/40 to-transparent sm:aspect-square sm:w-full">
                                     <span
                                         aria-hidden
                                         className="pointer-events-none absolute left-1/2 top-1/2 size-3/4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sayni-lime/8 blur-2xl"
@@ -146,7 +146,7 @@ export default function CyberOffers() {
                                         alt={offer.name}
                                         fill
                                         sizes="(min-width: 640px) 33vw, 112px"
-                                        className="object-contain p-2 transition-[scale] duration-500 group-hover:scale-105 sm:p-5 mt-8"
+                                        className="object-contain p-2 transition-[scale] duration-500 group-hover:scale-105 sm:mt-8 sm:p-5"
                                         priority
                                     />
                                     <span className="absolute left-3 top-3 hidden rounded-full bg-sayni-lime px-2.5 py-1 text-[11px] font-bold text-sayni-black sm:block">

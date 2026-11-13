@@ -23,7 +23,7 @@ export default async function ResultPage({ searchParams }: Props) {
     const order = external_reference
         ? await prisma.order.findUnique({
             where: { id: external_reference },
-            select: { id: true, number: true, total: true, paidAt: true, createdAt: true, paymentMethod: true },
+            select: { id: true, number: true, total: true, paidAt: true, createdAt: true, paymentMethod: true, shippingMethod: true },
         })
         : null;
 
@@ -67,12 +67,21 @@ export default async function ResultPage({ searchParams }: Props) {
                 )}
 
                 {/* Mercado Pago: fecha estimada. paidAt puede tardar unos segundos (llega por el webhook) */}
-                {kind === "approved" && order && (
+                {kind === "approved" && order && order.shippingMethod !== "SHALOM" && (
                     <div className="mt-6 rounded-2xl border border-[#BCC90F]/30 bg-[#BCC90F]/10 px-4 py-3 text-sm">
                         <span className="block text-white/60">Fecha estimada de entrega</span>
                         <span className="font-semibold text-white">
                             Hasta el {formatDeliveryDate(estimatedDeliveryDate(order.paidAt ?? order.createdAt))}
                         </span>
+                    </div>
+                )}
+
+                {/* Provincia: no prometemos fecha de llegada (depende de Shalom) */}
+                {kind === "approved" && order && order.shippingMethod === "SHALOM" && (
+                    <div className="mt-6 rounded-2xl border border-[#BCC90F]/30 bg-[#BCC90F]/10 px-4 py-3 text-sm">
+                        <span className="block text-white/60">Envío a provincia por Shalom</span>
+                        <span className="font-semibold text-white">Lo dejamos en Shalom en 24 a 48 horas hábiles</span>
+                        <span className="mt-1 block text-white/60">Te avisamos por WhatsApp. El flete se paga al recoger en tu agencia.</span>
                     </div>
                 )}
 
