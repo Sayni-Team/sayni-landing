@@ -5,7 +5,7 @@ export const CYBER_END = new Date("2026-11-06T04:59:59Z");
 
 /** Navidad: delivery gratis en Lima desde un monto mínimo, hasta el 24 de diciembre, 23:59 (Lima) */
 export const XMAS_FREE_SHIPPING_END = new Date("2026-12-24T23:59:59-05:00")
-export const FREE_SHIPPING_MIN = 6990; // céntimos (S/ 69.90)
+export const FREE_SHIPPING_MIN = 0; // Navidad: delivery gratis en Lima en cualquier compra
 
 export const isCyberActive = (now: Date = new Date()) => now <= CYBER_END;
 export const isXmasActive = (now: Date = new Date()) => now > CYBER_END && now <= XMAS_FREE_SHIPPING_END;
