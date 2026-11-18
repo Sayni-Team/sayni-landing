@@ -1,14 +1,16 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useCart } from "@/context/CartContext";
 import { metaEvent } from "@/lib/metaPixel";
 import { FREE_SHIPPING_MIN, isCyberActive } from "@/lib/promo";
+import OfferDialog, { type Offer } from "./OfferDialog";
 
 // Ofertas de temporada: Cyber Wow (2 al 5 de noviembre) y luego Navidad (delivery gratis).
 // Bloque visible apenas carga la web, para que quien llega desde un anuncio vea de inmediato los precios.
 // "Comprar" agrega el producto al carrito y lo abre (desde ahí se va a /checkout → Mercado Pago).
+// Tocar la imagen abre un diálogo con información complementaria y compra rápida.
 // El precio mostrado sale del catálogo, igual que en el carrito y el checkout.
 
 const PINK = "#FE2D73"; // solo para la marca Cyber Wow, durante la campaña
@@ -18,16 +20,6 @@ const PINK = "#FE2D73"; // solo para la marca Cyber Wow, durante la campaña
 const BEAN_SVG = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="360" height="360" viewBox="0 0 360 360"><defs><g id="b"><path d="M2-28C16-27 23-13 22 2S13 28-1 28C-15 27-23 14-22-1S-12-29 2-28Z" fill="#BCC90F" fill-opacity="0.18" stroke="#BCC90F" stroke-width="2"/><path d="M3-24C-6-14 8-6 0 2S-8 16 1 24" fill="none" stroke="#BCC90F" stroke-width="2.2" stroke-linecap="round"/><path d="M7-21C0-12 12-5 4 3S-3 15 5 21" fill="none" stroke="#BCC90F" stroke-width="1" stroke-linecap="round" opacity="0.6"/></g></defs><use xlink:href="#b" href="#b" transform="translate(62 72) rotate(-25) scale(1.1)"/><use xlink:href="#b" href="#b" transform="translate(252 46) rotate(40) scale(0.8)"/><use xlink:href="#b" href="#b" transform="translate(172 192) rotate(-70) scale(1.35)"/><use xlink:href="#b" href="#b" transform="translate(306 262) rotate(15) scale(0.95)"/><use xlink:href="#b" href="#b" transform="translate(70 292) rotate(65) scale(0.85)"/></svg>`;
 const BEAN_PATTERN = `url("data:image/svg+xml,${encodeURIComponent(BEAN_SVG)}")`;
 
-type Offer = {
-    productId: string; // id del producto en la base de datos
-    name: string;
-    detail: string;
-    image: string;
-    before: number; // precio anterior, en céntimos (solo referencia visual)
-    badge: string;
-    variants?: { key: string; label: string }[]; // presentaciones (grano / molido)
-};
-
 const OFFERS: readonly Offer[] = [
     {
         productId: "pack-regalo-clasico",
@@ -36,6 +28,13 @@ const OFFERS: readonly Offer[] = [
         image: "/assets/features/products/pack-ocasion-cuadrado_.webp",
         before: 8990,
         badge: "Ideal para regalar",
+        tagline: "Un regalo listo para entregar.",
+        highlights: [
+            { icon: "gift", text: "Caja premium, lista para regalar" },
+            { icon: "press", text: "Prensa francesa de 350 ml" },
+            { icon: "bag", text: "2 bolsas de Sayni Clásico" },
+            { icon: "flame", text: "Tueste oscuro, sabor intenso" },
+        ],
     },
     {
         productId: "pack-clasico-prensa",
@@ -44,6 +43,13 @@ const OFFERS: readonly Offer[] = [
         image: "/assets/features/products/bolsa_prensa.webp",
         before: 7990,
         badge: "Café de todos los días",
+        tagline: "Tu café de cada mañana, en casa o en la oficina.",
+        highlights: [
+            { icon: "bag", text: "2 bolsas Clásico de 220 g" },
+            { icon: "press", text: "Prensa francesa de 350 ml" },
+            { icon: "flame", text: "Tueste oscuro, sabor intenso" },
+            { icon: "mountain", text: "Blend 100% cusqueño" },
+        ],
     },
     {
         productId: "geisha-250",
@@ -56,6 +62,13 @@ const OFFERS: readonly Offer[] = [
             { key: "grano", label: "Grano" },
             { key: "molido", label: "Molido" },
         ],
+        tagline: "Para darte un gusto o sorprender a alguien.",
+        highlights: [
+            { icon: "flower", text: "Suave y floral, nada amargo" },
+            { icon: "drop", text: "Durazno y miel" },
+            { icon: "sun", text: "Para la tarde, sin prisa" },
+            { icon: "mountain", text: "Finca de la Sra. Griselda, Cusco" },
+        ],
     },
 ];
 
@@ -67,6 +80,7 @@ const BUTTON =
 export default function CyberOffers() {
     const { addToCart, getProduct, remainingStock } = useCart();
     const cyber = isCyberActive();
+    const [selected, setSelected] = useState<Offer | null>(null);
 
     // ViewContent: el visitante vio las ofertas (una vez por carga de página)
     useEffect(() => {
@@ -85,7 +99,7 @@ export default function CyberOffers() {
         <section
             id="ofertas-cyber"
             aria-label={cyber ? "Ofertas Cyber Wow en Sayni" : "Regalos de Navidad en Sayni"}
-            className="relative isolate w-full overflow-hidden border-b border-white/5 bg-sayni-black px-4 pb-8 pt-28  sm:px-8 sm:pb-10 sm:pt-32"
+            className="relative isolate w-full overflow-hidden border-b border-white/5 bg-sayni-black px-4 pb-8 pt-28 sm:px-8 sm:pb-10 sm:pt-32"
         >
             {/* ── Fondo decorativo: dos capas del mismo patrón a distinto tamaño y desenfoque, para dar profundidad ── */}
             <div
@@ -115,11 +129,9 @@ export default function CyberOffers() {
                             </h2>
                         </>
                     ) : (
-                        <>
-                            <h2 className="font-heading text-xl font-bold text-sayni-light sm:text-3xl">
-                                Regalos de café con <span className="text-sayni-lime">delivery gratis</span> en Lima
-                            </h2>
-                        </>
+                        <h2 className="font-heading text-xl font-bold text-sayni-light sm:text-3xl">
+                            Regalos de café con <span className="text-sayni-lime">delivery gratis</span> en Lima
+                        </h2>
                     )}
                 </div>
 
@@ -135,8 +147,13 @@ export default function CyberOffers() {
                                 key={offer.productId}
                                 className="group flex flex-row overflow-hidden rounded-3xl border border-sayni-lime/15 bg-sayni-darkGreen text-sayni-light transition-[translate,border-color] duration-300 hover:-translate-y-1 hover:border-sayni-lime/40 sm:flex-col"
                             >
-                                {/* Imagen con halo lima detrás del producto */}
-                                <div className="relative w-28 shrink-0 self-stretch bg-gradient-to-b from-sayni-black/40 to-transparent sm:aspect-square sm:w-full">
+                                {/* Imagen: abre el diálogo con la información del producto */}
+                                <button
+                                    type="button"
+                                    onClick={() => setSelected(offer)}
+                                    aria-label={`Ver detalles de ${offer.name}`}
+                                    className="relative w-28 shrink-0 cursor-pointer self-stretch bg-gradient-to-b from-sayni-black/40 to-transparent sm:aspect-square sm:w-full"
+                                >
                                     <span
                                         aria-hidden
                                         className="pointer-events-none absolute left-1/2 top-1/2 size-3/4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sayni-lime/8 blur-2xl"
@@ -152,7 +169,7 @@ export default function CyberOffers() {
                                     <span className="absolute left-3 top-3 hidden rounded-full bg-sayni-lime px-2.5 py-1 text-[11px] font-bold text-sayni-black sm:block">
                                         {offer.badge}
                                     </span>
-                                </div>
+                                </button>
 
                                 {/* Información */}
                                 <div className="flex min-w-0 flex-1 flex-col gap-0.5 p-3 sm:gap-1 sm:p-5">
@@ -221,6 +238,9 @@ export default function CyberOffers() {
                         : `Delivery gratis en Lima en compras desde ${formatPEN(FREE_SHIPPING_MIN)}, hasta el 24 de diciembre · Pago seguro con Mercado Pago`}
                 </p>
             </div>
+
+            {/* Diálogo del producto */}
+            <OfferDialog offer={selected} onClose={() => setSelected(null)} />
         </section>
     );
 }
