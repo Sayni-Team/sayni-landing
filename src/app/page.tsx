@@ -76,7 +76,7 @@ export default function Home() {
                 <Header />
 
                 <main className="flex-grow overflow-visible relative">
-                    <CyberOffers />
+                    <Hero />
                     {isCyberActive() && <CyberWowBanner />}
                     <InfiniteMarquee />
                     <AboutUs />
