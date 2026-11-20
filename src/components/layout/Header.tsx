@@ -6,6 +6,7 @@ import Image from "next/image";
 import { motion, AnimatePresence, type Variants } from "framer-motion";
 import { useCart } from "@/context/CartContext";
 import { formatPEN } from "@/lib/pricing";
+import PaymentMethods from "@/components/PaymentMethods";
 
 const EASE = [0.215, 0.61, 0.355, 1] as const;
 
@@ -398,6 +399,8 @@ export default function Header() {
                                 <span className="text-xl font-bold text-white">{formatPEN(total)}</span>
                             </div>
                         </div>
+
+                        <PaymentMethods compact />
 
                         <Link
                             href="/checkout"

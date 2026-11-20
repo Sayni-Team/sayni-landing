@@ -16,6 +16,7 @@ import { PERU_REGIONS } from "@/lib/peru-regions";
 type Zone = { id: string; district: string; price: number };
 type PaymentMethod = "MERCADO_PAGO" | "CASH_ON_DELIVERY";
 type ShippingMethod = "" | "LIMA" | "SHALOM";
+type GuideStep = 1 | 2 | 3;
 
 const WHATSAPP_NUMBER = "51939273366";
 const WHATSAPP_HELP_URL = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(
@@ -30,6 +31,17 @@ const PAYMENT_OPTIONS: { value: PaymentMethod; title: string; text: string }[] =
     { value: "MERCADO_PAGO", title: "Pagar ahora con Mercado Pago", text: "Tarjeta, Yape y otros medios" },
     { value: "CASH_ON_DELIVERY", title: "Pagar al recibir", text: "Yape, Plin o efectivo · te confirmamos por WhatsApp" },
 ];
+
+// Pago guiado: qué hacer en cada paso
+const GUIDE_HINTS: Record<GuideStep, string> = {
+    1: "Elige si lo recibes en Lima o en provincia y completa la dirección.",
+    2: "Déjanos tu nombre, WhatsApp y correo para confirmarte el pedido.",
+    3: "Elige cómo pagar y pulsa el botón. Pagas en Mercado Pago con Yape o tarjeta, sin crear cuenta.",
+};
+
+// Campos de cada paso (para volver al paso con error)
+const DESTINATION_FIELDS: CheckoutField[] = ["shippingMethod", "shippingZoneId", "address", "reference", "region", "city", "shalomAgency", "pickupDni"];
+const CONTACT_FIELDS: CheckoutField[] = ["customerName", "phone", "email"];
 
 export default function CheckoutForm({ zones }: { zones: Zone[] }) {
     const { items, subtotal, discount, total, isInitialized } = useCart();
@@ -53,12 +65,29 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
     const [serverError, setServerError] = useState("");
     const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("MERCADO_PAGO");
 
+    // Pago guiado: oscurece la página y resalta el paso actual
+    const [guided, setGuided] = useState(true);
+    const [step, setStep] = useState<GuideStep>(1);
+    const stepRefs = useRef<Record<GuideStep, HTMLElement | null>>({ 1: null, 2: null, 3: null });
+
+    const activateStep = (next: GuideStep) => {
+        if (!guided || next === step) return;
+        setStep(next);
+        clarityEvent(`guide_step_${next}`);
+    };
+
+    const goToStep = (next: GuideStep) => {
+        activateStep(next);
+        requestAnimationFrame(() => stepRefs.current[next]?.scrollIntoView({ behavior: "smooth", block: "start" }));
+    };
+
     // Una sola vez al entrar al checkout con productos en el carrito
     const checkoutTracked = useRef(false);
     useEffect(() => {
         if (!isInitialized || items.length === 0 || checkoutTracked.current) return;
         checkoutTracked.current = true;
         clarityEvent("checkout_start");
+        clarityEvent("guide_step_1");
         metaEvent("InitiateCheckout", {
             content_ids: items.map((i) => i.productId),
             content_type: "product",
@@ -88,6 +117,21 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
     const shipping = freeShipping ? 0 : zone?.price ?? flatRate ?? 0;
     const shippingKnown = freeShipping || Boolean(zone) || flatRate !== null;
     const missingForFree = isXmasActive() && !freeShipping ? FREE_SHIPPING_MIN - total : 0;
+
+    // ¿Está completo cada paso? (activa el botón "Continuar")
+    const destinationDone =
+        shippingMethod === "LIMA"
+            ? Boolean(form.shippingZoneId) && form.address.trim().length >= 5
+            : shippingMethod === "SHALOM"
+                ? Boolean(form.region) &&
+                form.city.trim().length >= 3 &&
+                form.shalomAgency.trim().length >= 3 &&
+                /^\d{8}$/.test(form.pickupDni.replace(/\D/g, ""))
+                : false;
+    const contactDone =
+        form.customerName.trim().length >= 3 &&
+        /^[\d\s+()-]{9,20}$/.test(form.phone.trim()) &&
+        /^\S+@\S+\.\S+$/.test(form.email.trim());
 
     const set = (field: keyof typeof form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         trackFormStarted();
@@ -145,7 +189,13 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
         }
         setErrors(next);
         const ok = Object.keys(next).length === 0;
-        if (!ok) scrollToFirstError();
+        if (!ok) {
+            // La guía vuelve al paso que tiene el error
+            const keys = Object.keys(next) as CheckoutField[];
+            if (keys.some((k) => DESTINATION_FIELDS.includes(k))) activateStep(1);
+            else if (keys.some((k) => CONTACT_FIELDS.includes(k))) activateStep(2);
+            scrollToFirstError();
+        }
         return ok;
     };
 
@@ -161,7 +211,7 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
                     : "Elige tu distrito";
     const grandTotal = total + (isProvince || !shippingMethod ? 0 : shipping);
 
-    const buttonLabel = isPending ? "Procesando…" : isCashOnDelivery ? "Registrar pedido" : "Continuar al pago";
+    const buttonLabel = isPending ? "Procesando…" : isCashOnDelivery ? "Registrar pedido" : "Pagar con Yape o tarjeta";
 
     const onSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -210,8 +260,13 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
 
     /* ── Formulario + resumen ── */
 
+    const asideActive = guided && step === 3;
+
     return (
         <form ref={formRef} onSubmit={onSubmit} noValidate className="mt-6 grid gap-8 font-urbanist sm:mt-10 lg:grid-cols-[1fr_400px] lg:gap-10">
+            {/* Pago guiado: capa oscura. Deja pasar los clics, así tocar otra sección la activa */}
+            {guided && <div aria-hidden className="pointer-events-none fixed inset-0 z-40 bg-black/70 transition-opacity duration-300" />}
+
             {/* Celular: resumen compacto arriba, para ver qué se compra y cuánto se paga antes de llenar datos */}
             <div className="rounded-2xl border border-white/10 bg-[#132219] p-4 lg:hidden">
                 <ul className="space-y-2">
@@ -238,138 +293,169 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
             </div>
 
             {/* Datos: primero el destino (define el envío y el total), luego los datos de contacto */}
-            <div className="space-y-8">
-                <fieldset className="space-y-4">
-                    <legend className="mb-2 font-heading text-lg font-bold text-white">¿Dónde recibes tu pedido?</legend>
+            <div className="space-y-4">
+                {/* ── Paso 1: destino ── */}
+                <GuideSection
+                    step={1}
+                    active={guided && step === 1}
+                    sectionRef={(el) => (stepRefs.current[1] = el)}
+                    onActivate={() => activateStep(1)}
+                    onHide={() => setGuided(false)}
+                    canContinue={destinationDone}
+                    onContinue={() => goToStep(2)}
+                >
+                    <fieldset className="space-y-4">
+                        <legend className="mb-2 font-heading text-lg font-bold text-white">¿Dónde recibes tu pedido?</legend>
 
-                    {/* Primero el destino: deja claro desde el inicio que se envía a todo el Perú */}
-                    <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Dónde recibes tu pedido" aria-invalid={Boolean(errors.shippingMethod)}>
-                        <ShippingOption
-                            selected={shippingMethod === "LIMA"}
-                            onSelect={() => chooseShipping("LIMA")}
-                            invalid={Boolean(errors.shippingMethod)}
-                            icon="🏙️"
-                            title="Lima y Callao"
-                            text={isXmasActive() ? `Delivery a domicilio · gratis desde ${formatPEN(FREE_SHIPPING_MIN)} 🎄` : "Delivery a domicilio"}
-                        />
-                        <ShippingOption
-                            selected={isProvince}
-                            onSelect={() => chooseShipping("SHALOM")}
-                            invalid={Boolean(errors.shippingMethod)}
-                            icon="📦"
-                            title="Provincia"
-                            text="Envíos a todo el Perú por Shalom"
-                        />
-                    </div>
-                    {errors.shippingMethod && <p className="-mt-2 text-xs text-red-300">{errors.shippingMethod}</p>}
+                        {/* Primero el destino: deja claro desde el inicio que se envía a todo el Perú */}
+                        <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Dónde recibes tu pedido" aria-invalid={Boolean(errors.shippingMethod)}>
+                            <ShippingOption
+                                selected={shippingMethod === "LIMA"}
+                                onSelect={() => chooseShipping("LIMA")}
+                                invalid={Boolean(errors.shippingMethod)}
+                                title="Lima y Callao"
+                                text={isXmasActive() ? `Delivery a domicilio · gratis desde ${formatPEN(FREE_SHIPPING_MIN)} 🎄` : "Delivery a domicilio"}
+                            />
+                            <ShippingOption
+                                selected={isProvince}
+                                onSelect={() => chooseShipping("SHALOM")}
+                                invalid={Boolean(errors.shippingMethod)}
+                                title="Provincia"
+                                text="Envíos a todo el Perú por Shalom"
+                            />
+                        </div>
+                        {errors.shippingMethod && <p className="-mt-2 text-xs text-red-300">{errors.shippingMethod}</p>}
 
-                    {/* Lima y Callao: distrito + dirección */}
-                    {shippingMethod === "LIMA" && (
-                        <>
-                            <Field label="Distrito" error={errors.shippingZoneId}>
-                                <select className={cnInput(errors.shippingZoneId)} aria-invalid={Boolean(errors.shippingZoneId)} value={form.shippingZoneId} onChange={set("shippingZoneId")}>
-                                    <option value="">Elige tu distrito</option>
-                                    {zones.map((z) => (
-                                        <option key={z.id} value={z.id}>
-                                            {flatRate !== null ? z.district : `${z.district} — ${formatPEN(z.price)}`}
-                                        </option>
-                                    ))}
-                                </select>
-                            </Field>
-                            {freeShipping && (
-                                <p className="-mt-2 text-sm text-[#BCC90F]">🎄 Delivery gratis a todo Lima y Callao por Navidad</p>
-                            )}
-                            {!freeShipping && flatRate !== null && (
-                                <p className="-mt-2 text-sm text-[#BCC90F]">Delivery a todo Lima y Callao: {formatPEN(flatRate)}</p>
-                            )}
-                            {missingForFree > 0 && (
-                                <p className="-mt-2 text-xs text-white/60">
-                                    Te faltan {formatPEN(missingForFree)} para el delivery gratis de Navidad (desde {formatPEN(FREE_SHIPPING_MIN)}).
-                                </p>
-                            )}
-                            <Field label="Dirección" error={errors.address}>
-                                <input className={cnInput(errors.address)} aria-invalid={Boolean(errors.address)} value={form.address} onChange={set("address")} autoComplete="street-address" />
-                            </Field>
-                            <Field label="Referencia (opcional)" error={errors.reference}>
-                                <input className={cnInput(errors.reference)} aria-invalid={Boolean(errors.reference)} value={form.reference} onChange={set("reference")} placeholder="Ej. Frente al parque" />
-                            </Field>
-                        </>
-                    )}
-
-                    {/* Provincia: recojo en agencia Shalom (el flete se paga al recoger, nunca decimos "gratis") */}
-                    {isProvince && (
-                        <>
-                            <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm leading-relaxed text-white/75">
-                                <p className="font-semibold text-white">¿Cómo funciona el envío a provincia?</p>
-                                <ol className="mt-2 list-decimal space-y-1 pl-5">
-                                    <li>Pagas tu café aquí con Mercado Pago.</li>
-                                    <li>Llevamos tu pedido a Shalom en 24 a 48 horas hábiles, <strong className="text-white">sin costo para ti</strong>.</li>
-                                    <li>
-                                        Lo recoges en la agencia Shalom que elijas y ahí <strong className="text-white">pagas el flete de Shalom</strong> (según tu destino).
-                                    </li>
-                                </ol>
-                                <p className="mt-2 text-xs text-white/50">El tiempo de traslado hasta tu ciudad depende de Shalom.</p>
-                            </div>
-
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <Field label="Departamento" error={errors.region}>
-                                    <select className={cnInput(errors.region)} aria-invalid={Boolean(errors.region)} value={form.region} onChange={set("region")}>
-                                        <option value="">Elige tu departamento</option>
-                                        {PERU_REGIONS.map((r) => (
-                                            <option key={r} value={r}>
-                                                {r}
+                        {/* Lima y Callao: distrito + dirección */}
+                        {shippingMethod === "LIMA" && (
+                            <>
+                                <Field label="Distrito" error={errors.shippingZoneId}>
+                                    <select className={cnInput(errors.shippingZoneId)} aria-invalid={Boolean(errors.shippingZoneId)} value={form.shippingZoneId} onChange={set("shippingZoneId")}>
+                                        <option value="">Elige tu distrito</option>
+                                        {zones.map((z) => (
+                                            <option key={z.id} value={z.id}>
+                                                {flatRate !== null ? z.district : `${z.district} — ${formatPEN(z.price)}`}
                                             </option>
                                         ))}
                                     </select>
                                 </Field>
-                                <Field label="Ciudad / provincia" error={errors.city}>
-                                    <input className={cnInput(errors.city)} aria-invalid={Boolean(errors.city)} value={form.city} onChange={set("city")} placeholder="Ej. Piura" />
+                                {freeShipping && (
+                                    <p className="-mt-2 text-sm text-[#BCC90F]">🎄 Delivery gratis a todo Lima y Callao por Navidad</p>
+                                )}
+                                {!freeShipping && flatRate !== null && (
+                                    <p className="-mt-2 text-sm text-[#BCC90F]">Delivery a todo Lima y Callao: {formatPEN(flatRate)}</p>
+                                )}
+                                {missingForFree > 0 && (
+                                    <p className="-mt-2 text-xs text-white/60">
+                                        Te faltan {formatPEN(missingForFree)} para el delivery gratis de Navidad (desde {formatPEN(FREE_SHIPPING_MIN)}).
+                                    </p>
+                                )}
+                                <Field label="Dirección" error={errors.address}>
+                                    <input className={cnInput(errors.address)} aria-invalid={Boolean(errors.address)} value={form.address} onChange={set("address")} autoComplete="street-address" />
                                 </Field>
-                            </div>
-                            <Field label="Agencia Shalom donde recogerás" error={errors.shalomAgency}>
-                                <input
-                                    className={cnInput(errors.shalomAgency)}
-                                    aria-invalid={Boolean(errors.shalomAgency)}
-                                    value={form.shalomAgency}
-                                    onChange={set("shalomAgency")}
-                                    placeholder="Ej. Shalom Piura – Av. Sánchez Cerro"
-                                />
-                            </Field>
-                            <p className="-mt-2 text-xs text-white/50">Puedes ver las agencias cercanas en la app o web de Shalom.</p>
-                            <Field label="DNI de quien recoge" error={errors.pickupDni}>
-                                <input
-                                    className={cnInput(errors.pickupDni)}
-                                    aria-invalid={Boolean(errors.pickupDni)}
-                                    value={form.pickupDni}
-                                    onChange={set("pickupDni")}
-                                    inputMode="numeric"
-                                    maxLength={8}
-                                    placeholder="8 dígitos"
-                                />
-                            </Field>
-                            <p className="-mt-2 text-xs text-white/50">Shalom pide el DNI para entregar el paquete. El nombre de abajo debe ser el de esa persona.</p>
-                        </>
-                    )}
-                </fieldset>
+                                <Field label="Referencia (opcional)" error={errors.reference}>
+                                    <input className={cnInput(errors.reference)} aria-invalid={Boolean(errors.reference)} value={form.reference} onChange={set("reference")} placeholder="Ej. Frente al parque" />
+                                </Field>
+                            </>
+                        )}
 
-                <fieldset className="space-y-4">
-                    <legend className="mb-2 font-heading text-lg font-bold text-white">Tus datos</legend>
-                    <Field label="Nombre completo" error={errors.customerName}>
-                        <input className={cnInput(errors.customerName)} aria-invalid={Boolean(errors.customerName)} value={form.customerName} onChange={set("customerName")} autoComplete="name" />
-                    </Field>
-                    <div className="grid gap-4 sm:grid-cols-2">
-                        <Field label="Teléfono (WhatsApp)" error={errors.phone}>
-                            <input type="tel" className={cnInput(errors.phone)} aria-invalid={Boolean(errors.phone)} value={form.phone} onChange={set("phone")} autoComplete="tel" placeholder="999 999 999" />
+                        {/* Provincia: recojo en agencia Shalom (el flete se paga al recoger, nunca decimos "gratis") */}
+                        {isProvince && (
+                            <>
+                                <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm leading-relaxed text-white/75">
+                                    <p className="font-semibold text-white">¿Cómo funciona el envío a provincia?</p>
+                                    <ol className="mt-2 list-decimal space-y-1 pl-5">
+                                        <li>Pagas tu café aquí con Mercado Pago.</li>
+                                        <li>Llevamos tu pedido a Shalom en 24 a 48 horas hábiles, <strong className="text-white">sin costo para ti</strong>.</li>
+                                        <li>
+                                            Lo recoges en la agencia Shalom que elijas y ahí <strong className="text-white">pagas el flete de Shalom</strong> (según tu destino).
+                                        </li>
+                                    </ol>
+                                    <p className="mt-2 text-xs text-white/50">El tiempo de traslado hasta tu ciudad depende de Shalom.</p>
+                                </div>
+
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <Field label="Departamento" error={errors.region}>
+                                        <select className={cnInput(errors.region)} aria-invalid={Boolean(errors.region)} value={form.region} onChange={set("region")}>
+                                            <option value="">Elige tu departamento</option>
+                                            {PERU_REGIONS.map((r) => (
+                                                <option key={r} value={r}>
+                                                    {r}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    </Field>
+                                    <Field label="Ciudad / provincia" error={errors.city}>
+                                        <input className={cnInput(errors.city)} aria-invalid={Boolean(errors.city)} value={form.city} onChange={set("city")} placeholder="Ej. Piura" />
+                                    </Field>
+                                </div>
+                                <Field label="Agencia Shalom donde recogerás" error={errors.shalomAgency}>
+                                    <input
+                                        className={cnInput(errors.shalomAgency)}
+                                        aria-invalid={Boolean(errors.shalomAgency)}
+                                        value={form.shalomAgency}
+                                        onChange={set("shalomAgency")}
+                                        placeholder="Ej. Shalom Piura – Av. Sánchez Cerro"
+                                    />
+                                </Field>
+                                <p className="-mt-2 text-xs text-white/50">Puedes ver las agencias cercanas en la app o web de Shalom.</p>
+                                <Field label="DNI de quien recoge" error={errors.pickupDni}>
+                                    <input
+                                        className={cnInput(errors.pickupDni)}
+                                        aria-invalid={Boolean(errors.pickupDni)}
+                                        value={form.pickupDni}
+                                        onChange={set("pickupDni")}
+                                        inputMode="numeric"
+                                        maxLength={8}
+                                        placeholder="8 dígitos"
+                                    />
+                                </Field>
+                                <p className="-mt-2 text-xs text-white/50">Shalom pide el DNI para entregar el paquete. El nombre de abajo debe ser el de esa persona.</p>
+                            </>
+                        )}
+                    </fieldset>
+                </GuideSection>
+
+                {/* ── Paso 2: datos de contacto ── */}
+                <GuideSection
+                    step={2}
+                    active={guided && step === 2}
+                    sectionRef={(el) => (stepRefs.current[2] = el)}
+                    onActivate={() => activateStep(2)}
+                    onHide={() => setGuided(false)}
+                    canContinue={contactDone}
+                    onContinue={() => goToStep(3)}
+                >
+                    <fieldset className="space-y-4">
+                        <legend className="mb-2 font-heading text-lg font-bold text-white">Tus datos</legend>
+                        <Field label="Nombre completo" error={errors.customerName}>
+                            <input className={cnInput(errors.customerName)} aria-invalid={Boolean(errors.customerName)} value={form.customerName} onChange={set("customerName")} autoComplete="name" />
                         </Field>
-                        <Field label="Correo (para tu confirmación)" error={errors.email}>
-                            <input type="email" className={cnInput(errors.email)} aria-invalid={Boolean(errors.email)} value={form.email} onChange={set("email")} autoComplete="email" />
-                        </Field>
-                    </div>
-                </fieldset>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <Field label="Teléfono (WhatsApp)" error={errors.phone}>
+                                <input type="tel" className={cnInput(errors.phone)} aria-invalid={Boolean(errors.phone)} value={form.phone} onChange={set("phone")} autoComplete="tel" placeholder="999 999 999" />
+                            </Field>
+                            <Field label="Correo (para tu confirmación)" error={errors.email}>
+                                <input type="email" className={cnInput(errors.email)} aria-invalid={Boolean(errors.email)} value={form.email} onChange={set("email")} autoComplete="email" />
+                            </Field>
+                        </div>
+                    </fieldset>
+                </GuideSection>
             </div>
 
-            {/* Resumen */}
-            <aside className="h-fit space-y-5 rounded-3xl border border-white/10 bg-[#132219] p-6 lg:sticky lg:top-8">
+            {/* ── Paso 3: resumen y pago ── */}
+            <aside
+                ref={(el) => {
+                    stepRefs.current[3] = el;
+                }}
+                onFocusCapture={() => activateStep(3)}
+                onPointerDownCapture={() => activateStep(3)}
+                className={`h-fit scroll-mt-6 space-y-5 rounded-3xl border bg-[#132219] p-6 transition-[border-color,box-shadow] duration-300 lg:sticky lg:top-8 ${
+                    asideActive ? "relative z-50 border-[#BCC90F] shadow-[0_0_0_4px_rgba(188,201,15,0.15)]" : "border-white/10"
+                }`}
+            >
+                {asideActive && <GuideBadge step={3} onHide={() => setGuided(false)} />}
+
                 <h2 className="font-heading text-lg font-bold text-white">Tu pedido</h2>
 
                 <ul className="space-y-3">
@@ -500,6 +586,71 @@ export default function CheckoutForm({ zones }: { zones: Zone[] }) {
 
 const cnInput = (error?: string) => `${INPUT} ${error ? "border-red-400" : "border-white/10"}`;
 
+/** Etiqueta del paso activo de la guía, con la opción de ocultarla */
+function GuideBadge({ step, onHide }: { step: GuideStep; onHide: () => void }) {
+    return (
+        <div className="flex items-start justify-between gap-3">
+            <div>
+                <span className="inline-block rounded-full bg-[#BCC90F] px-2.5 py-0.5 text-xs font-bold text-[#132219]">Paso {step} de 3</span>
+                <p className="mt-2 text-sm text-white/80">{GUIDE_HINTS[step]}</p>
+            </div>
+            <button
+                type="button"
+                onClick={onHide}
+                className="shrink-0 cursor-pointer text-xs text-white/50 underline underline-offset-2 hover:text-white"
+            >
+                Ocultar guía
+            </button>
+        </div>
+    );
+}
+
+/** Sección del formulario que se ilumina cuando es el paso activo de la guía */
+function GuideSection({
+                          step,
+                          active,
+                          sectionRef,
+                          onActivate,
+                          onHide,
+                          canContinue,
+                          onContinue,
+                          children,
+                      }: {
+    step: GuideStep;
+    active: boolean;
+    sectionRef: (el: HTMLElement | null) => void;
+    onActivate: () => void;
+    onHide: () => void;
+    canContinue: boolean;
+    onContinue: () => void;
+    children: React.ReactNode;
+}) {
+    return (
+        <section
+            ref={sectionRef}
+            // Tocar o enfocar cualquier parte de la sección la convierte en el paso activo
+            onFocusCapture={onActivate}
+            onPointerDownCapture={onActivate}
+            className={`relative scroll-mt-6 space-y-4 rounded-3xl border p-4 transition-[border-color,background-color,box-shadow] duration-300 sm:p-5 ${
+                active ? "z-50 border-[#BCC90F] bg-[#0f1a13] shadow-[0_0_0_4px_rgba(188,201,15,0.15)]" : "border-transparent"
+            }`}
+        >
+            {active && <GuideBadge step={step} onHide={onHide} />}
+            {children}
+            {active && (
+                <button
+                    type="button"
+                    onClick={onContinue}
+                    disabled={!canContinue}
+                    className="w-full cursor-pointer rounded-full bg-[#BCC90F] py-3 text-base font-bold text-[#132219] transition-opacity disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                    Continuar
+                </button>
+            )}
+        </section>
+    );
+}
+
 function Field({ label, error, children }: { label: string; error?: string; children: React.ReactNode }) {
     return (
         <label className="block">
@@ -514,14 +665,12 @@ function ShippingOption({
                             selected,
                             onSelect,
                             invalid,
-                            icon,
                             title,
                             text,
                         }: {
     selected: boolean;
     onSelect: () => void;
     invalid: boolean;
-    icon: string;
     title: string;
     text: string;
 }) {
