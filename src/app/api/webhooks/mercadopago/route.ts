@@ -4,6 +4,7 @@ import { Payment } from "mercadopago";
 import { prisma } from "@/lib/prisma";
 import { mp } from "@/lib/mercadopago";
 import { sendOrderPaidEmails } from "@/lib/email";
+import { sendPurchaseToMeta } from "@/lib/metaCapi";
 
 /** Verifica que el aviso viene de Mercado Pago (cabecera x-signature). */
 function isValidSignature(req: Request, dataId: string): boolean {
@@ -80,6 +81,12 @@ export async function POST(req: Request) {
                 after(() =>
                     sendOrderPaidEmails(orderId).catch((error) =>
                         console.error("Error enviando correos del pedido", error)
+                    )
+                );
+                // Compra a Meta desde el servidor (no depende de que el cliente vuelva a la web)
+                after(() =>
+                    sendPurchaseToMeta(orderId).catch((error) =>
+                        console.error("Error enviando compra a Meta (CAPI)", error)
                     )
                 );
             }
