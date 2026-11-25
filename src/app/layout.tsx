@@ -77,7 +77,7 @@ export const metadata: Metadata = {
         type: "website",
         locale: "es_PE",
         url: siteUrl,
-        title: "Sayni | Café de Especialidad Peruano de Cusco",
+        title: "Sayni | Café Peruano con Propósito",
         description:
             "Una pausa que nace de nuestra tierra. Café de especialidad con 87 puntos SCA directo de Cusco.",
         siteName: "Sayni Café",
@@ -92,7 +92,7 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: "summary_large_image",
-        title: "Sayni | Café de Especialidad Peruano de Cusco",
+        title: "Sayni | Café Peruano con Propósito",
         description:
             "Una pausa que nace de nuestra tierra. Café de especialidad con 87 puntos SCA directo de Cusco.",
         images: ["/assets/brand/logo.webp"],
