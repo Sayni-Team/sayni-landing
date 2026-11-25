@@ -37,7 +37,7 @@ const siteUrl = "https://sayni.pe"; // Cambia por tu dominio real
 export const metadata: Metadata = {
     metadataBase: new URL(siteUrl),
     title: {
-        default: "Sayni | Café de Especialidad Peruano de Cusco (87 Puntos SCA)",
+        default: "Sayni | Café Peruano con Propósito",
         template: "%s | Sayni Café",
     },
     description:
